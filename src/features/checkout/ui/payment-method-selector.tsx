@@ -1,6 +1,6 @@
 import { Tab } from '../../../shared/ui/tabs/tab'
 import { Tabs } from '../../../shared/ui/tabs/tabs'
-import type { PaymentMethod } from '../../../entities/payment-method/models/types'
+import type { PaymentMethod } from '../../../entities/payment-method/model/types'
 import type { CheckoutFormSchema } from '../model/schema'
 import { useFormContext, useWatch } from 'react-hook-form'
 

@@ -1,4 +1,4 @@
-import type { PaymentMethod } from '../../../entities/payment-method/models/types'
+import type { PaymentMethod } from '../../../entities/payment-method/model/types'
 import type { IPlan } from '../../../entities/plan/model/types'
 
 export interface ICheckoutFormValues {

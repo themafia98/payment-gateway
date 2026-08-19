@@ -1,7 +1,7 @@
 import type { CheckoutFormSchema } from './schema'
 
 export const formDefaultValues: CheckoutFormSchema = {
-  planId: '',
+  planId: '1id',
   paymentMethod: 'Card',
   card: {
     number: null,

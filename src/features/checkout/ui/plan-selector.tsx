@@ -2,19 +2,28 @@ import { useCallback, useMemo } from 'react'
 import type { IPlan } from '../../../entities/plan/model/types'
 import { PlanCard } from '../../../entities/plan/ui/plan-card'
 import { Label } from '../../../shared/ui/text/label'
+import type { CheckoutFormSchema } from '../model/schema'
+import { useFormContext, useWatch } from 'react-hook-form'
+
+type PlanId = IPlan['id']
 
 interface IProps {
   plans: IPlan[]
-  selectedPlanId?: IPlan['id']
-  onChange: (id: IPlan['id']) => void
 }
 
-export const PlanSelector = ({ plans, selectedPlanId, onChange }: IProps) => {
-  const handleChange = useCallback(
-    (id: IPlan['id']) => () => {
-      onChange(id)
+export const PlanSelector = ({ plans }: IProps) => {
+  const { setValue, control } = useFormContext<CheckoutFormSchema>()
+
+  const activePlanId = useWatch({
+    control,
+    name: 'planId',
+  })
+
+  const handleSwitch = useCallback(
+    (id: PlanId) => () => {
+      setValue('planId', id)
     },
-    [onChange],
+    [setValue],
   )
 
   const planList = useMemo(
@@ -23,11 +32,11 @@ export const PlanSelector = ({ plans, selectedPlanId, onChange }: IProps) => {
         <PlanCard
           key={plan.id}
           plan={plan}
-          selected={plan.id === selectedPlanId}
-          onSelect={handleChange(plan.id)}
+          selected={plan.id === activePlanId}
+          onSelect={handleSwitch(plan.id)}
         />
       )),
-    [plans, selectedPlanId, handleChange],
+    [plans, activePlanId, handleSwitch],
   )
 
   return (

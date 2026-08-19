@@ -4,6 +4,18 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import './index.css'
 import { routeTree } from './routeTree.gen'
 
+async function enableMocking() {
+  if (!import.meta.env.DEV || import.meta.env.VITE_ENABLE_MSW !== 'true') {
+    return
+  }
+
+  const { worker } = await import('./mocks/browser')
+
+  return worker.start({
+    onUnhandledRequest: 'bypass',
+  })
+}
+
 const router = createRouter({
   routeTree,
   basepath: import.meta.env.BASE_URL.replace(/\/$/, '') || '/',
@@ -17,8 +29,10 @@ declare module '@tanstack/react-router' {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-)
+enableMocking().then(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>,
+  )
+})

@@ -1,0 +1,145 @@
+<div data-name="Card" className="flex p-[41.64781951904297px] flex-col gap-[62px] w-[822px] h-[1737.19580078125px] bg-[#00000033] backdrop-blur-[20.899999618530273px] border-2 border-[#F6F6F64D] border-solid rounded-[34px]">
+  <div data-name="Choose plan" className="flex flex-col gap-[27.765213012695312px] w-[738.704345703125px] h-[260.1217041015625px]">
+    <p data-name="Choose your plan" className="w-[738.704345703125px] h-[38px] text-[31.235864639282227px] text-[#B0B0B0]">Choose your plan</p>
+    <div data-name="input-group" className="flex flex-col gap-[13.882606506347656px] w-[738.704345703125px] h-[194.3564910888672px]">
+      <div data-name="Yearly" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[738.704345703125px] h-[90.2369384765625px] border-[1.735325813293457px] border-[#F6F6F6] border-solid rounded-[13.882606506347656px]">
+        <div data-name="Title" className="flex items-center gap-[20.823909759521484px] w-[150.00106811523438px]">
+          <div data-name="check-icon" className="overflow-hidden w-[38.17716598510742px] h-[38.17716598510742px] bg-white rounded-[86.76628112792969px]">
+            <div data-name="Vector" className="w-[19.450912475585938px] h-[15.477283477783203px] bg-black" />
+          </div>
+          <p data-name="Yearly" className="w-[91px] h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">Yearly</p>
+        </div>
+        <div data-name="price" className="flex items-center gap-[20.823909759521484px] w-[255.58912658691406px]">
+          <div data-name="discount" className="flex py-[3.470651626586914px] px-[13.882606506347656px] justify-center items-center w-[85.76521301269531px] bg-[#DAD2FF] rounded-[95.44292449951172px]">
+            <p data-name="-16%" className="w-[58px] h-[29px] text-[24.2945613861084px] text-[#2C076E]">-16%</p>
+          </div>
+          <p data-name="$120/year" className="w-[149px] h-[38px] text-[31.235864639282227px] text-[#B0B0B0]">$120/year</p>
+        </div>
+      </div>
+      <div data-name="Monthly" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[272.4461669921875px] w-[738.704345703125px] h-[90.2369384765625px] border-[1.735325813293457px] border-[#4F4F4F] border-solid rounded-[13.882606506347656px]">
+        <div data-name="Title" className="flex items-center gap-[20.823909759521484px] w-[179.00106811523438px]">
+          <div data-name="non-check" className="w-[38.17716598510742px] h-[38.17716598510742px] border-[2.6029887199401855px] border-[#B0B0B0] border-solid" />
+          <p data-name="Monthly" className="w-30 h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">Monthly</p>
+        </div>
+        <p data-name="$12/month" className="w-[159px] h-[38px] text-[31.235864639282227px] text-[#B0B0B0]">$12/month</p>
+      </div>
+    </div>
+  </div>
+  <div data-name="Card section" className="flex flex-col gap-[42px] w-[738.704345703125px] h-[787.5393676757812px]">
+    <div data-name="Card or bank" className="flex p-2 w-[738.704345703125px] h-[103.5307388305664px] bg-[#3D3D3D] rounded-[14.280101776123047px]">
+      <div data-name="Yearly" className="flex overflow-hidden py-0 px-[27.765213012695312px] justify-center items-center gap-[10.710076332092285px] w-[361.3521728515625px] h-[87.5307388305664px] bg-[#4F4F4F] shadow-[0px_0px_7.099999904632568px_8px_rgba(65,65,65,0.07)] grow rounded-[14.280101776123047px]">
+        <div data-name="ion:card" className="overflow-hidden w-10 h-10">
+          <div data-name="Vector" className="w-[35px] h-[27.5px] bg-[#E7E7E7]" />
+        </div>
+        <p data-name="Card" className="w-[71px] h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">Card</p>
+      </div>
+      <div data-name="Yearly" className="flex py-0 px-[27.765213012695312px] justify-center items-center gap-[10.710076332092285px] w-[361.3521728515625px] h-[87.5307388305664px] grow rounded-[13.882606506347656px]">
+        <div data-name="numbers" className="flex items-center gap-[13.882606506347656px] w-[258.8825988769531px]">
+          <div data-name="fluent:building-bank-28-regular" className="overflow-hidden w-10 h-10">
+            <div data-name="Vector" className="w-[31.433961868286133px] h-[32.13937759399414px] bg-[#888888]" />
+          </div>
+          <p data-name="Bank Transfer" className="w-[205px] h-[38px] text-[31.235864639282227px] text-[#888888]">Bank Transfer</p>
+        </div>
+      </div>
+    </div>
+    <div data-name="Credit card details" className="flex flex-col gap-[27.765213012695312px] w-[738.704345703125px] h-[339.88690185546875px]">
+      <p data-name="Credit card details" className="w-[738.704345703125px] h-[38px] text-[31.235864639282227px] text-[#B0B0B0]">Credit card details</p>
+      <div data-name="input-group" className="flex flex-col gap-[13.882606506347656px] w-[738.704345703125px] h-[194.3564910888672px]">
+        <div data-name="card number" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[738.704345703125px] h-[90.2369384765625px] bg-[#3D3D3D] rounded-[13.882606506347656px]">
+          <div data-name="numbers" className="flex items-center gap-[6.941303253173828px] w-[336.82391357421875px]">
+            <p data-name="0000" className="w-[79px] h-[38px] text-[31.235864639282227px] text-[#888888]">0000</p>
+            <p data-name="0000" className="w-[79px] h-[38px] text-[31.235864639282227px] text-[#888888]">0000</p>
+            <p data-name="0000" className="w-[79px] h-[38px] text-[31.235864639282227px] text-[#888888]">0000</p>
+            <p data-name="0000" className="w-[79px] h-[38px] text-[31.235864639282227px] text-[#888888]">0000</p>
+          </div>
+          <div data-name="card option" className="flex items-center gap-[3.470651626586914px] w-[253.35757446289062px]">
+            <div data-name="visa" className="flex py-[3.470651626586914px] px-[6.941303253173828px] justify-center items-center w-[60.73640060424805px] h-[41.6478157043457px] bg-white rounded-[3.470651626586914px]">
+              <div data-name="visa-logo" className="w-[46.85379409790039px] h-[20.82390785217285px]" />
+            </div>
+            <div data-name="mastercard" className="flex py-[3.470651626586914px] px-[13.882606506347656px] justify-center items-center w-[60.73640060424805px] h-[41.6478157043457px] bg-black rounded-[3.470651626586914px]">
+              <div data-name="Mastercard-Logo" className="w-[37.26383590698242px] h-[20.82390785217285px]" />
+            </div>
+            <div data-name="american express" className="flex justify-end items-center w-[60.73640060424805px] h-[41.6478157043457px] bg-[#006FCF] rounded-[3.470651626586914px]">
+              <div data-name="amex-logo-transparent-bg" className="w-[32.97119140625px] h-[32.97119140625px]" />
+            </div>
+            <div data-name="unionpay" className="flex justify-center items-center w-[60.73640060424805px] h-[41.6478157043457px] bg-white rounded-[3.470651626586914px]">
+              <div data-name="unionpay-logo-vector-01" className="w-[46.85379409790039px] h-[31.235862731933594px]" />
+            </div>
+          </div>
+        </div>
+        <div data-name="expired date" className="flex gap-[13.882606506347656px] w-[738.704345703125px]">
+          <div data-name="Month and Years" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[362.4108581542969px] h-[90.2369384765625px] bg-[#3D3D3D] grow rounded-[13.882606506347656px]">
+            <div data-name="date" className="flex items-center gap-[13.882606506347656px] w-[179.7652130126953px]">
+              <p data-name="MM" className="w-14 h-[38px] text-[31.235864639282227px] text-[#888888]">MM</p>
+              <p data-name="/" className="w-3 h-[38px] text-[31.235864639282227px] text-[#888888]">/</p>
+              <p data-name="YYYY" className="w-21 h-[38px] text-[31.235864639282227px] text-[#888888]">YYYY</p>
+            </div>
+            <div data-name="icon" className="overflow-hidden w-[38.17716598510742px] h-[38.17716598510742px]">
+              <div data-name="Group" className="w-[31.814306259155273px] h-[31.018945693969727px]">
+                <div data-name="Vector" className="w-[31.814306259155273px] h-[28.632875442504883px] border-[2.386073112487793px] border-[#888888] border-solid" />
+                <div data-name="Vector" className="w-[15.907153129577637px] h-[2.386072874069214px] border-[2.386073112487793px] border-[#888888] border-solid" />
+                <div data-name="Vector" className="w-[2.386072874069214px] h-[6.362861156463623px] border-[2.386073112487793px] border-[#888888] border-solid" />
+                <div data-name="Vector" className="w-[30.22359275817871px] h-[12.725722312927246px] border-[2.386073112487793px] border-[#888888] border-solid" />
+              </div>
+            </div>
+          </div>
+          <div data-name="CVC" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[362.4108581542969px] h-[90.2369384765625px] bg-[#3D3D3D] grow rounded-[13.882606506347656px]">
+            <p data-name="CVC" className="w-[66px] h-[38px] text-[31.235864639282227px] text-[#888888]">CVC</p>
+            <div data-name="tdesign:secured" className="overflow-hidden w-[38.18000030517578px] h-[38.18000030517578px]">
+              <div data-name="Vector" className="w-[31.816669464111328px] h-[36.780067443847656px] bg-[#888888]" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <p data-name="By providing your card information, you allow us to charge your card for future payments in accordance with their terms." className="w-[738.704345703125px] h-13 text-[19.635141372680664px] text-[#B0B0B0]">By providing your card information, you allow us to charge your card for future payments in accordance with their terms.</p>
+    </div>
+    <div data-name="billing address" className="flex flex-col gap-[27.765213012695312px] w-[738.704345703125px] h-[260.1217041015625px]">
+      <p data-name="Billing address" className="w-[738.704345703125px] h-[38px] text-[31.235864639282227px] text-[#B0B0B0]">Billing address</p>
+      <div data-name="input-group" className="flex flex-col gap-[13.882606506347656px] w-[738.704345703125px] h-[194.35647583007812px]">
+        <div data-name="Country" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[738.704345703125px] h-[90.2369384765625px] bg-[#3D3D3D] rounded-[13.882606506347656px]">
+          <p data-name="Indonesia" className="w-[143px] h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">Indonesia</p>
+          <div data-name="icon" className="overflow-hidden w-[38.17716598510742px] h-[38.17716598510742px]">
+            <div data-name="Group" className="w-[38.17716598510742px] h-[38.17716598510742px]">
+              <div data-name="Vector" className="w-[38.17716598510742px] h-[38.17716598510742px]" />
+              <div data-name="Vector" className="w-[21.178781509399414px] h-[12.19931411743164px] bg-[#888888]" />
+            </div>
+          </div>
+        </div>
+        <div data-name="postal code" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[738.704345703125px] h-[90.2369384765625px] bg-[#3D3D3D] rounded-[13.882606506347656px]">
+          <p data-name="Postal code" className="w-[174px] h-[38px] text-[31.235864639282227px] text-[#888888]">Postal code</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div data-name="Discount code" className="flex flex-col gap-[27.765213012695312px] w-[738.704345703125px] h-[156.0021514892578px] rounded-[13.880000114440918px]">
+    <div data-name="Title" className="flex justify-between items-center gap-7 w-[738.704345703125px]">
+      <p data-name="Discount code" className="w-[213px] h-[38px] text-[31.235864639282227px] text-[#B0B0B0]">Discount code</p>
+      <p data-name="cancel" className="w-[75px] h-[29px] text-2xl text-[#B0B0B0]">cancel</p>
+    </div>
+    <div data-name="input" className="flex py-0 px-[27.765213012695312px] justify-between items-center gap-[197.82713317871094px] w-[738.704345703125px] h-[90.2369384765625px] bg-[#2C076E] border-[1.735325813293457px] border-[#5912C5] border-solid rounded-[13.882606506347656px]">
+      <p data-name="NEWMEMBER" className="w-[206px] h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">NEWMEMBER</p>
+      <div data-name="icon" className="overflow-hidden w-[38.17716598510742px] h-[38.17716598510742px] bg-[#A280FF] rounded-[86.76628112792969px]">
+        <div data-name="Vector" className="w-[19.450912475585938px] h-[15.477283477783203px] bg-[#2C076E]" />
+      </div>
+    </div>
+  </div>
+  <div data-name="CTA" className="flex flex-col gap-[42px] w-[738.704345703125px] h-[264.2369384765625px]">
+    <div data-name="Details billing" className="flex flex-col gap-4 w-[738.704345703125px] h-33">
+      <div data-name="details" className="flex justify-between gap-[62px] w-[738.704345703125px]">
+        <p data-name="Price" className="w-[63px] h-[31px] text-[26px] text-[#B0B0B0]">Price</p>
+        <p data-name="$144" className="w-[63px] h-[31px] text-[26px] text-[#B0B0B0]">$144</p>
+      </div>
+      <div data-name="details" className="flex justify-between gap-[62px] w-[738.704345703125px]">
+        <p data-name="Discount" className="w-[109px] h-[31px] text-[26px] text-[#B0B0B0]">Discount</p>
+        <p data-name="-$24" className="w-[61px] h-[31px] text-[26px] text-[#B0B0B0]">-$24</p>
+      </div>
+      <div data-name="details" className="flex justify-between gap-[62px] w-[738.704345703125px]">
+        <p data-name="Total due" className="w-[138px] h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">Total due</p>
+        <p data-name="$120" className="w-[73px] h-[38px] text-[31.235864639282227px] text-[#E9E9E9]">$120</p>
+      </div>
+    </div>
+    <div data-name="Button" className="flex py-0 px-[27.765213012695312px] justify-center items-center gap-[197.82713317871094px] w-[738.704345703125px] h-[90.2369384765625px] shadow-[inset_5.205977439880371px_6.941303253173828px_36.61537551879883px_rgba(255,255,255,0.25)] rounded-[13.882606506347656px]">
+      <p data-name="Upgrade to Premium" className="w-77 h-[38px] text-[31.235864639282227px] font-medium text-[#E9E9E9]">Upgrade to Premium</p>
+    </div>
+  </div>
+</div>

@@ -6,7 +6,7 @@ interface IProps {
   invoice: Invoice
 }
 
-export const DetailsBilling = ({ invoice }: IProps) => {
+export const CheckoutDetails = ({ invoice }: IProps) => {
   return (
     <Details>
       <Item name="Price" value={`${invoice.currency}${invoice.subtotal}`} />

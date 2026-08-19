@@ -13,11 +13,17 @@ export const CreditCardDetails = () => {
 
       <div className="flex flex-col gap-2">
         <div className="flex">
-          <Input placeholder="MM / YYYYY" maxLength={7} {...register('card.exp')} />
+          <Input
+            autoComplete="cc-exp"
+            placeholder="MM / YYYY"
+            maxLength={7}
+            {...register('card.exp')}
+          />
         </div>
         <div className="flex gap-2 pb-2 flex-wrap">
           <Input
             type="text"
+            autoComplete="cc-number"
             pattern="\d*"
             placeholder="0000 0000 0000 0000"
             maxLength={16}

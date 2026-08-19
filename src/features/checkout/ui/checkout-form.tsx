@@ -2,7 +2,7 @@ import { invoice } from '../mocks/invoice'
 import { plans } from '../mocks/plans'
 import { CheckoutButton } from './checkout-button'
 import { CreditCardDetails } from './credit-card-details'
-import { DetailsBilling } from './details-billing'
+import { Billing } from './billing'
 import { PlanSelector } from './plan-selector'
 import { PaymentMethodSelector } from './payment-method-selector'
 import { Section } from '../../../shared/ui/containers/section'
@@ -11,6 +11,7 @@ import { FormProvider, useForm, type SubmitErrorHandler } from 'react-hook-form'
 import { formDefaultValues } from '../model/default-values'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { checkoutFormSchema, type CheckoutFormSchema } from '../model/schema'
+import { CheckoutDetails } from './checkout-details'
 
 export const CheckoutForm = () => {
   const methods = useForm({
@@ -45,7 +46,10 @@ export const CheckoutForm = () => {
           <CreditCardDetails />
         </Section>
         <Section>
-          <DetailsBilling invoice={invoice} />
+          <Billing />
+        </Section>
+        <Section>
+          <CheckoutDetails invoice={invoice} />
           <CheckoutButton loading={false} />
         </Section>
       </form>

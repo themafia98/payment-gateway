@@ -1,36 +1,24 @@
+import { Input } from '../../../shared/ui/input'
+import { FormDetail } from '../../../shared/ui/text/form-detail'
+import { Label } from '../../../shared/ui/text/label'
+
 export const CreditCardDetails = () => {
   return (
     <>
-      <label className="self-stretch flex font-inter text-[23.1px] text-left text-[#b0b0b0]">
-        Credit card details
-      </label>
+      <Label>Credit card details</Label>
 
       <div className="flex flex-col gap-2">
-        <input
-          className="flex h-[66.6px] flex-row items-center justify-between self-stretch rounded-[10.3px] bg-[#3d3d3d] px-4 text-white"
-          placeholder="MM / YYYYY"
-        />
-        <div className="flex gap-2 pb-2">
-          <input
-            className="flex h-[66.6px] flex-1 flex-row items-center justify-between self-stretch rounded-[10.3px] bg-[#3d3d3d] px-4 text-white"
-            type="text"
-            pattern="\d*"
-            maxLength={16}
-            placeholder="0000 0000 0000 0000"
-          />
-          <input
-            className="flex h-[66.6px] flex-1 flex-row items-center justify-between self-stretch rounded-[10.3px] bg-[#3d3d3d] px-4 text-white"
-            autoComplete="cc-csc"
-            placeholder="CVC"
-            type="text"
-            pattern="\d*"
-            maxLength={3}
-          />
+        <div className="flex">
+          <Input placeholder="MM / YYYYY" />
         </div>
-        <p className="self-stretch flex font-inter text-[14.5px] leading-[1.32px] text-left text-[#b0b0b0]">
+        <div className="flex gap-2 pb-2 flex-wrap">
+          <Input type="text" pattern="\d*" maxLength={16} placeholder="0000 0000 0000 0000" />
+          <Input autoComplete="cc-csc" placeholder="CVC" type="text" pattern="\d*" maxLength={3} />
+        </div>
+        <FormDetail>
           By providing your card information, you allow us to charge your card for future payments
           in accordance with their terms.
-        </p>
+        </FormDetail>
       </div>
     </>
   )

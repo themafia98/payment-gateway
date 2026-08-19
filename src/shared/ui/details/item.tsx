@@ -15,7 +15,10 @@ const variants: Record<NonNullable<IProps['variant']>, string> = {
 }
 
 export const Item = ({ name, value, variant = 'primary' }: IProps) => {
-  const textClassName = useMemo(() => cn('text-[16px] text-[#B0B0B0]', variants[variant]), [])
+  const textClassName = useMemo(
+    () => cn('text-[16px] text-[#B0B0B0]', variants[variant]),
+    [variant],
+  )
 
   return (
     <div className="flex justify-between gap-15.5">

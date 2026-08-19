@@ -1,4 +1,4 @@
-import type { Invoice } from '../../../entities/invoice/types/invoice'
+import type { Invoice } from '../../../entities/invoice/model/invoice'
 
 export const invoice: Invoice = {
   subtotal: 25,

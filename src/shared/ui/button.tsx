@@ -35,13 +35,13 @@ export const Button = ({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex w-full h-22 cursor-pointer items-center justify-center rounded-[14px] px-8 py-0',
+        'flex w-full h-22 cursor-pointer items-center justify-center rounded-[14px] px-8 py-0 text-xl font-medium',
         variants[variant],
         className,
       )}
     >
       {leftIcon && <span className="mr-2">{leftIcon}</span>}
-      <p data-name="Continue payment" className="text-[31px] font-medium text-[#E9E9E9]">
+      <p data-name="Continue payment" className="text-[#E9E9E9]">
         {children}
       </p>
       {rightIcon && <span className="ml-2">{rightIcon}</span>}

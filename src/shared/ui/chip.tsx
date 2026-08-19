@@ -12,7 +12,7 @@ const variants = {
   secondary: 'bg-white text-black',
 }
 
-export const Chip = ({ children, variant = "primary" }: IProps) => {
+export const Chip = ({ children, variant = 'primary' }: IProps) => {
   return (
     <div
       className={cn(

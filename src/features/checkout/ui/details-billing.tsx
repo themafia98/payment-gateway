@@ -1,4 +1,4 @@
-import type { Invoice } from '../../../entities/invoice/types/invoice'
+import type { Invoice } from '../../../entities/invoice/model/invoice'
 import { Details } from '../../../shared/ui/details/details'
 import { Item } from '../../../shared/ui/details/item'
 

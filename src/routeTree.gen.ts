@@ -10,43 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CheckoutIndexRouteImport } from './routes/checkout/index'
+import { Route as SummaryFailureIndexRouteImport } from './routes/summary/failure/index'
+import { Route as SummarySuccessIndexRouteImport } from './routes/summary/success/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CheckoutIndexRoute = CheckoutIndexRouteImport.update({
-  id: '/checkout/',
-  path: '/checkout/',
+const SummaryFailureIndexRoute = SummaryFailureIndexRouteImport.update({
+  id: '/summary/failure/',
+  path: '/summary/failure/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SummarySuccessIndexRoute = SummarySuccessIndexRouteImport.update({
+  id: '/summary/success/',
+  path: '/summary/success/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/checkout/': typeof CheckoutIndexRoute
+  '/summary/failure/': typeof SummaryFailureIndexRoute
+  '/summary/success/': typeof SummarySuccessIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/checkout': typeof CheckoutIndexRoute
+  '/summary/failure': typeof SummaryFailureIndexRoute
+  '/summary/success': typeof SummarySuccessIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/checkout/': typeof CheckoutIndexRoute
+  '/summary/failure/': typeof SummaryFailureIndexRoute
+  '/summary/success/': typeof SummarySuccessIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/checkout/'
+  fullPaths: '/' | '/summary/failure/' | '/summary/success/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout'
-  id: '__root__' | '/' | '/checkout/'
+  to: '/' | '/summary/failure' | '/summary/success'
+  id: '__root__' | '/' | '/summary/failure/' | '/summary/success/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CheckoutIndexRoute: typeof CheckoutIndexRoute
+  SummaryFailureIndexRoute: typeof SummaryFailureIndexRoute
+  SummarySuccessIndexRoute: typeof SummarySuccessIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/checkout/': {
-      id: '/checkout/'
-      path: '/checkout'
-      fullPath: '/checkout/'
-      preLoaderRoute: typeof CheckoutIndexRouteImport
+    '/summary/failure/': {
+      id: '/summary/failure/'
+      path: '/summary/failure'
+      fullPath: '/summary/failure/'
+      preLoaderRoute: typeof SummaryFailureIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/summary/success/': {
+      id: '/summary/success/'
+      path: '/summary/success'
+      fullPath: '/summary/success/'
+      preLoaderRoute: typeof SummarySuccessIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CheckoutIndexRoute: CheckoutIndexRoute,
+  SummaryFailureIndexRoute: SummaryFailureIndexRoute,
+  SummarySuccessIndexRoute: SummarySuccessIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

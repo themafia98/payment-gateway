@@ -1,21 +1,27 @@
-import { useState } from 'react'
 import { Tab } from '../../../shared/ui/tabs/tab'
 import { Tabs } from '../../../shared/ui/tabs/tabs'
 import type { PaymentMethod } from '../../../entities/payment-method/models/types'
+import type { CheckoutFormSchema } from '../model/schema'
+import { useFormContext, useWatch } from 'react-hook-form'
 
 export const PaymentMethodSelector = () => {
-  const [activeTab, setActiveTab] = useState<PaymentMethod>('Card')
+  const { setValue, control } = useFormContext<CheckoutFormSchema>()
+
+  const paymentMethod = useWatch({
+    control,
+    name: 'paymentMethod',
+  })
 
   const handleSwitch = (type: PaymentMethod) => () => {
-    setActiveTab(type)
+    setValue('paymentMethod', type)
   }
 
   return (
     <Tabs>
-      <Tab onClick={handleSwitch('Card')} isActive={activeTab === 'Card'}>
+      <Tab onClick={handleSwitch('Card')} isActive={paymentMethod === 'Card'}>
         Card
       </Tab>
-      <Tab onClick={handleSwitch('Bank Transfer')} isActive={activeTab === 'Bank Transfer'}>
+      <Tab onClick={handleSwitch('Bank Transfer')} isActive={paymentMethod === 'Bank Transfer'}>
         Bank Transfer
       </Tab>
     </Tabs>

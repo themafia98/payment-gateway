@@ -5,7 +5,7 @@ import type { ClassValue } from 'clsx'
 interface IProps {
   children: string
   type: ButtonHTMLAttributes<HTMLButtonElement>['type']
-  onClick: ButtonHTMLAttributes<HTMLButtonElement>['onClick']
+  onClick?: ButtonHTMLAttributes<HTMLButtonElement>['onClick']
   variant?: 'primary' | 'secondary'
   className?: ClassValue
   leftIcon?: ReactElement

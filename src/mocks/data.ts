@@ -1,4 +1,4 @@
-import type { MerchantConfig, PaymentIntent, PaymentMethod } from './types'
+import type { MerchantConfig, PaymentIntent, PaymentMethod, ThreeDSChallenge } from './types'
 
 export const merchantConfig: MerchantConfig = {
   id: 'merchant_demo',
@@ -23,3 +23,7 @@ export const paymentMethods: PaymentMethod[] = [
 ]
 
 export const paymentIntents = new Map<string, PaymentIntent>()
+
+export const idempotencyKeys = new Map<string, string>()
+
+export const threeDSChallenges = new Map<string, ThreeDSChallenge>()

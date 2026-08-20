@@ -20,14 +20,49 @@ export type MerchantConfig = {
   amount: number
 }
 
+export type ApiErrorType = 'invalid_request_error' | 'card_error' | 'api_error' | 'rate_limit_error'
+
+export type ApiError = {
+  type: ApiErrorType
+  code?: string
+  message: string
+  param?: string
+}
+
+export type ApiErrorResponse = {
+  error: ApiError
+}
+
+export type ThreeDSecureAction = {
+  challengeId: string
+  url: string
+  status: 'pending' | 'succeeded' | 'failed'
+}
+
+export type NextAction = {
+  type: 'redirect_to_url'
+  three_d_secure: ThreeDSecureAction
+}
+
 export type PaymentIntent = {
   id: string
+  object: 'payment_intent'
   amount: number
   currency: string
   status: PaymentIntentStatus
   clientSecret: string
+  livemode: boolean
+  created: number
+  nextAction?: NextAction | null
+  error?: ApiError | null
+}
+
+export type ThreeDSChallenge = {
+  id: string
+  paymentIntentId: string
+  outcome: 'pass' | 'fail'
+  status: 'pending' | 'succeeded' | 'failed'
   createdAt: string
-  error?: string
 }
 
 export type CreatePaymentIntentRequest = {
@@ -37,4 +72,9 @@ export type CreatePaymentIntentRequest = {
 
 export type ConfirmPaymentIntentRequest = {
   cardNumber: string
+}
+
+export type CompleteChallengeRequest = {
+  otp?: string
+  outcome?: 'success' | 'fail'
 }

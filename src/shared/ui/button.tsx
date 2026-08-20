@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactElement } from 'react'
-import { cn } from '../lib/cn.ts'
+import { cn } from '../lib/cn'
 import type { ClassValue } from 'clsx'
 
 interface IProps {

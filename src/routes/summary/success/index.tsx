@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PaymentResultHeader } from '../../../widgets/payment-result-header/payment-result-header.tsx'
-import { TransactionDetails } from '../../../entities/transaction/ui/transaction-details.tsx'
-import type { Transaction } from '../../../entities/transaction/model/transaction.ts'
-import { DownloadReceipt } from '../../../features/download-receipt/ui/download-receipt.tsx'
-import { ReturnToStoreButton } from '../../../features/return-to-store/ui/return-to-store-button.tsx'
+import { PaymentResultHeader } from '@/widgets/payment-result-header'
+import { TransactionDetails, type Transaction } from '@/entities/transaction'
+import { DownloadReceipt } from '@/features/download-receipt'
+import { ReturnToStoreButton } from '@/features/return-to-store'
 
 export const Route = createFileRoute('/summary/success/')({
   component: SuccessPage,

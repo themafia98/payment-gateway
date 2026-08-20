@@ -1,7 +1,5 @@
 import * as z from 'zod'
-import { isCardNumber, normalizeCardNumber } from '../../../shared/lib/format-cc.ts'
-import { createBranded } from '../../../shared/lib/branded.ts'
-import { isCardExpiration } from '../../../shared/lib/format-card-expiration.ts'
+import { isCardNumber, normalizeCardNumber, createBranded, isCardExpiration } from '@/shared/lib'
 
 const cardNumberSchema = z
   .string()

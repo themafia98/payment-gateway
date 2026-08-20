@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PaymentResultHeader } from '../../../widgets/payment-result-header/payment-result-header'
-import type { Transaction } from '../../../entities/transaction/model/transaction'
-import { TransactionDetails } from '../../../entities/transaction/ui/transaction-details'
-import { RetryPayment } from '../../../features/retry-payment/ui/retry-payment'
+import { PaymentResultHeader } from '@/widgets/payment-result-header'
+import { TransactionDetails, type Transaction } from '@/entities/transaction'
+import { RetryPayment } from '@/features/retry-payment'
 
 export const Route = createFileRoute('/summary/failure/')({
   component: FailurePage,

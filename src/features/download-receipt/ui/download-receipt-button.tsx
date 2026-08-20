@@ -1,5 +1,4 @@
-import { Button } from '../../../shared/ui/button'
-import { Download } from '../../../shared/ui/icons/download'
+import { Button, Download } from '@/shared/ui'
 
 interface IProps {
   onClick: () => void

@@ -1,5 +1,5 @@
-import { createBranded } from './branded.ts'
-import type { CardNumber } from '../types/credit-card.ts'
+import { createBranded } from './branded'
+import type { CardNumber } from '../types/credit-card'
 
 export const toCardNumber = (value: string): CardNumber => {
   const normalized = normalizeCardNumber(value)

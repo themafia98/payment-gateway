@@ -1,7 +1,4 @@
-import { Header } from '../../shared/ui/containers/header'
-import { Failure } from '../../shared/ui/icons/failure'
-import { Success } from '../../shared/ui/icons/success'
-import { Status } from '../../shared/ui/text/status'
+import { Header, Failure, Success, Status } from '@/shared/ui'
 
 interface IProps {
   isSuccess?: boolean

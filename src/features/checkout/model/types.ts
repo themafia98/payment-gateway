@@ -1,8 +1,8 @@
-import type { PaymentMethod } from '../../../entities/payment-method/model/types'
-import type { IPlan } from '../../../entities/plan/model/types'
+import type { PaymentMethod } from '@/entities/payment-method'
+import type { Plan } from '@/entities/plan'
 
 export interface ICheckoutFormValues {
-  planId: IPlan['id'] | null
+  planId: Plan['id'] | null
   paymentMethod: PaymentMethod | null
   card: {
     number: number | null

@@ -1,6 +1,6 @@
-import type { CheckoutFormSchema } from './schema'
+import type { CheckoutFormInput } from './schema'
 
-export const formDefaultValues: CheckoutFormSchema = {
+export const formDefaultValues: CheckoutFormInput = {
   planId: '1id',
 
   paymentMethod: 'Card',

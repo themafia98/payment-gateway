@@ -1,5 +1,5 @@
-import { Input } from '../../../../shared/ui/input.tsx'
-import { formatCardExpiration } from '../../../../shared/lib/format-card-expiration.ts'
+import { Input } from '@/shared/ui'
+import { formatCardExpiration } from '@/shared/lib'
 import { type ChangeEventHandler, type Ref, useCallback, useMemo } from 'react'
 
 interface IProps {

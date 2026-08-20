@@ -1,6 +1,6 @@
-import type { IPlan } from '../../../entities/plan/model/types'
+import type { Plan } from '@/entities/plan'
 
-export const plans: IPlan[] = [
+export const plans: Plan[] = [
   {
     id: '1id',
     name: 'Monthly',

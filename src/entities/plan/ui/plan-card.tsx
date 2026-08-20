@@ -1,9 +1,8 @@
-import { Bubble } from '../../../shared/ui/bubble'
-import { Chip } from '../../../shared/ui/chip'
-import type { IPlan } from '../model/types'
+import { Bubble, Chip } from '@/shared/ui'
+import type { Plan } from '../model/types'
 
 interface IProps {
-  plan: IPlan
+  plan: Plan
   selected: boolean
   onSelect: () => void
 }

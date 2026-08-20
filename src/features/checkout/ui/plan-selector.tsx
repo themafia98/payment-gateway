@@ -1,14 +1,13 @@
 import { useCallback, useMemo } from 'react'
-import type { IPlan } from '../../../entities/plan/model/types'
-import { PlanCard } from '../../../entities/plan/ui/plan-card'
-import { Label } from '../../../shared/ui/text/label'
+import { PlanCard, type Plan } from '@/entities/plan'
+import { Label } from '@/shared/ui'
 import type { CheckoutFormSchema } from '../model/schema'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-type PlanId = IPlan['id']
+type PlanId = Plan['id']
 
 interface IProps {
-  plans: IPlan[]
+  plans: Plan[]
 }
 
 export const PlanSelector = ({ plans }: IProps) => {

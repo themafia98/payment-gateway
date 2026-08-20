@@ -1,6 +1,5 @@
 import { useFormContext } from 'react-hook-form'
-import { Input } from '../../../shared/ui/input'
-import { Label } from '../../../shared/ui/text/label'
+import { Input, Label } from '@/shared/ui'
 import type { CheckoutFormSchema } from '../model/schema'
 
 export const Billing = () => {

@@ -1,5 +1,5 @@
-import { Input } from '../../../../shared/ui/input.tsx'
-import { formatCardNumber, normalizeCardNumber } from '../../../../shared/lib/format-cc.ts'
+import { Input } from '@/shared/ui'
+import { formatCardNumber, normalizeCardNumber } from '@/shared/lib'
 import { type ChangeEventHandler, type Ref, useCallback, useMemo } from 'react'
 
 interface IProps {

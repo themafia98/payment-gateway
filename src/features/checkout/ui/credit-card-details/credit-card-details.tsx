@@ -1,11 +1,9 @@
 import { Controller, useFormContext } from 'react-hook-form'
-import { Input } from '../../../../shared/ui/input.tsx'
-import { FormDetail } from '../../../../shared/ui/text/form-detail.tsx'
-import { Label } from '../../../../shared/ui/text/label.tsx'
-import type { CheckoutFormInput } from '../../model/schema.ts'
-import { CreditCardInput } from './credit-card-input.tsx'
-import { normalizeCVC } from '../../../../shared/lib/fomat-cvc.ts'
-import { CardExpirationInput } from './card-expiration-input.tsx'
+import { Input, FormDetail, Label } from '@/shared/ui'
+import { normalizeCVC } from '@/shared/lib'
+import type { CheckoutFormInput } from '../../model/schema'
+import { CreditCardInput } from './credit-card-input'
+import { CardExpirationInput } from './card-expiration-input'
 
 export const CreditCardDetails = () => {
   const { control } = useFormContext<CheckoutFormInput>()

@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill'
-import type { CardExpiration } from '../types/credit-card.ts'
+import type { CardExpiration } from '../types/credit-card'
 
 export const isCardExpiration = (value: string): value is CardExpiration => {
   const [month, year] = value.split(' / ')

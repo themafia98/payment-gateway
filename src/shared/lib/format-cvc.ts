@@ -1,5 +1,5 @@
-import type { CvcCode } from '../types/credit-card.ts'
-import { createBranded } from './branded.ts'
+import type { CvcCode } from '../types/credit-card'
+import { createBranded } from './branded'
 
 export const normalizeCVC = (value: string): string => {
   return value.replace(/\D/g, '').slice(0, 3)

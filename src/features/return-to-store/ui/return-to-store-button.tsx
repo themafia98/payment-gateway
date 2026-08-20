@@ -1,6 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Button } from '../../../shared/ui/button'
-import { Back } from '../../../shared/ui/icons/back'
+import { Button, Back } from '@/shared/ui'
 
 export const ReturnToStoreButton = () => {
   const navigate = useNavigate()

@@ -1,4 +1,4 @@
-import type { Branded } from './brand.ts'
+import type { Branded } from './brand'
 
 export type CardNumber = Branded<string, 'CardNumber'>
 

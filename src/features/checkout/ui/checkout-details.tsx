@@ -1,6 +1,5 @@
-import type { Invoice } from '../../../entities/invoice/model/invoice'
-import { Details } from '../../../shared/ui/details/details'
-import { Item } from '../../../shared/ui/details/item'
+import type { Invoice } from '@/entities/invoice'
+import { Details, Item } from '@/shared/ui'
 
 interface IProps {
   invoice: Invoice

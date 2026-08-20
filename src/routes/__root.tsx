@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Main } from '../shared/ui/containers/main'
+import { Main } from '@/shared/ui'
 
 export const Route = createRootRoute({
   component: RootComponent,

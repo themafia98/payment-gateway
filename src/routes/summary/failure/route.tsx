@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { Center } from '../../../shared/ui/containers/center'
+import { Center } from '@/shared/ui'
 
 export const Route = createFileRoute('/summary/failure')({
   component: Layout,

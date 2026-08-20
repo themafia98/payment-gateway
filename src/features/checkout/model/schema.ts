@@ -1,4 +1,21 @@
 import * as z from 'zod'
+import { isCardNumber, normalizeCardNumber } from '../../../shared/lib/format-cc.ts'
+import { createBranded } from '../../../shared/lib/branded.ts'
+import { isCardExpiration } from '../../../shared/lib/format-card-expiration.ts'
+
+const cardNumberSchema = z
+  .string()
+  .min(1, 'Card Number is required')
+  .transform(normalizeCardNumber)
+  .refine((value) => /^\d{16}$/.test(value), 'Card Number must contain 16 digits')
+  .refine(isCardNumber, 'Invalid card number')
+  .transform((value) => createBranded<string, 'CardNumber'>(value))
+
+const expirationSchema = z
+  .string()
+  .min(1, 'Expiration date is required')
+  .refine(isCardExpiration, 'Card is expired')
+  .transform((value) => createBranded<string, 'CardExpiration'>(value))
 
 export const checkoutFormSchema = z.object({
   planId: z.string().min(1, 'Plan is required'),
@@ -6,15 +23,9 @@ export const checkoutFormSchema = z.object({
   paymentMethod: z.enum(['Card', 'Bank Transfer']),
 
   card: z.object({
-    number: z
-      .string()
-      .min(1, 'Card Number is required')
-      .regex(/^\d{16}$/, 'Card Number must contain 16 digits'),
+    number: cardNumberSchema,
 
-    exp: z
-      .string()
-      .min(1, 'Date is required')
-      .regex(/^(0[1-9]|1[0-2])\/\d{4}$/, 'Invalid expiration date'),
+    exp: expirationSchema,
 
     cvc: z.string().regex(/^\d{3}$/, 'CVC must contain 3 digits'),
   }),
@@ -26,4 +37,6 @@ export const checkoutFormSchema = z.object({
   }),
 })
 
-export type CheckoutFormSchema = z.infer<typeof checkoutFormSchema>
+export type CheckoutFormInput = z.input<typeof checkoutFormSchema>
+
+export type CheckoutFormSchema = z.output<typeof checkoutFormSchema>

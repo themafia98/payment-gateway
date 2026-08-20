@@ -1,7 +1,7 @@
 import { invoice } from '../mocks/invoice'
 import { plans } from '../mocks/plans'
 import { CheckoutButton } from './checkout-button'
-import { CreditCardDetails } from './credit-card-details'
+import { CreditCardDetails } from './credit-card-details/credit-card-details.tsx'
 import { Billing } from './billing'
 import { PlanSelector } from './plan-selector'
 import { PaymentMethodSelector } from './payment-method-selector'
@@ -10,11 +10,15 @@ import { useNavigate } from '@tanstack/react-router'
 import { FormProvider, useForm, type SubmitErrorHandler } from 'react-hook-form'
 import { formDefaultValues } from '../model/default-values'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { checkoutFormSchema, type CheckoutFormSchema } from '../model/schema'
+import {
+  type CheckoutFormInput,
+  checkoutFormSchema,
+  type CheckoutFormSchema,
+} from '../model/schema'
 import { CheckoutDetails } from './checkout-details'
 
 export const CheckoutForm = () => {
-  const methods = useForm({
+  const methods = useForm<CheckoutFormInput, unknown, CheckoutFormSchema>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: formDefaultValues,
   })
@@ -25,7 +29,7 @@ export const CheckoutForm = () => {
     navigate({ to: '/summary/success' })
   }
 
-  const handleError: SubmitErrorHandler<CheckoutFormSchema> = (e) => {
+  const handleError: SubmitErrorHandler<CheckoutFormInput> = (e) => {
     console.error(e)
     navigate({ to: '/summary/failure' })
   }

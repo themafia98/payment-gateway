@@ -8,12 +8,14 @@
     "dev:mock": "vite --mode mock",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "lint:fix": "oxlint --fix-dangerously",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
+    "@js-temporal/polyfill": "^0.5.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-router": "^1.170.30",
     "@tanstack/react-router-devtools": "^1.167.1",

@@ -28,7 +28,6 @@ export const CardExpirationInput = ({ value: inputValue, onChange, onBlur, name,
       inputMode="numeric"
       autoComplete="cc-exp"
       placeholder="MM / YYYY"
-      maxLength={7}
       value={value}
       onChange={handleChange}
       onBlur={onBlur}

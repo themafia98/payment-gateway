@@ -27,6 +27,9 @@ here:
 - **[Architecture (English)](./docs/architecture.md)** - why the code is shaped
   this way and how the pieces fit, with diagrams.
 - **[Архитектура (Русский)](./docs/architecture.ru.md)** - то же на русском.
+- **Iframes and 3-D Secure** ([English](./docs/iframe.md) / [Русский](./docs/iframe.ru.md)) -
+  how the embedded bank page is sandboxed and secured (sandbox flags, headers,
+  postMessage, iframe vs redirect).
 - **[Mock backend](./src/mocks/README.md)** - the MSW fake API, endpoints and test
   cards.
 - **[3-D Secure ACS simulator](./acs/README.md)** - the standalone bank server,

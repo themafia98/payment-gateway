@@ -45,6 +45,16 @@ flowchart TD
 import from a `feature`. That single rule is what keeps the core reusable and
 testable. (This is exactly the folder taxonomy of **Feature-Sliced Design**.)
 
+```mermaid
+flowchart TD
+    R["routes / app"] -->|"✅ may import"| F["features"]
+    F -->|"✅ may import"| E["entities"]
+    E -->|"✅ may import"| S["shared"]
+    E -.->|"🚫 never"| F
+    S -.->|"🚫 never"| E
+    S -.->|"🚫 never"| F
+```
+
 ---
 
 ## The layers, in words

@@ -85,6 +85,9 @@ that is the redirect mode (see below).
 
 In this project: `acs/lib.ts` (`securityHeaders`).
 
+> Deep dive, header by header in plain words:
+> [security-headers.md](./security-headers.md).
+
 | Header | What it does | Alternative |
 | --- | --- | --- |
 | `Content-Security-Policy: frame-ancestors <origin>` | who may embed this page (anti-clickjacking) | `X-Frame-Options` (legacy) |

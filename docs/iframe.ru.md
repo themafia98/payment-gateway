@@ -84,6 +84,9 @@ OTP и passkeys.
 
 В проекте: `acs/lib.ts` (`securityHeaders`).
 
+> Подробный разбор каждого заголовка простыми словами:
+> [security-headers.ru.md](./security-headers.ru.md).
+
 | Заголовок | Что делает | Альтернатива |
 | --- | --- | --- |
 | `Content-Security-Policy: frame-ancestors <origin>` | кто может встраивать страницу (антиclickjacking) | `X-Frame-Options` (легаси) |

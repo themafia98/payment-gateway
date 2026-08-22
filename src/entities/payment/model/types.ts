@@ -1,15 +1,6 @@
-/**
- * LAYER: Entities (domain) — the very center of Clean Architecture.
- *
- * Dependency rule: this file imports NOTHING outward.
- * No `react`, no `fetch`, no `@tanstack/*`, no `src/mocks/*`.
- * It holds only the "language of the domain" — how the frontend thinks of a payment.
- *
- * Note: this is NOT the same as the backend DTO (see `src/mocks/types.ts`).
- * A DTO is the wire format. The domain is the shape convenient for us.
- * The DTO -> domain translation is done by the ADAPTER (`../api/http-payment-gateway.adapter.ts`),
- * so the backend's wire format does not leak across the whole app.
- */
+// Domain types — the payment vocabulary the app uses. Imports nothing outward
+// (no react/fetch/mocks). The backend DTO (src/mocks/types.ts) is a different wire
+// shape; the adapter maps DTO -> these, so the wire format never leaks in.
 
 /** Possible states of a payment intent. */
 export type PaymentStatus =
@@ -52,12 +43,8 @@ export interface PaymentIntent {
   nextAction?: NextAction | null
 }
 
-/**
- * Result of the payment use-case — a discriminated union on the `status` field.
- * UI/store do `switch (result.status)` and decide where to navigate.
- * Note: there are NO fields like `isLoading` or `redirect()` here — that is the
- * concern of the outer layer (store/UI), not the domain.
- */
+// Discriminated union on `status` — the UI switches on it. No UI concerns
+// (loading/redirect) live here; that's the outer layer's job.
 export type PaymentResult =
   | { status: 'succeeded'; intent: PaymentIntent }
   | { status: 'requires_action'; intent: PaymentIntent; challenge: ThreeDSecureChallenge }

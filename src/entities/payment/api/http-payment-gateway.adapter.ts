@@ -3,12 +3,8 @@ import type { PaymentIntent, PaymentResult, PaymentStatus } from '../model/types
 import { createHttpClient, type HttpClient, HttpError } from '@/shared/api'
 import { normalizeCardNumber } from '@/shared/lib'
 
-/**
- * Wire format (DTO) as the mock backend actually returns it (`src/mocks/types.ts`).
- * The adapter is ALLOWED to know this shape — it is the translator. We declare it
- * locally instead of importing from `src/mocks` so production code never depends on
- * test infrastructure.
- */
+// Wire format (DTO) the backend returns. Declared locally (not imported from
+// src/mocks) so production code never depends on test infrastructure.
 interface PaymentIntentDto {
   id: string
   amount: number
@@ -54,29 +50,9 @@ const toPaymentResult = (dto: PaymentIntentDto): PaymentResult => {
   }
 }
 
-/**
- * LAYER: Adapter — driven/secondary in Hexagonal terms.
- *
- * This IS the adapter: `HttpPaymentGatewayAdapter`, the HTTP implementation of the
- * `PaymentGateway` port. File name (`*.adapter.ts`) and factory name make the role
- * explicit — the port is the interface, this is one concrete plug into it.
- *
- * It is the ONLY place that knows about URLs and the backend DTO format. It
- * IMPLEMENTS the `PaymentGateway` port on top of the shared `HttpClient` (which,
- * in turn, is the only thing that touches `fetch`). If the backend or the HTTP
- * library changes tomorrow, only this file / the client changes.
- *
- * The DTO -> domain mapping also lives here: the raw server response
- * (the shape from `src/mocks/types.ts`, e.g. `{ nextAction, error, ... }`) is
- * turned into a clean domain `PaymentResult` from `../model/types.ts`.
- * That way the wire format does NOT leak into the use-case and UI.
- *
- * IMPORTANT: the domain (`../model`) does NOT import this file. The dependency
- * arrow points HERE (adapter -> port -> domain), never the other way.
- *
- * The `http` client is injected (defaults to a real one) so the adapter can also
- * be unit-tested with a fake client.
- */
+// HTTP implementation of the PaymentGateway port. The only place that knows the
+// URLs and DTO format; maps DTO -> domain so the wire format never leaks upward.
+// The http client is injected (defaults to a real one) for testing with a fake.
 
 export const createHttpPaymentGatewayAdapter = (
   http: HttpClient = createHttpClient(),

@@ -1,24 +1,30 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
-import { ThreeDSChallenge } from '@/features/checkout'
+import { ThreeDSChallenge, createAuthenticate3ds } from '@/features/checkout'
 import { createHttpPaymentGatewayAdapter, type PaymentResult } from '@/entities/payment'
 
+interface ChallengeSearch {
+  intentId?: string
+}
+
 export const Route = createFileRoute('/3ds/challenge/$challengeId')({
+  validateSearch: (search: Record<string, unknown>): ChallengeSearch => ({
+    intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
+  }),
   component: ThreeDSPage,
 })
 
 function ThreeDSPage() {
   const { challengeId } = Route.useParams()
+  const { intentId } = Route.useSearch()
   const navigate = useNavigate()
 
-  // Same adapter/port as checkout — the 3DS page is just another driving side.
-  const gatewayRef = useRef(createHttpPaymentGatewayAdapter())
+  const authenticate3ds = useRef(createAuthenticate3ds(createHttpPaymentGatewayAdapter()))
 
-  // ACS verdict (via postMessage inside ThreeDSChallenge) -> settle against the
-  // backend (source of truth) -> navigate. Navigation is delivery, so it lives here.
+  // iframe mode: settle the verdict, then navigate. (Redirect mode uses /3ds/return.)
   const handleCres = (outcome: 'success' | 'fail') => {
-    gatewayRef.current
-      .authenticate(challengeId, outcome)
+    authenticate3ds
+      .current(challengeId, outcome)
       .then((result: PaymentResult) =>
         result.status === 'succeeded'
           ? navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
@@ -27,5 +33,5 @@ function ThreeDSPage() {
       .catch(() => navigate({ to: '/summary/failure' }))
   }
 
-  return <ThreeDSChallenge challengeId={challengeId} onCres={handleCres} />
+  return <ThreeDSChallenge challengeId={challengeId} onCres={handleCres} intentId={intentId} />
 }

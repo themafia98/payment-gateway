@@ -1,14 +1,6 @@
-/**
- * LAYER: shared infrastructure (transport).
- *
- * A thin wrapper over `fetch`. It knows ONLY about HTTP — base URL, JSON
- * (de)serialization, headers, status codes. It knows NOTHING about payments.
- * Mapping of a response into a domain type stays in the adapter that uses this
- * client, not here.
- *
- * Error contract matches the mock backend (`src/mocks/lib/respond.ts`): failed
- * responses have shape `{ error: { type, code?, message, param? } }`.
- */
+// Thin fetch wrapper: base URL, JSON, headers, status codes — nothing about payments.
+// Response->domain mapping stays in the adapters. Error shape matches the mock backend
+// (src/mocks/lib/respond.ts): { error: { type, code?, message, param? } }.
 
 export interface ApiErrorPayload {
   type: string

@@ -48,6 +48,9 @@ export const CheckoutForm = () => {
           params: {
             challengeId,
           },
+          search: {
+            intentId: result.intent.id,
+          },
         })
       }
     })

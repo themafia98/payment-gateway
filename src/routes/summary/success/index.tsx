@@ -4,7 +4,16 @@ import { TransactionDetails, type Transaction } from '@/entities/transaction'
 import { DownloadReceipt } from '@/features/download-receipt'
 import { ReturnToStoreButton } from '@/features/return-to-store'
 
+interface SuccessSearch {
+  intentId?: string
+}
+
 export const Route = createFileRoute('/summary/success/')({
+  // Typed, validated search params. `intentId` arrives in the URL so the page is
+  // self-contained and survives a reload (an in-memory store would lose it on F5).
+  validateSearch: (search: Record<string, unknown>): SuccessSearch => ({
+    intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
+  }),
   component: SuccessPage,
 })
 
@@ -18,6 +27,8 @@ const transaction: Transaction = {
 }
 
 function SuccessPage() {
+  const { intentId } = Route.useSearch()
+
   return (
     <>
       <PaymentResultHeader isSuccess={true} />
@@ -25,7 +36,7 @@ function SuccessPage() {
       <TransactionDetails transaction={transaction} />
 
       <section className="space-y-4">
-        <DownloadReceipt />
+        <DownloadReceipt intentId={intentId} />
         <ReturnToStoreButton />
       </section>
     </>

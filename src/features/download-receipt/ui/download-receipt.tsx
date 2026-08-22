@@ -1,15 +1,20 @@
-import { DonwloadReceiptButton } from './download-receipt-button'
+import { DownloadReceiptButton } from './download-receipt-button'
 import { createHttpReceiptGatewayAdapter } from '@/entities/receipt'
-import { createGenerateReceipt } from '@/features/download-receipt/model/generate-receipt.usecase.ts'
+import { createGenerateReceipt } from '../model/generate-receipt.usecase'
 
-export const DownloadReceipt = () => {
+interface DownloadReceiptProps {
+  intentId?: string
+}
+
+export const DownloadReceipt = ({ intentId }: DownloadReceiptProps) => {
   const handleGenerateReceipt = () => {
-    createGenerateReceipt(createHttpReceiptGatewayAdapter())('mock-intent-id')
+    if (!intentId) return
+    createGenerateReceipt(createHttpReceiptGatewayAdapter())(intentId)
   }
 
   return (
     <>
-      <DonwloadReceiptButton onClick={handleGenerateReceipt} />
+      <DownloadReceiptButton onClick={handleGenerateReceipt} disabled={!intentId} />
     </>
   )
 }

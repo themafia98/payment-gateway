@@ -20,7 +20,9 @@ function ThreeDSPage() {
     gatewayRef.current
       .authenticate(challengeId, outcome)
       .then((result: PaymentResult) =>
-        navigate({ to: result.status === 'succeeded' ? '/summary/success' : '/summary/failure' }),
+        result.status === 'succeeded'
+          ? navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
+          : navigate({ to: '/summary/failure' }),
       )
       .catch(() => navigate({ to: '/summary/failure' }))
   }

@@ -32,7 +32,7 @@ export const CheckoutForm = () => {
 
     paymentAction(form).then((result) => {
       if (result.status === 'succeeded') {
-        navigate({ to: '/summary/success' })
+        navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
         return
       }
 

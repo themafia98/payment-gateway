@@ -53,6 +53,18 @@ A locked-down frame that grants back only the capabilities you list.
 Flags we deliberately **do not** grant: `allow-top-navigation` (a frame should not
 be able to move your whole window), `allow-popups`, `allow-modals`.
 
+```mermaid
+flowchart LR
+    subgraph box["🔒 Sandboxed frame (locked by default)"]
+      G1["✅ allow-scripts"]
+      G2["✅ allow-forms"]
+      G3["✅ allow-same-origin"]
+      D1["🚫 top-navigation"]
+      D2["🚫 popups"]
+      D3["🚫 modals"]
+    end
+```
+
 The famous gotcha: `allow-scripts` + `allow-same-origin` together are dangerous
 **only if the framed page is same-origin as the parent** - then it could script its
 own sandbox off. Here the bank is a different origin, so `allow-same-origin` just
@@ -125,6 +137,14 @@ window.addEventListener('message', (event) => {
 Golden rule for payments: the message is only a hint. The real outcome always comes
 from your backend (here `authenticate()` re-checks the status). A message can be
 forged; a server answer cannot.
+
+```mermaid
+flowchart TD
+    M1["postMessage from the bank<br/>event.origin = bank ✅"] -->|"origin OK → treat as hint"| CHK
+    M2["postMessage from evil-site<br/>event.origin = attacker 🚫"] -->|"origin fails → ignored"| DROP["🛑 dropped"]
+    CHK{"then ask the backend"} -->|"backend confirms"| PAID["✅ really paid"]
+    CHK -->|"backend disagrees"| NO["🚫 not paid<br/>(message was faked)"]
+```
 
 ---
 

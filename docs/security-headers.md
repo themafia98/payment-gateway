@@ -39,6 +39,24 @@ flowchart TD
     B --> C6["Set-Cookie flags<br/>→ protects the session cookie"]
 ```
 
+Another way to picture it — **defense in depth**. An attacker has to get past every
+locked door in a row. Miss one and the attack stops:
+
+```mermaid
+flowchart LR
+    A["😈 Attacker"] --> D1["🚪 CSP<br/>frame + script"]
+    D1 --> D2["🚪 nosniff"]
+    D2 --> D3["🚪 Referrer<br/>Policy"]
+    D3 --> D4["🚪 COOP/COEP/CORP"]
+    D4 --> D5["🚪 Cookie flags"]
+    D5 --> G["💰 your session<br/>& OTP"]
+    D1 -.blocked.-> STOP["🛑"]
+    D2 -.blocked.-> STOP
+    D3 -.blocked.-> STOP
+    D4 -.blocked.-> STOP
+    D5 -.blocked.-> STOP
+```
+
 Every header is a different lock. Below we open each one up.
 
 ---

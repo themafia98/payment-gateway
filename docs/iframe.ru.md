@@ -52,6 +52,18 @@ flowchart LR
 Флаги, которые мы намеренно **не** даём: `allow-top-navigation` (фрейм не должен
 уметь увести всё окно), `allow-popups`, `allow-modals`.
 
+```mermaid
+flowchart LR
+    subgraph box["🔒 Sandbox-фрейм (по умолчанию всё заперто)"]
+      G1["✅ allow-scripts"]
+      G2["✅ allow-forms"]
+      G3["✅ allow-same-origin"]
+      D1["🚫 top-navigation"]
+      D2["🚫 popups"]
+      D3["🚫 modals"]
+    end
+```
+
 Известная ловушка: `allow-scripts` + `allow-same-origin` вместе опасны **только если
 встроенная страница того же origin, что и родитель** - тогда она могла бы снять свой
 же sandbox. Здесь банк на другом origin, поэтому `allow-same-origin` просто оставляет
@@ -124,6 +136,14 @@ window.addEventListener('message', (event) => {
 Золотое правило для платежей: сообщение - только подсказка. Итог всегда берётся с
 бэкенда (здесь `authenticate()` перепроверяет статус). Сообщение можно подделать,
 ответ сервера - нет.
+
+```mermaid
+flowchart TD
+    M1["postMessage от банка<br/>event.origin = банк ✅"] -->|"origin ок → берём как подсказку"| CHK
+    M2["postMessage от evil-site<br/>event.origin = атакующий 🚫"] -->|"origin не прошёл → игнор"| DROP["🛑 отброшено"]
+    CHK{"затем спрашиваем бэкенд"} -->|"бэкенд подтвердил"| PAID["✅ реально оплачено"]
+    CHK -->|"бэкенд не согласен"| NO["🚫 не оплачено<br/>(сообщение подделали)"]
+```
 
 ---
 

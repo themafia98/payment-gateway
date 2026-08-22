@@ -121,7 +121,9 @@ const server = createServer(tls, async (req, res) => {
   // GET / — landing page so you can visit once and trust the self-signed cert.
   if (req.method === 'GET' && url.pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    return res.end('<h1>ACS simulator</h1><p>Self-signed cert accepted. You can close this tab.</p>')
+    return res.end(
+      '<h1>ACS simulator</h1><p>Self-signed cert accepted. You can close this tab.</p>',
+    )
   }
 
   const challengeMatch = url.pathname.match(/^\/challenge\/([^/]+)$/)

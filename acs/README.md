@@ -20,11 +20,11 @@ npm run dev:mock
 
 Pay with a 3DS test card, then enter OTP **`1234`** on the challenge screen:
 
-| Card | 3DS outcome |
-| --- | --- |
-| `4000002500003155` | authentication passes → `succeeded` |
+| Card               | 3DS outcome                                            |
+| ------------------ | ------------------------------------------------------ |
+| `4000002500003155` | authentication passes → `succeeded`                    |
 | `4000008400001629` | authentication attempted, issuer declines → `declined` |
-| any wrong OTP | → `declined` |
+| any wrong OTP      | → `declined`                                           |
 
 ## Where to inspect the security surface (DevTools, on the challenge step)
 
@@ -35,15 +35,15 @@ Pay with a 3DS test card, then enter OTP **`1234`** on the challenge screen:
 
 ## How each piece maps to real 3-D Secure
 
-| Mechanism | In this stand | Why in production |
-| --- | --- | --- |
-| Separate origins | app `http://localhost:5173` ↔ ACS `https://localhost:5100` | the bank is always on its own domain |
-| `creq` in the POST body | hidden form → iframe | secrets must not leak via URL / Referer |
-| `frame-ancestors` | ACS allows framing only by your origin | anti-clickjacking |
-| `SameSite=None; Secure` | ACS session cookie | otherwise the browser drops third-party cookies |
-| `sandbox` + `allow-same-origin` | frame keeps the bank's own origin | needed for cookies and a real `event.origin` (without it → `"null"`) |
-| origin check in `message` | `event.origin !== ACS_ORIGIN → return` | otherwise any site could post a fake "success" |
-| poll / settle on the backend | `authenticate()` → MSW `/complete` | source of truth is the server, not the iframe message |
+| Mechanism                       | In this stand                                              | Why in production                                                    |
+| ------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| Separate origins                | app `http://localhost:5173` ↔ ACS `https://localhost:5100` | the bank is always on its own domain                                 |
+| `creq` in the POST body         | hidden form → iframe                                       | secrets must not leak via URL / Referer                              |
+| `frame-ancestors`               | ACS allows framing only by your origin                     | anti-clickjacking                                                    |
+| `SameSite=None; Secure`         | ACS session cookie                                         | otherwise the browser drops third-party cookies                      |
+| `sandbox` + `allow-same-origin` | frame keeps the bank's own origin                          | needed for cookies and a real `event.origin` (without it → `"null"`) |
+| origin check in `message`       | `event.origin !== ACS_ORIGIN → return`                     | otherwise any site could post a fake "success"                       |
+| poll / settle on the backend    | `authenticate()` → MSW `/complete`                         | source of truth is the server, not the iframe message                |
 
 **Golden rule:** `postMessage` is only a UX signal — the final status always comes
 from the backend (`authenticate` re-checks it). A message can be forged; a backend

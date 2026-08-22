@@ -33,7 +33,7 @@ export const CheckoutForm = () => {
     paymentAction(form).then((result) => {
       if (result.status === 'succeeded') {
         navigate({ to: '/summary/success' })
-        return;
+        return
       }
 
       if (result.status === 'requires_action') {

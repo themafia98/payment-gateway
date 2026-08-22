@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
-import { Center } from '@/shared/ui'
 import { ThreeDSChallenge } from '@/features/checkout'
 import { createHttpPaymentGatewayAdapter, type PaymentResult } from '@/entities/payment'
 
@@ -26,7 +25,5 @@ function ThreeDSPage() {
       .catch(() => navigate({ to: '/summary/failure' }))
   }
 
-  return (
-      <ThreeDSChallenge challengeId={challengeId} onCres={handleCres} />
-  )
+  return <ThreeDSChallenge challengeId={challengeId} onCres={handleCres} />
 }

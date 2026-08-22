@@ -1,8 +1,11 @@
 import { DonwloadReceiptButton } from './download-receipt-button'
+import { createHttpReceiptGatewayAdapter } from '@/entities/receipt'
+import {createPayCheckout} from "@/features/download-receipt/model/generate-receipt.usecase.ts";
+
 
 export const DownloadReceipt = () => {
   const handleGenerateReceipt = () => {
-    console.log('generate')
+    createPayCheckout(createHttpReceiptGatewayAdapter())("mock-intent-id");
   }
 
   return (

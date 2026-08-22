@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import {useNavigate} from "@tanstack/react-router";
+import { useNavigate } from '@tanstack/react-router'
 
 /**
  * LAYER: UI / delivery. This component is the DRIVING side of 3-D Secure —
@@ -21,10 +21,7 @@ import {useNavigate} from "@tanstack/react-router";
 const ACS_ORIGIN: string = import.meta.env.VITE_ACS_ORIGIN ?? 'https://localhost:5100'
 
 const base64url = (value: object): string =>
-  btoa(JSON.stringify(value))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
+  btoa(JSON.stringify(value)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 
 interface ThreeDSChallengeProps {
   challengeId: string
@@ -33,7 +30,7 @@ interface ThreeDSChallengeProps {
 
 export const ThreeDSChallenge = ({ challengeId, onCres }: ThreeDSChallengeProps) => {
   const formRef = useRef<HTMLFormElement>(null)
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   // Build the Challenge Request. In real 3DS the SDK builds this; the ACS echoes
   // the transaction ids back so both sides can correlate the session.
@@ -88,7 +85,7 @@ export const ThreeDSChallenge = ({ challengeId, onCres }: ThreeDSChallengeProps)
         sandbox="allow-scripts allow-forms allow-same-origin"
         referrerPolicy="no-referrer"
         className="h-[70svh] w-full max-w-full rounded-xl border border-[#2e303a] bg-white"
-        onError={() => navigate({ to: "/summary/failure" })}
+        onError={() => navigate({ to: '/summary/failure' })}
       />
     </div>
   )

@@ -97,8 +97,42 @@ const intent = await res.json()
 Validation: missing `amount`/`currency` → `400` (`parameter_missing`); non-positive or non-integer
 `amount`, or a `currency` that isn't a 3‑letter code → `422` (`parameter_invalid`).
 
-**Idempotency** — pass an `Idempotency-Key` header on create. Repeating the same key returns the
-original intent instead of creating a new one, so a retried request is safe.
+#### Idempotency
+
+Creating an intent is a POST that starts money movement, and networks are unreliable: a request can
+reach the server while its response is lost, a user can double-click "Pay", or the app can auto-retry
+a timeout. Without protection each retry would create a **new** intent — duplicate charges. An
+idempotency key makes create **safe to retry**: the same key always resolves to the same intent.
+
+Pass an `Idempotency-Key` header on `POST /api/payment-intents`:
+
+```ts
+await fetch('/api/payment-intents', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key },
+  body: JSON.stringify({ amount: 4999, currency: 'USD' }),
+})
+```
+
+How the mock implements it (`idempotencyKeys: Map<key, intentId>` in `data.ts`):
+
+1. read the `Idempotency-Key` header;
+2. if the key is already known, return the **already-created** intent (same id) — nothing new is created;
+3. otherwise create the intent and record `key → intent.id`.
+
+So N identical retries produce exactly one intent.
+
+**Generate the key once per attempt**, not per render or per retry — `crypto.randomUUID()` at the
+start of a checkout attempt, reused across retries of that attempt. A retry with a _fresh_ key defeats
+the purpose. A genuinely new attempt gets a new key.
+
+Idempotency is applied to **create only**. `confirm` and `cancel` are guarded by the state machine
+instead — confirming/cancelling a terminal intent returns `400` (`payment_intent_unexpected_state`),
+so they don't need a separate key.
+
+Simplifications vs a real API: production services also store the full response + status code, expire
+keys (~24h), and return `409` when the _same key_ arrives with a _different body_. This mock only maps
+`key → intent` and ignores the body on replay.
 
 **Confirm** — body `{ cardNumber }` (spaces are ignored). The card number decides the outcome
 (see the table below). The response is `200` with the updated intent:

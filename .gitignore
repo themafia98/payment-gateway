@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# ACS simulator self-signed certs (generate locally, never commit)
+acs/certs/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

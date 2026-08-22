@@ -81,7 +81,7 @@ const acsScreen = (challenge: ThreeDSChallenge) => `<!doctype html>
     <style>
       body { margin: 0; min-height: 100vh; display: grid; place-items: center;
         background: #0f1117; color: #e9e9e9; font: 16px/1.5 system-ui, sans-serif; }
-      .card { width: min(360px, 92vw); background: #1b1e27; border: 1px solid #2e303a;
+      .card { width: min(250px, 92vw); background: #1b1e27; border: 1px solid #2e303a;
         border-radius: 14px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
       h1 { font-size: 18px; margin: 0 0 4px; }
       p { color: #9aa0ac; margin: 0 0 20px; font-size: 14px; }

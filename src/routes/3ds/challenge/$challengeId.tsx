@@ -1,60 +1,32 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import {createHttpClient} from "@/shared/api";
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useRef } from 'react'
+import { Center } from '@/shared/ui'
+import { ThreeDSChallenge } from '@/features/checkout'
+import { createHttpPaymentGatewayAdapter, type PaymentResult } from '@/entities/payment'
 
 export const Route = createFileRoute('/3ds/challenge/$challengeId')({
-  component: ChallengePage,
+  component: ThreeDSPage,
 })
 
-function ChallengePage() {
+function ThreeDSPage() {
   const { challengeId } = Route.useParams()
+  const navigate = useNavigate()
 
-  const [html, setHtml] = useState<string>('')
-  const [error, setError] = useState<string | null>(null)
+  // Same adapter/port as checkout — the 3DS page is just another driving side.
+  const gatewayRef = useRef(createHttpPaymentGatewayAdapter())
 
-  useEffect(() => {
-    const loadChallenge = async () => {
-        const http = createHttpClient();
-      try {
-        const htmlResponse = await http.get<string>(
-            `/api/3ds/challenge/${challengeId}`,
-            {
-              headers: {
-                Accept: 'text/html',
-              },
-            },
-        )
-
-        setHtml(htmlResponse)
-      } catch (error) {
-        setError(
-            error instanceof Error
-                ? error.message
-                : 'Failed to load challenge',
-        )
-      }
-    }
-
-    loadChallenge()
-  }, [challengeId])
-
-  if (error) {
-    return <div>{error}</div>
-  }
-
-  if (!html) {
-    return <div>Loading...</div>
+  // ACS verdict (via postMessage inside ThreeDSChallenge) -> settle against the
+  // backend (source of truth) -> navigate. Navigation is delivery, so it lives here.
+  const handleCres = (outcome: 'success' | 'fail') => {
+    gatewayRef.current
+      .authenticate(challengeId, outcome)
+      .then((result: PaymentResult) =>
+        navigate({ to: result.status === 'succeeded' ? '/summary/success' : '/summary/failure' }),
+      )
+      .catch(() => navigate({ to: '/summary/failure' }))
   }
 
   return (
-      <iframe
-          title="3D Secure Authentication"
-          srcDoc={html}
-          style={{
-            width: '100%',
-            height: '100vh',
-            border: 0,
-          }}
-      />
+      <ThreeDSChallenge challengeId={challengeId} onCres={handleCres} />
   )
 }

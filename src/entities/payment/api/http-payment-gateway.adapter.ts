@@ -1,7 +1,58 @@
 import type { PaymentGateway, CreateIntentInput, CardInput } from './payment-gateway'
-import type { PaymentIntent, PaymentResult } from '../model/types'
+import type { PaymentIntent, PaymentResult, PaymentStatus } from '../model/types'
 import { createHttpClient, type HttpClient, HttpError } from '@/shared/api'
 import { normalizeCardNumber } from '@/shared/lib'
+
+/**
+ * Wire format (DTO) as the mock backend actually returns it (`src/mocks/types.ts`).
+ * The adapter is ALLOWED to know this shape — it is the translator. We declare it
+ * locally instead of importing from `src/mocks` so production code never depends on
+ * test infrastructure.
+ */
+interface PaymentIntentDto {
+  id: string
+  amount: number
+  currency: string
+  status: PaymentStatus
+  nextAction?: {
+    type: 'redirect_to_url'
+    three_d_secure: { challengeId: string; url: string; status: string }
+  } | null
+  error?: { code?: string; message: string } | null
+}
+
+/** DTO -> domain intent (drop wire-only fields like clientSecret/livemode). */
+const toDomainIntent = (dto: PaymentIntentDto): PaymentIntent => ({
+  id: dto.id,
+  amount: dto.amount,
+  currency: dto.currency,
+  status: dto.status,
+})
+
+/** DTO -> domain result. Single source of the status mapping. */
+const toPaymentResult = (dto: PaymentIntentDto): PaymentResult => {
+  const intent = toDomainIntent(dto)
+  switch (dto.status) {
+    case 'succeeded':
+      return { status: 'succeeded', intent }
+    case 'requires_action':
+      if (!dto.nextAction?.three_d_secure) {
+        return { status: 'error', error: { message: 'Missing 3-D Secure action in response' } }
+      }
+      return {
+        status: 'requires_action',
+        intent,
+        challenge: {
+          challengeId: dto.nextAction.three_d_secure.challengeId,
+          url: dto.nextAction.three_d_secure.url,
+        },
+      }
+    case 'declined':
+      return { status: 'declined', intent, error: dto.error ?? { message: 'Card declined' } }
+    default:
+      return { status: 'error', error: { message: `Unexpected status '${dto.status}'` } }
+  }
+}
 
 /**
  * LAYER: Adapter — driven/secondary in Hexagonal terms.
@@ -89,5 +140,28 @@ export const createHttpPaymentGatewayAdapter = (
 
   async cancel(intentId: string): Promise<void> {
     return http.post(`/payment-intents/${intentId}/cancel`, {})
+  },
+
+  async getIntent(intentId: string): Promise<PaymentIntent> {
+    const dto = await http.get<PaymentIntentDto>(`/payment-intents/${intentId}`)
+    return toDomainIntent(dto)
+  },
+
+  async authenticate(challengeId: string, outcome: 'success' | 'fail'): Promise<PaymentResult> {
+    try {
+      // The ACS already checked the human OTP; we pass only its Y/N verdict.
+      // The mock settles the intent and returns the authoritative paymentIntent.
+      const { paymentIntent } = await http.post<{ paymentIntent: PaymentIntentDto }>(
+        `/3ds/challenge/${challengeId}/complete`,
+        { outcome },
+        { headers: { Accept: 'application/json' } },
+      )
+      return toPaymentResult(paymentIntent)
+    } catch (cause) {
+      return {
+        status: 'error',
+        error: cause instanceof HttpError ? cause.payload : { message: '3-D Secure failed' },
+      }
+    }
   },
 })

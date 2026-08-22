@@ -44,4 +44,17 @@ export interface PaymentGateway {
 
   /** Cancel an intent. Mock: POST /api/payment-intents/:id/cancel */
   cancel(intentId: string): Promise<void>
+
+  /**
+   * Re-read an intent's current status (source of truth after a 3DS challenge).
+   * Mock: GET /api/payment-intents/:id
+   */
+  getIntent(intentId: string): Promise<PaymentIntent>
+
+  /**
+   * Settle a 3-D Secure challenge and return the resulting payment status.
+   * `outcome` is the ACS verdict (transStatus Y -> 'success', N -> 'fail').
+   * Mock: POST /api/3ds/challenge/:challengeId/complete
+   */
+  authenticate(challengeId: string, outcome: 'success' | 'fail'): Promise<PaymentResult>
 }

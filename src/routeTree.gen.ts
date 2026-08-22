@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SummaryFailureRouteRouteImport } from './routes/summary/failure/route'
 import { Route as SummarySuccessRouteRouteImport } from './routes/summary/success/route'
+import { Route as R3dsChallengeChallengeIdRouteImport } from './routes/3ds/challenge/$challengeId'
 import { Route as SummaryFailureIndexRouteImport } from './routes/summary/failure/index'
 import { Route as SummarySuccessIndexRouteImport } from './routes/summary/success/index'
 
@@ -30,6 +31,12 @@ const SummarySuccessRouteRoute = SummarySuccessRouteRouteImport.update({
   path: '/summary/success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R3dsChallengeChallengeIdRoute =
+  R3dsChallengeChallengeIdRouteImport.update({
+    id: '/3ds/challenge/$challengeId',
+    path: '/3ds/challenge/$challengeId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SummaryFailureIndexRoute = SummaryFailureIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -45,11 +52,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
+  '/3ds/challenge/$challengeId': typeof R3dsChallengeChallengeIdRoute
   '/summary/failure/': typeof SummaryFailureIndexRoute
   '/summary/success/': typeof SummarySuccessIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/3ds/challenge/$challengeId': typeof R3dsChallengeChallengeIdRoute
   '/summary/failure': typeof SummaryFailureIndexRoute
   '/summary/success': typeof SummarySuccessIndexRoute
 }
@@ -58,6 +67,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
+  '/3ds/challenge/$challengeId': typeof R3dsChallengeChallengeIdRoute
   '/summary/failure/': typeof SummaryFailureIndexRoute
   '/summary/success/': typeof SummarySuccessIndexRoute
 }
@@ -67,15 +77,21 @@ export interface FileRouteTypes {
     | '/'
     | '/summary/failure'
     | '/summary/success'
+    | '/3ds/challenge/$challengeId'
     | '/summary/failure/'
     | '/summary/success/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/summary/failure' | '/summary/success'
+  to:
+    | '/'
+    | '/3ds/challenge/$challengeId'
+    | '/summary/failure'
+    | '/summary/success'
   id:
     | '__root__'
     | '/'
     | '/summary/failure'
     | '/summary/success'
+    | '/3ds/challenge/$challengeId'
     | '/summary/failure/'
     | '/summary/success/'
   fileRoutesById: FileRoutesById
@@ -84,6 +100,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SummaryFailureRouteRoute: typeof SummaryFailureRouteRouteWithChildren
   SummarySuccessRouteRoute: typeof SummarySuccessRouteRouteWithChildren
+  R3dsChallengeChallengeIdRoute: typeof R3dsChallengeChallengeIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -107,6 +124,13 @@ declare module '@tanstack/react-router' {
       path: '/summary/success'
       fullPath: '/summary/success'
       preLoaderRoute: typeof SummarySuccessRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/3ds/challenge/$challengeId': {
+      id: '/3ds/challenge/$challengeId'
+      path: '/3ds/challenge/$challengeId'
+      fullPath: '/3ds/challenge/$challengeId'
+      preLoaderRoute: typeof R3dsChallengeChallengeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/summary/failure/': {
@@ -152,6 +176,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SummaryFailureRouteRoute: SummaryFailureRouteRouteWithChildren,
   SummarySuccessRouteRoute: SummarySuccessRouteRouteWithChildren,
+  R3dsChallengeChallengeIdRoute: R3dsChallengeChallengeIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

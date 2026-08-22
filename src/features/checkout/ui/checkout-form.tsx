@@ -33,8 +33,22 @@ export const CheckoutForm = () => {
     paymentAction(form).then((result) => {
       if (result.status === 'succeeded') {
         navigate({ to: '/summary/success' })
-      } else {
-        navigate({ to: '/summary/failure' })
+        return;
+      }
+
+      if (result.status === 'requires_action') {
+        const challengeId = result.challenge.url.split('/').pop()
+
+        if (!challengeId) {
+          return
+        }
+
+        navigate({
+          to: '/3ds/challenge/$challengeId',
+          params: {
+            challengeId,
+          },
+        })
       }
     })
   }

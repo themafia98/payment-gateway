@@ -7,7 +7,7 @@ import { PlanSelector } from './plan-selector'
 import { PaymentMethodSelector } from './payment-method-selector'
 import { Section } from '@/shared/ui'
 import { useNavigate } from '@tanstack/react-router'
-import { FormProvider, useForm, type SubmitErrorHandler } from 'react-hook-form'
+import { FormProvider, useForm, type SubmitErrorHandler, type SubmitHandler } from 'react-hook-form'
 import { formDefaultValues } from '../model/default-values'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -16,6 +16,8 @@ import {
   type CheckoutFormSchema,
 } from '../model/schema'
 import { CheckoutDetails } from './checkout-details'
+import { createPayCheckout } from '@/features/checkout/model/pay.usecase.ts'
+import { createHttpPaymentGatewayAdapter } from '@/entities/payment'
 
 export const CheckoutForm = () => {
   const methods = useForm<CheckoutFormInput, unknown, CheckoutFormSchema>({
@@ -25,8 +27,16 @@ export const CheckoutForm = () => {
 
   const navigate = useNavigate()
 
-  const handlePayment = () => {
-    navigate({ to: '/summary/success' })
+  const handlePayment: SubmitHandler<CheckoutFormSchema> = (form) => {
+    const paymentAction = createPayCheckout(createHttpPaymentGatewayAdapter())
+
+    paymentAction(form).then((result) => {
+      if (result.status === 'succeeded') {
+        navigate({ to: '/summary/success' })
+      } else {
+        navigate({ to: '/summary/failure' })
+      }
+    })
   }
 
   const handleError: SubmitErrorHandler<CheckoutFormInput> = (e) => {

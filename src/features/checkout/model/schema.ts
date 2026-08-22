@@ -1,5 +1,11 @@
 import * as z from 'zod'
-import { isCardNumber, normalizeCardNumber, createBranded, isCardExpiration } from '@/shared/lib'
+import {
+  isCardNumber,
+  normalizeCardNumber,
+  createBranded,
+  isCardExpiration,
+  isCVC,
+} from '@/shared/lib'
 
 const cardNumberSchema = z
   .string()
@@ -15,6 +21,11 @@ const expirationSchema = z
   .refine(isCardExpiration, 'Card is expired')
   .transform((value) => createBranded<string, 'CardExpiration'>(value))
 
+const cvcSchema = z
+  .string()
+  .refine(isCVC, 'CVC must contain 3 digits')
+  .transform((value) => createBranded<string, 'CvcCode'>(value))
+
 export const checkoutFormSchema = z.object({
   planId: z.string().min(1, 'Plan is required'),
 
@@ -25,7 +36,7 @@ export const checkoutFormSchema = z.object({
 
     exp: expirationSchema,
 
-    cvc: z.string().regex(/^\d{3}$/, 'CVC must contain 3 digits'),
+    cvc: cvcSchema,
   }),
 
   billing: z.object({

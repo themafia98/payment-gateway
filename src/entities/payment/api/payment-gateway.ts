@@ -5,8 +5,7 @@ import type { CardExpiration, CardNumber, CvcCode } from '@/shared/types'
 // or a fake for tests) without touching the domain or scenarios.
 
 export interface CreateIntentInput {
-  amount: number
-  currency: string
+  planId: string
 }
 
 // Card fields use branded types from @/shared/types (a lower layer). The port must

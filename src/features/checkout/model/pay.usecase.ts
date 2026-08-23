@@ -1,23 +1,14 @@
 import type { PaymentGateway, PaymentResult } from '@/entities/payment'
 import type { CheckoutFormSchema } from './schema'
-import { plans } from '@/features/checkout/model/plans-fixture.ts'
 
 // Payment use-case: create intent -> confirm -> return the result. Depends only on
 // the injected PaymentGateway port — no fetch, no navigation — so it's testable
-// without React or the network. The caller decides where to go from the result.
+// without React or the network. The price is resolved server-side from planId; the
+// client never sends an amount.
 export const createPayCheckout =
   (gateway: PaymentGateway) =>
   async (form: CheckoutFormSchema): Promise<PaymentResult> => {
-    const currentPlan = plans.find((plan) => plan.id === form.planId)
-
-    if (!currentPlan) {
-      throw new Error(`Plan with id ${form.planId} not found`)
-    }
-
-    const intent = await gateway.createIntent({
-      amount: currentPlan.priceNumeric,
-      currency: currentPlan.currencyISO,
-    })
+    const intent = await gateway.createIntent({ planId: form.planId })
 
     return await gateway.confirm(intent.id, {
       number: form.card.number,

@@ -1,5 +1,4 @@
 import { invoice } from '../model/invoice-fixture'
-import { plans } from '../model/plans-fixture'
 import { CheckoutButton } from './checkout-button'
 import { CreditCardDetails } from './credit-card-details/credit-card-details'
 import { Billing } from './billing'
@@ -18,6 +17,7 @@ import {
 import { CheckoutDetails } from './checkout-details'
 import { createPayCheckout } from '@/features/checkout/model/pay.usecase.ts'
 import { createHttpPaymentGatewayAdapter } from '@/entities/payment'
+import type { Plan } from '@/entities/plan'
 import {
   useCheckoutActions,
   useCheckoutError,
@@ -25,7 +25,11 @@ import {
 } from '@/features/checkout/store/checkout.selectors.ts'
 import { useEffect } from 'react'
 
-export const CheckoutForm = () => {
+interface CheckoutFormProps {
+  plans: Plan[]
+}
+
+export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
   const methods = useForm<CheckoutFormInput, unknown, CheckoutFormSchema>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: formDefaultValues,

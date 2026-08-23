@@ -58,7 +58,8 @@ export const createHttpPaymentGatewayAdapter = (
   http: HttpClient = createHttpClient(),
 ): PaymentGateway => ({
   async createIntent(input: CreateIntentInput): Promise<PaymentIntent> {
-    return http.post('/payment-intents', input)
+    const dto = await http.post<PaymentIntentDto>('/payment-intents', input)
+    return toDomainIntent(dto)
   },
 
   async confirm(intentId: string, card: CardInput): Promise<PaymentResult> {

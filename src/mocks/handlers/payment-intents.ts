@@ -1,6 +1,6 @@
 import { http } from 'msw'
 import { DEFAULT_OUTCOME, TEST_CARDS } from '../config'
-import { idempotencyKeys, paymentIntents } from '../data'
+import { idempotencyKeys, paymentIntents, plansById } from '../data'
 import { networkDelay } from '../lib/delay'
 import { error, invalidJson, json, notFound } from '../lib/respond'
 import { invalidParam, missingParam, normalizeCardNumber, readJson } from '../lib/validation'
@@ -19,7 +19,13 @@ const isTerminal = (status: PaymentIntentStatus) => TERMINAL.includes(status)
 
 const newId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, '')}`
 
-const buildIntent = ({ amount, currency }: CreatePaymentIntentRequest): PaymentIntent => {
+const buildIntent = ({
+  amount,
+  currency,
+}: {
+  amount: number
+  currency: string
+}): PaymentIntent => {
   const id = newId('pi')
 
   return {
@@ -58,19 +64,13 @@ export const paymentIntentHandlers = [
     const body = await readJson<Partial<CreatePaymentIntentRequest>>(request)
     if (!body) return invalidJson()
 
-    if (body.amount == null) return error(400, missingParam('amount'))
-    if (typeof body.amount !== 'number' || !Number.isInteger(body.amount) || body.amount <= 0) {
-      return error(
-        422,
-        invalidParam('amount', 'Amount must be a positive integer in the currency minor unit.'),
-      )
-    }
-    if (!body.currency) return error(400, missingParam('currency'))
-    if (typeof body.currency !== 'string' || body.currency.length !== 3) {
-      return error(422, invalidParam('currency', 'Currency must be a 3-letter ISO code.'))
-    }
+    // The client sends only a planId; the price is resolved server-side so it can
+    // never be tampered with in the request.
+    if (!body.planId) return error(400, missingParam('planId'))
+    const plan = plansById.get(body.planId)
+    if (!plan) return error(422, invalidParam('planId', 'Unknown plan.'))
 
-    const intent = save(buildIntent({ amount: body.amount, currency: body.currency }))
+    const intent = save(buildIntent({ amount: plan.amount, currency: plan.currency }))
     if (idempotencyKey) idempotencyKeys.set(idempotencyKey, intent.id)
 
     return json(intent, { status: 201 })

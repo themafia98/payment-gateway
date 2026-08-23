@@ -1,10 +1,14 @@
 import type { PaymentResult } from '@/entities/payment'
 import type { CheckoutState } from './checkout.types'
 
+// The result maps onto the payment-derived fields only; `method` is owned by
+// startPayment and preserved by the merge in applyResult.
+type CheckoutResultState = Omit<CheckoutState, 'method'>
+
 type ResultOf<S extends PaymentResult['status']> = Extract<PaymentResult, { status: S }>
 
 type ResultHandlers = {
-  [S in PaymentResult['status']]: (result: ResultOf<S>) => CheckoutState
+  [S in PaymentResult['status']]: (result: ResultOf<S>) => CheckoutResultState
 }
 
 const resultHandlers: ResultHandlers = {
@@ -19,5 +23,5 @@ const resultHandlers: ResultHandlers = {
   error: (r) => ({ status: 'error', intent: null, challenge: null, error: r.error }),
 }
 
-export const resultToState = (result: PaymentResult): CheckoutState =>
-  (resultHandlers[result.status] as (r: PaymentResult) => CheckoutState)(result)
+export const resultToState = (result: PaymentResult): CheckoutResultState =>
+  (resultHandlers[result.status] as (r: PaymentResult) => CheckoutResultState)(result)

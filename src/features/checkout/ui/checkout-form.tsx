@@ -18,6 +18,12 @@ import {
 import { CheckoutDetails } from './checkout-details'
 import { createPayCheckout } from '@/features/checkout/model/pay.usecase.ts'
 import { createHttpPaymentGatewayAdapter } from '@/entities/payment'
+import {
+  useCheckoutActions,
+  useCheckoutError,
+  useCheckoutIsBusy,
+} from '@/features/checkout/store/checkout.selectors.ts'
+import { useEffect } from 'react'
 
 export const CheckoutForm = () => {
   const methods = useForm<CheckoutFormInput, unknown, CheckoutFormSchema>({
@@ -27,38 +33,62 @@ export const CheckoutForm = () => {
 
   const navigate = useNavigate()
 
+  const isBusy = useCheckoutIsBusy()
+  const checkoutError = useCheckoutError()
+  const { startPayment, applyResult, reset } = useCheckoutActions()
+
+  useEffect(() => {
+    reset()
+  }, [reset])
+
   const handlePayment: SubmitHandler<CheckoutFormSchema> = (form) => {
+    if (isBusy) {
+      return
+    }
+
+    startPayment(form.paymentMethod)
+
     const paymentAction = createPayCheckout(createHttpPaymentGatewayAdapter())
 
-    paymentAction(form).then((result) => {
-      if (result.status === 'succeeded') {
-        navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
-        return
-      }
+    paymentAction(form)
+      .then((result) => {
+        applyResult(result)
 
-      if (result.status === 'requires_action') {
-        const challengeId = result.challenge.url.split('/').pop()
-
-        if (!challengeId) {
+        if (result.status === 'succeeded') {
+          navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
           return
         }
 
-        navigate({
-          to: '/3ds/challenge/$challengeId',
-          params: {
-            challengeId,
-          },
-          search: {
-            intentId: result.intent.id,
-          },
+        if (result.status === 'requires_action') {
+          const challengeId = result.challenge.url.split('/').pop()
+
+          if (!challengeId) {
+            return
+          }
+
+          navigate({
+            to: '/3ds/challenge/$challengeId',
+            params: {
+              challengeId,
+            },
+            search: {
+              intentId: result.intent.id,
+            },
+          })
+        }
+      })
+      .catch((e) => {
+        applyResult({
+          status: 'error',
+          error: e,
         })
-      }
-    })
+      })
   }
 
   const handleError: SubmitErrorHandler<CheckoutFormInput> = (e) => {
-    console.error(e)
-    navigate({ to: '/summary/failure' })
+    if (import.meta.env.DEV) {
+      console.error(e)
+    }
   }
 
   return (
@@ -81,7 +111,7 @@ export const CheckoutForm = () => {
         </Section>
         <Section>
           <CheckoutDetails invoice={invoice} />
-          <CheckoutButton loading={false} />
+          <CheckoutButton loading={isBusy} />
         </Section>
       </form>
     </FormProvider>

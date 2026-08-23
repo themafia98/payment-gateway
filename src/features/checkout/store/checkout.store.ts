@@ -1,4 +1,4 @@
-import { devtools } from 'zustand/middleware/devtools'
+import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { create } from 'zustand/react'
 import type { StateCreator } from 'zustand'
@@ -10,6 +10,7 @@ const initialState: CheckoutState = {
   intent: null,
   challenge: null,
   error: null,
+  method: null,
 }
 
 type CheckoutMutators = [['zustand/devtools', never], ['zustand/immer', never]]
@@ -21,11 +22,12 @@ export const useCheckoutStore = create<CheckoutStore>()(
   middlewares<CheckoutStore>((set) => ({
     ...initialState,
 
-    startPayment: () =>
+    startPayment: (method) =>
       set(
         (s) => {
           s.status = 'processing'
           s.error = null
+          s.method = method
         },
         undefined,
         'checkout/startPayment',

@@ -1,8 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { PaymentResultHeader } from '@/widgets/payment-result-header'
-import { TransactionDetails, type Transaction } from '@/entities/transaction'
+import { TransactionDetails } from '@/entities/transaction'
 import { DownloadReceipt } from '@/features/download-receipt'
 import { ReturnToStoreButton } from '@/features/return-to-store'
+import { useCheckoutStore } from '@/features/checkout/store/checkout.store.ts'
+import { createHttpPaymentGatewayAdapter, type PaymentIntent } from '@/entities/payment'
+import { toTransaction } from '@/features/checkout/model/to-transaction.ts'
+import { useMemo } from 'react'
 
 interface SuccessSearch {
   intentId?: string
@@ -14,29 +18,38 @@ export const Route = createFileRoute('/summary/success/')({
   validateSearch: (search: Record<string, unknown>): SuccessSearch => ({
     intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
   }),
+  loaderDeps: ({ search }) => ({ intentId: search.intentId }),
+  loader: async ({ deps }) => {
+    const state = useCheckoutStore.getState()
+
+    const isSameIntent = state.intent?.id === deps.intentId
+
+    let intent: PaymentIntent | null = isSameIntent ? state.intent : null
+
+    if (!isSameIntent && deps.intentId) {
+      intent = await createHttpPaymentGatewayAdapter().getIntent(deps.intentId)
+    }
+
+    if (!intent || intent.status !== 'succeeded') {
+      throw redirect({ to: '/summary/failure' })
+    }
+
+    return { intent, method: state.method }
+  },
   component: SuccessPage,
 })
 
-// TODO: test
-const transaction: Transaction = {
-  id: 'TXN-789123456',
-  amount: '$100.00',
-  paymentMethod: 'Bank Transfer',
-  date: '04/2026',
-  merchant: 'Store',
-}
-
 function SuccessPage() {
-  const { intentId } = Route.useSearch()
+  const { intent, method } = Route.useLoaderData()
+
+  const transaction = useMemo(() => toTransaction(intent, method), [intent, method])
 
   return (
     <>
-      <PaymentResultHeader isSuccess={true} />
-
+      <PaymentResultHeader isSuccess />
       <TransactionDetails transaction={transaction} />
-
       <section className="space-y-4">
-        <DownloadReceipt intentId={intentId} />
+        <DownloadReceipt intentId={intent.id} />
         <ReturnToStoreButton />
       </section>
     </>

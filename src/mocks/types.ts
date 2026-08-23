@@ -69,8 +69,6 @@ export type CreatePaymentIntentRequest = {
   planId: string
 }
 
-// Server-owned plan catalog record. `amount` (minor units) is authoritative for the
-// charge; the client never sends a price, only a planId.
 export type PlanRecord = {
   id: string
   name: string

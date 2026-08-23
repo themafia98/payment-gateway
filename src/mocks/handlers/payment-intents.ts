@@ -1,5 +1,5 @@
 import { http } from 'msw'
-import { DEFAULT_OUTCOME, TEST_CARDS } from '../config'
+import { DEFAULT_OUTCOME, TEST_CARDS } from '@/shared/config'
 import { idempotencyKeys, paymentIntents, plansById } from '../data'
 import { networkDelay } from '../lib/delay'
 import { error, invalidJson, json, notFound } from '../lib/respond'
@@ -58,8 +58,6 @@ export const paymentIntentHandlers = [
     const body = await readJson<Partial<CreatePaymentIntentRequest>>(request)
     if (!body) return invalidJson()
 
-    // The client sends only a planId; the price is resolved server-side so it can
-    // never be tampered with in the request.
     if (!body.planId) return error(400, missingParam('planId'))
     const plan = plansById.get(body.planId)
     if (!plan) return error(422, invalidParam('planId', 'Unknown plan.'))

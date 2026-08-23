@@ -4,7 +4,7 @@ import { CreditCardDetails } from './credit-card-details/credit-card-details'
 import { Billing } from './billing'
 import { PlanSelector } from './plan-selector'
 import { PaymentMethodSelector } from './payment-method-selector'
-import { Section } from '@/shared/ui'
+import { Section, ErrorText } from '@/shared/ui'
 import { useNavigate } from '@tanstack/react-router'
 import { FormProvider, useForm, type SubmitErrorHandler, type SubmitHandler } from 'react-hook-form'
 import { formDefaultValues } from '../model/default-values'
@@ -117,11 +117,7 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         </Section>
         <Section>
           <CheckoutDetails invoice={invoice} />
-          {checkoutError && (
-            <p role="alert" className="text-sm text-red-500">
-              {checkoutError.message}
-            </p>
-          )}
+          <ErrorText>{checkoutError?.message}</ErrorText>
           <CheckoutButton loading={isBusy} />
         </Section>
       </form>

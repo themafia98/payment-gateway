@@ -17,11 +17,7 @@ export interface CardInput {
 }
 
 export interface PaymentGateway {
-  /**
-   * Create a payment intent. Mock: POST /api/payment-intents.
-   * `idempotencyKey` tags the attempt so a retried request (lost response, auto-retry)
-   * resolves to the same intent instead of creating a duplicate charge.
-   */
+  /** Create a payment intent. Mock: POST /api/payment-intents */
   createIntent(input: CreateIntentInput, idempotencyKey: string): Promise<PaymentIntent>
 
   /** Confirm an intent with a card. Mock: POST /api/payment-intents/:id/confirm */

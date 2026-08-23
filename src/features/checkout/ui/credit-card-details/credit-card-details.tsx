@@ -1,16 +1,12 @@
 import { Controller, useFormContext } from 'react-hook-form'
-import { Input, FormDetail, Label } from '@/shared/ui'
+import { Input, FormDetail, Label, ErrorMessage } from '@/shared/ui'
 import { normalizeCVC } from '@/shared/lib'
 import type { CheckoutFormInput } from '../../model/schema'
 import { CreditCardInput } from './credit-card-input'
 import { CardExpirationInput } from './card-expiration-input'
-import { ErrorMessage } from '@hookform/error-message'
 
 export const CreditCardDetails = () => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext<CheckoutFormInput>()
+  const { control } = useFormContext<CheckoutFormInput>()
 
   return (
     <>
@@ -32,7 +28,7 @@ export const CreditCardDetails = () => {
             )}
           />
         </div>
-        <ErrorMessage as="p" errors={errors} name="card.exp" />
+        <ErrorMessage name="card.exp" />
 
         <div className="flex gap-2 pb-2 flex-wrap">
           <Controller
@@ -70,8 +66,8 @@ export const CreditCardDetails = () => {
           />
         </div>
 
-        <ErrorMessage as="p" errors={errors} name="card.number" />
-        <ErrorMessage as="p" errors={errors} name="card.cvc" />
+        <ErrorMessage name="card.number" />
+        <ErrorMessage name="card.cvc" />
 
         <FormDetail>
           By providing your card information, you allow us to charge your card for future payments

@@ -1,13 +1,9 @@
 import { useFormContext } from 'react-hook-form'
-import { Input, Label } from '@/shared/ui'
+import { Input, Label, ErrorMessage } from '@/shared/ui'
 import type { CheckoutFormSchema } from '../model/schema'
-import { ErrorMessage } from '@hookform/error-message'
 
 export const Billing = () => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<CheckoutFormSchema>()
+  const { register } = useFormContext<CheckoutFormSchema>()
 
   return (
     <>
@@ -21,7 +17,7 @@ export const Billing = () => {
             {...register('billing.country')}
           />
         </div>
-        <ErrorMessage as="p" errors={errors} name="billing.country" />
+        <ErrorMessage name="billing.country" />
         <div className="flex">
           <Input
             autoComplete="postal-code"
@@ -29,7 +25,7 @@ export const Billing = () => {
             {...register('billing.postalCode')}
           />
         </div>
-        <ErrorMessage as="p" errors={errors} name="billing.postalCode" />
+        <ErrorMessage name="billing.postalCode" />
       </div>
     </>
   )

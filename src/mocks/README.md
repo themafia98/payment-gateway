@@ -396,7 +396,7 @@ switch (result.status) {
 ```
 src/mocks/
   browser.ts          worker setup (setupWorker)
-  config.ts           latency bounds, test cards, OTP
+  config.ts           latency bounds, OTP (test cards live in src/shared/config)
   data.ts             in-memory stores (plans, intents, idempotency keys, challenges)
   types.ts            request/response and domain types
   lib/
@@ -421,8 +421,8 @@ src/mocks/
   responses keep the same shape.
 - **A new plan:** add an entry to `plans` in `data.ts`. The catalog and the price used
   for charging both read from there, so they can't drift apart.
-- **A new test card:** add an entry to `TEST_CARDS` in `config.ts`. The confirm handler
-  reads its behaviour from there — nothing else changes.
+- **A new test card:** add an entry to `TEST_CARDS` in `src/shared/config/test-cards.ts`.
+  The confirm handler reads its behaviour from there — nothing else changes.
 
 All state lives in memory and resets on reload.
 

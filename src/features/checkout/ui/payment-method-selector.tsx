@@ -1,15 +1,10 @@
-import { Tab, Tabs } from '@/shared/ui'
+import { Tab, Tabs, ErrorMessage } from '@/shared/ui'
 import type { PaymentMethod } from '@/entities/payment-method'
 import type { CheckoutFormSchema } from '../model/schema'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { ErrorMessage } from '@hookform/error-message'
 
 export const PaymentMethodSelector = () => {
-  const {
-    setValue,
-    control,
-    formState: { errors },
-  } = useFormContext<CheckoutFormSchema>()
+  const { setValue, control } = useFormContext<CheckoutFormSchema>()
 
   const paymentMethod = useWatch({
     control,
@@ -30,7 +25,7 @@ export const PaymentMethodSelector = () => {
           Bank Transfer
         </Tab>
       </Tabs>
-      <ErrorMessage as="p" errors={errors} name="paymentMethod" />
+      <ErrorMessage name="paymentMethod" />
     </>
   )
 }

@@ -21,19 +21,24 @@ the ACS notes below for the one-time certificate step.
 
 ## Architecture and docs
 
-The app follows Clean / Hexagonal ideas laid out with Feature-Sliced Design. Start
-here:
+The app follows Clean / Hexagonal ideas laid out with Feature-Sliced Design. Every
+doc below exists in English and Russian, except the ACS notes. Start here:
 
-- **[Architecture (English)](./docs/architecture.md)** - why the code is shaped
-  this way and how the pieces fit, with diagrams.
-- **[Архитектура (Русский)](./docs/architecture.ru.md)** - то же на русском.
+- **Architecture** ([English](./docs/architecture.md) / [Русский](./docs/architecture.ru.md)) -
+  why the code is shaped this way and how the pieces fit, with diagrams.
 - **Iframes and 3-D Secure** ([English](./docs/iframe.md) / [Русский](./docs/iframe.ru.md)) -
   how the embedded bank page is sandboxed and secured (sandbox flags, headers,
   postMessage, iframe vs redirect).
-- **[Mock backend](./src/mocks/README.md)** - the MSW fake API, endpoints and test
-  cards.
-- **[3-D Secure ACS simulator](./acs/README.md)** - the standalone bank server,
-  iframe vs redirect modes, and the security headers.
+- **Security headers on the challenge page** ([English](./docs/security-headers.md) / [Русский](./docs/security-headers.ru.md)) -
+  every header the ACS sends, one by one: CSP, `X-Frame-Options`, `nosniff`,
+  COOP / COEP / CORP, `Referrer-Policy` and the cookie flags.
+- **Mock payment API** ([English](./src/mocks/README.md) / [Русский](./src/mocks/README.ru.md)) -
+  the MSW fake backend: endpoints, the PaymentIntent state machine, test cards, and
+  **idempotency** ([English](./src/mocks/README.md#idempotency--making-retry-safe) /
+  [Русский](./src/mocks/README.ru.md#идемпотентность--как-сделать-повтор-безопасным)) -
+  why a retried `POST /payment-intents` must not charge twice.
+- **[3-D Secure ACS simulator](./acs/README.md)** - the standalone bank server, iframe
+  vs redirect modes, and where to inspect the security surface in DevTools.
 
 ## Tooling notes
 

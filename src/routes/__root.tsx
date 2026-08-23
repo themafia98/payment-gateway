@@ -2,16 +2,21 @@ import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Main } from '@/shared/ui'
 import { Merchant, MerchantProvider, type MerchantConfig } from '@/entities/merchant'
+import type { PaymentIntent, PaymentResult } from '@/entities/payment'
+import type { Plan } from '@/entities/plan'
 
-// Dependencies the composition root (app/providers/router) injects. Routes depend
-// on this shape, never on a concrete adapter — swapping HTTP for a fake is one line
-// there, and loaders stay free of transport details.
+// Dependencies the composition root (app/providers/router) injects. Routes name
+// what they need and depend on this shape only — never on a concrete adapter, so
+// nothing below this file knows that the transport happens to be HTTP.
 export interface RouterContext {
-  merchant: () => Promise<MerchantConfig>
+  getMerchantConfig: () => Promise<MerchantConfig>
+  getPlans: () => Promise<Plan[]>
+  getPaymentIntent: (intentId: string) => Promise<PaymentIntent>
+  authenticate3ds: (challengeId: string, outcome: 'success' | 'fail') => Promise<PaymentResult>
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  loader: ({ context }) => context.merchant(),
+  loader: ({ context }) => context.getMerchantConfig(),
   component: RootComponent,
 })
 

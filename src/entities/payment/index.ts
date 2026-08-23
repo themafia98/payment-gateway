@@ -15,3 +15,4 @@ export type {
 export type { PaymentGateway, CreateIntentInput, CardInput } from './api/payment-gateway'
 
 export { createHttpPaymentGatewayAdapter } from './api/http-payment-gateway.adapter'
+export { createGetPaymentIntent } from './model/get-payment-intent.usecase'

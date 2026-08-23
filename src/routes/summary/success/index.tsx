@@ -4,7 +4,7 @@ import { TransactionDetails } from '@/entities/transaction'
 import { DownloadReceipt } from '@/features/download-receipt'
 import { ReturnToStoreButton } from '@/features/return-to-store'
 import { toTransaction, useCheckoutStore } from '@/features/checkout'
-import { createHttpPaymentGatewayAdapter, type PaymentIntent } from '@/entities/payment'
+import type { PaymentIntent } from '@/entities/payment'
 import { useMemo } from 'react'
 import { useMerchant } from '@/entities/merchant'
 
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/summary/success/')({
     intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
   }),
   loaderDeps: ({ search }) => ({ intentId: search.intentId }),
-  loader: async ({ deps }) => {
+  loader: async ({ context, deps }) => {
     const state = useCheckoutStore.getState()
 
     const isSameIntent = state.intent?.id === deps.intentId
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/summary/success/')({
     let intent: PaymentIntent | null = isSameIntent ? state.intent : null
 
     if (!isSameIntent && deps.intentId) {
-      intent = await createHttpPaymentGatewayAdapter().getIntent(deps.intentId)
+      intent = await context.getPaymentIntent(deps.intentId)
     }
 
     if (!intent || intent.status !== 'succeeded') {

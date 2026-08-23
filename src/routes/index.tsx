@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CheckoutForm } from '@/features/checkout'
-import { createHttpPlanGatewayAdapter } from '@/entities/plan'
 
 export const Route = createFileRoute('/')({
-  loader: () => createHttpPlanGatewayAdapter().getPlans(),
+  loader: ({ context }) => context.getPlans(),
   component: Index,
 })
 

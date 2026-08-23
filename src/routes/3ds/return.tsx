@@ -2,8 +2,6 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { Center } from '@/shared/ui'
 import type { PaymentResult } from '@/entities/payment'
-import { createHttpPaymentGatewayAdapter } from '@/entities/payment'
-import { createAuthenticate3ds } from '@/features/checkout'
 
 // Return landing for redirect-mode 3DS. The bank sends the browser back with
 // ?challengeId&transStatus (and our intentId). State is wiped by the reload, so
@@ -26,6 +24,7 @@ export const Route = createFileRoute('/3ds/return')({
 
 function ThreeDSReturnPage() {
   const { intentId, challengeId, transStatus } = Route.useSearch()
+  const { authenticate3ds } = Route.useRouteContext()
   const navigate = useNavigate()
   const settled = useRef(false)
 
@@ -38,8 +37,6 @@ function ThreeDSReturnPage() {
       return
     }
 
-    const authenticate3ds = createAuthenticate3ds(createHttpPaymentGatewayAdapter())
-
     authenticate3ds(challengeId, transStatus === 'Y' ? 'success' : 'fail')
       .then((result: PaymentResult) =>
         result.status === 'succeeded'
@@ -47,7 +44,7 @@ function ThreeDSReturnPage() {
           : navigate({ to: '/summary/failure', search: { intentId } }),
       )
       .catch(() => navigate({ to: '/summary/failure', search: { intentId } }))
-  }, [challengeId, transStatus, intentId, navigate])
+  }, [authenticate3ds, challengeId, transStatus, intentId, navigate])
 
   return (
     <Center>

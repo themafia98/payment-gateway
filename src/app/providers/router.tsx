@@ -1,11 +1,15 @@
 import { createRouter } from '@tanstack/react-router'
 import { routeTree } from '@/routeTree.gen'
 import { createGetMerchantConfig, createHttpMerchantGatewayAdapter } from '@/entities/merchant'
+import { createGetPaymentIntent, createHttpPaymentGatewayAdapter } from '@/entities/payment'
+import { createGetPlans, createHttpPlanGatewayAdapter } from '@/entities/plan'
+import { createAuthenticate3ds } from '@/features/checkout'
 import { Pending } from '@/shared/ui'
 
-// Composition root: the only place ports meet concrete adapters. `context` is
-// type-checked against the root route's RouterContext through routeTree — no
-// import from the routes layer needed, and a missing dependency fails the build.
+// Composition root: the only place ports meet concrete adapters. One gateway
+// instance is shared by the payment use-cases so they talk to the same client.
+const paymentGateway = createHttpPaymentGatewayAdapter()
+
 export const router = createRouter({
   routeTree,
   basepath: import.meta.env.BASE_URL.replace(/\/$/, '') || '/',
@@ -20,8 +24,13 @@ export const router = createRouter({
   defaultPendingMs: 250,
   defaultPendingMinMs: 400,
 
+  // Checked against RouterContext through routeTree — a missing or mistyped
+  // dependency fails the build, with no type import from the routes layer.
   context: {
-    merchant: createGetMerchantConfig(createHttpMerchantGatewayAdapter()),
+    getMerchantConfig: createGetMerchantConfig(createHttpMerchantGatewayAdapter()),
+    getPlans: createGetPlans(createHttpPlanGatewayAdapter()),
+    getPaymentIntent: createGetPaymentIntent(paymentGateway),
+    authenticate3ds: createAuthenticate3ds(paymentGateway),
   },
 })
 

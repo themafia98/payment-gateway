@@ -3,7 +3,7 @@ import { PaymentResultHeader } from '@/widgets/payment-result-header'
 import { TransactionDetails } from '@/entities/transaction'
 import { RetryPayment } from '@/features/retry-payment'
 import { toTransaction, useCheckoutStore } from '@/features/checkout'
-import { createHttpPaymentGatewayAdapter, type PaymentIntent } from '@/entities/payment'
+import type { PaymentIntent } from '@/entities/payment'
 import { useMerchant } from '@/entities/merchant'
 import { useMemo } from 'react'
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/summary/failure/')({
     intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
   }),
   loaderDeps: ({ search }) => ({ intentId: search.intentId }),
-  loader: async ({ deps }) => {
+  loader: async ({ context, deps }) => {
     const state = useCheckoutStore.getState()
 
     const isSameIntent = state.intent?.id === deps.intentId
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/summary/failure/')({
     let intent: PaymentIntent | null = isSameIntent ? state.intent : null
 
     if (!isSameIntent && deps.intentId) {
-      intent = await createHttpPaymentGatewayAdapter().getIntent(deps.intentId)
+      intent = await context.getPaymentIntent(deps.intentId)
     }
 
     if (!intent) {

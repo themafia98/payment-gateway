@@ -1,32 +1,62 @@
 # Mock payment API
 
-A browser-side mock of a Stripe-style payment API, built on [MSW](https://mswjs.io/).
-It lets the frontend develop and test the full payment flow — including 3‑D Secure — without a
-real backend. Requests are intercepted by a service worker, so from the app's point of view these
-are ordinary `fetch` calls over the network.
+> Русская версия: [README.ru.md](./README.ru.md)
 
-## Enabling it
+A pretend payment backend that runs **inside your browser**. It behaves like a
+Stripe-style API — create a charge, confirm a card, walk through 3‑D Secure — but there
+is no server. That means you can build and test the whole checkout, including the tricky
+bank-authentication step, offline and with zero setup.
 
-The mock only runs in development, and only when explicitly turned on:
+It is built on [MSW](https://mswjs.io/) (Mock Service Worker). A service worker sits
+between the app and the network and answers the requests itself, so from the app's side
+these look like completely ordinary `fetch` calls.
+
+If you only remember one thing: **the app talks to `/api/...` exactly as it would to a
+real server; the mock just answers instead of the network.**
+
+```mermaid
+flowchart LR
+    APP["Your app<br/>fetch('/api/…')"] --> SW["Service worker<br/>(MSW)"]
+    SW -->|"matches a handler"| H["Handler<br/>(handlers/*.ts)"]
+    H --> MEM["In-memory store<br/>(data.ts)"]
+    H -->|"JSON response"| APP
+    SW -.->|"no handler → real network"| NET["🌐 passthrough"]
+```
+
+---
+
+## Turning it on
+
+The mock only runs in development, and only when you ask for it:
 
 ```bash
 npm run dev:mock
 ```
 
-This starts Vite with the `mock` mode, which loads `.env.mock` (`VITE_ENABLE_MSW=true`).
-The worker is registered in `src/app/enable-mocking.ts`; when the flag is off (plain `npm run dev`
-or any production build) none of this code is bundled and requests hit the real network.
+That starts Vite in `mock` mode, which loads `.env.mock` (`VITE_ENABLE_MSW=true`) and
+registers the worker in `src/app/enable-mocking.ts`. With plain `npm run dev` or any
+production build, none of this code is bundled — requests hit the real network. Anything
+the mock doesn't recognise is passed straight through (`onUnhandledRequest: 'bypass'`),
+so images, fonts and other traffic are untouched.
 
-Unhandled requests are passed through (`onUnhandledRequest: 'bypass'`), so static assets and other
-traffic are unaffected.
+**Everything lives in memory and resets on reload.** There is no database; refresh the
+page and every intent, key and challenge is gone. That is on purpose — a clean slate for
+each test run.
 
-## Conventions
+---
 
-- **Base path:** all endpoints live under `/api`.
-- **Format:** requests and responses are JSON unless noted (the 3‑D Secure challenge page is HTML).
-- **Amounts:** integer **minor units** (e.g. cents). `4999` means `$49.99`.
-- **No auth:** requests do not require an API key.
-- **Errors** use a single envelope:
+## House rules
+
+A few conventions hold across every endpoint:
+
+- **Base path:** everything is under `/api`.
+- **Format:** JSON in, JSON out (the one exception is the 3‑D Secure page, which is HTML).
+- **Money is in _minor units_.** `4999` means **$49.99**, not $4999. Cents, not dollars.
+  This trips people up constantly, so: multiply by 100 when you think in dollars.
+- **No auth.** No API keys — this is a local toy.
+- **Latency is faked.** Every response waits a random 150–700 ms so the UI has to cope
+  with real-world "the network is slow" behaviour (spinners, disabled buttons).
+- **Errors always look the same** — one envelope, so the client has one thing to parse:
 
   ```json
   {
@@ -34,129 +64,238 @@ traffic are unaffected.
       "type": "invalid_request_error",
       "code": "parameter_missing",
       "message": "…",
-      "param": "amount"
+      "param": "planId"
     }
   }
   ```
 
   `type` is one of `invalid_request_error`, `card_error`, `api_error`, `rate_limit_error`.
-  `code` and `param` are present where relevant.
+  `code` and `param` appear when they help.
 
-- **Latency:** every response is delayed by a random 150–700 ms to mimic a real network.
+---
 
-### Payment intent object
+## The two objects you'll meet
+
+### Plan
+
+The catalog of what a customer can buy. **It lives on the server** — the browser never
+gets to say what something costs (more on why under [Prices live on the
+server](#prices-live-on-the-server-not-the-browser)).
+
+```jsonc
+{
+  "id": "1id",
+  "name": "Monthly",
+  "discount": "32%", // optional
+  "price": "25/month", // display text
+  "amount": 2500, // the real, chargeable price in minor units
+  "currency": "USD",
+}
+```
+
+### Payment intent
+
+One attempt to take money. It's a small state machine — it starts empty and moves
+towards a final ("terminal") state as the customer acts.
 
 ```jsonc
 {
   "id": "pi_a1b2…",
   "object": "payment_intent",
-  "amount": 4999,
+  "amount": 2500,
   "currency": "USD",
   "status": "requires_payment_method",
   "clientSecret": "pi_a1b2…_secret_…",
   "livemode": false,
   "created": 1755705600, // unix seconds
-  "nextAction": null, // set when status is "requires_action"
-  "error": null, // set when a card is declined
+  "nextAction": null, // filled in when status is "requires_action"
+  "error": null, // filled in when a card is declined
 }
 ```
 
-`status` moves through: `requires_payment_method` → `processing` | `requires_action` |
-`succeeded` | `declined`, and `canceled` via the cancel endpoint. `succeeded`, `declined` and
-`canceled` are terminal.
+Here is the whole life of an intent. Green states are terminal — once reached, nothing
+changes:
+
+```mermaid
+stateDiagram-v2
+    [*] --> requires_payment_method: create
+    requires_payment_method --> processing: confirm (slow card)
+    requires_payment_method --> requires_action: confirm (needs 3-D Secure)
+    requires_payment_method --> succeeded: confirm (good card)
+    requires_payment_method --> declined: confirm (bad card)
+    requires_action --> succeeded: 3-D Secure passes
+    requires_action --> declined: 3-D Secure fails
+    processing --> succeeded: poll settles
+    requires_payment_method --> canceled: cancel
+    succeeded: succeeded ✅
+    declined: declined ✅
+    canceled: canceled ✅
+    succeeded --> [*]
+    declined --> [*]
+    canceled --> [*]
+```
+
+---
+
+## Prices live on the server, not the browser
+
+This is the single most important idea in this mock, and it mirrors how real payment
+APIs work.
+
+**The browser can be tampered with.** Anyone can open dev tools and change what the app
+sends. If the client told the server _"charge $25"_, an attacker could quietly change it
+to _"charge $0.01"_ and buy the yearly plan for a penny.
+
+So the client never sends a price. It sends a **`planId`** — the _name_ of what they
+want — and the server looks up the real price in its own catalog:
+
+```mermaid
+flowchart LR
+    C["Browser<br/>createIntent({ planId: '2id' })"] -->|"only the plan id"| S["Mock server"]
+    S -->|"look up plan '2id'"| CAT["Catalog<br/>amount: 12500, currency: USD"]
+    CAT --> S
+    S -->|"intent for $125.00"| C
+    EVIL["😈 tampered request<br/>{ planId: 'unknown' }"] -->|"422 Unknown plan"| X["🛑 rejected"]
+```
+
+Change `planId` in the request and you only change _which_ plan you're buying — you can
+never invent a price. An unknown `planId` is simply rejected.
+
+---
 
 ## Endpoints
 
-### Merchant & payment methods
+### Catalog, merchant & payment methods
 
-| Method | Path                   | Description                      |
-| ------ | ---------------------- | -------------------------------- |
-| GET    | `/api/merchant/config` | Merchant name, currency, amount. |
-| GET    | `/api/payment-methods` | Saved test payment methods.      |
+| Method | Path                   | What you get                       |
+| ------ | ---------------------- | ---------------------------------- |
+| GET    | `/api/plans`           | The plan catalog (array of plans). |
+| GET    | `/api/merchant/config` | Merchant name, currency, amount.   |
+| GET    | `/api/payment-methods` | Saved test payment methods.        |
+
+`GET /api/plans` is what the checkout page reads to draw the plan cards — so the prices
+shown always match the prices the server will charge.
 
 ### Payment intents
 
-| Method | Path                               | Description                           |
+| Method | Path                               | What it does                          |
 | ------ | ---------------------------------- | ------------------------------------- |
-| POST   | `/api/payment-intents`             | Create an intent.                     |
-| GET    | `/api/payment-intents/:id`         | Retrieve an intent (poll its status). |
-| POST   | `/api/payment-intents/:id/confirm` | Confirm with a card number.           |
-| POST   | `/api/payment-intents/:id/cancel`  | Cancel a non-terminal intent.         |
+| POST   | `/api/payment-intents`             | Start a new charge attempt.           |
+| GET    | `/api/payment-intents/:id`         | Read one back (poll its status).      |
+| POST   | `/api/payment-intents/:id/confirm` | Hand over a card and see what happens.|
+| POST   | `/api/payment-intents/:id/cancel`  | Call off a not-yet-finished attempt.  |
 
-**Create** — body `{ amount, currency }`. Returns `201` with the intent.
+**Create** — body is just `{ planId }`. The server resolves the price itself and returns
+`201` with the new intent.
 
 ```ts
 const res = await fetch('/api/payment-intents', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID() },
-  body: JSON.stringify({ amount: 4999, currency: 'USD' }),
+  body: JSON.stringify({ planId: '1id' }),
 })
 const intent = await res.json()
 ```
 
-Validation: missing `amount`/`currency` → `400` (`parameter_missing`); non-positive or non-integer
-`amount`, or a `currency` that isn't a 3‑letter code → `422` (`parameter_invalid`).
+Validation: missing `planId` → `400` (`parameter_missing`); a `planId` that isn't in the
+catalog → `422` (`parameter_invalid`).
 
-#### Idempotency
+#### Idempotency — making "retry" safe
 
-Creating an intent is a POST that starts money movement, and networks are unreliable: a request can
-reach the server while its response is lost, a user can double-click "Pay", or the app can auto-retry
-a timeout. Without protection each retry would create a **new** intent — duplicate charges. An
-idempotency key makes create **safe to retry**: the same key always resolves to the same intent.
+This is worth understanding properly, because it's where naive payment code goes wrong.
 
-Pass an `Idempotency-Key` header on `POST /api/payment-intents`:
+**The problem.** Creating an intent starts money moving, and the network is not
+reliable. Three everyday things can make the _same_ request happen twice:
 
-```ts
-await fetch('/api/payment-intents', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key },
-  body: JSON.stringify({ amount: 4999, currency: 'USD' }),
-})
+- the request reaches the server but the **response is lost** on the way back, so the app
+  thinks it failed and tries again;
+- the user **double-clicks** "Pay";
+- the app **auto-retries** after a timeout.
+
+Without protection, each of those creates a **brand-new intent** — and the customer gets
+charged twice. Not good.
+
+**The fix — an idempotency key.** The client generates one random string per _attempt_
+and sends it as the `Idempotency-Key` header. It's like putting a name tag on the
+request: _"this is attempt #abc123."_ The server remembers that name. If a request
+arrives wearing a name it has already seen, the server doesn't do the work again — it
+just hands back the result it produced the first time.
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Server as Mock server
+    participant Map as idempotencyKeys map
+
+    App->>Server: POST /payment-intents<br/>Idempotency-Key: abc123
+    Server->>Map: seen "abc123"?
+    Map-->>Server: no
+    Server->>Server: create intent pi_001
+    Server->>Map: remember abc123 → pi_001
+    Server-->>App: 201 pi_001
+
+    Note over App,Server: response lost / user double-clicks → same key retried
+
+    App->>Server: POST /payment-intents<br/>Idempotency-Key: abc123
+    Server->>Map: seen "abc123"?
+    Map-->>Server: yes → pi_001
+    Server-->>App: 200 pi_001 (the same one, nothing new created)
 ```
 
-How the mock implements it (`idempotencyKeys: Map<key, intentId>` in `data.ts`):
+So N identical retries produce **exactly one** intent. In this mock the memory is a
+simple `Map<key, intentId>` in `data.ts`; the handler:
 
-1. read the `Idempotency-Key` header;
-2. if the key is already known, return the **already-created** intent (same id) — nothing new is created;
-3. otherwise create the intent and record `key → intent.id`.
+1. reads the `Idempotency-Key` header;
+2. if the key is already known, returns the **already-created** intent (same id);
+3. otherwise creates the intent and records `key → intent.id`.
 
-So N identical retries produce exactly one intent.
+**The one rule that makes it work: generate the key once _per attempt_, and reuse it
+across retries of that attempt.** Do it with `crypto.randomUUID()` when checkout starts —
+not on every render, and _not_ fresh on each retry. A retry with a new key looks like a
+new attempt and defeats the whole point. When the customer genuinely starts over, _then_
+they get a new key.
 
-**Generate the key once per attempt**, not per render or per retry — `crypto.randomUUID()` at the
-start of a checkout attempt, reused across retries of that attempt. A retry with a _fresh_ key defeats
-the purpose. A genuinely new attempt gets a new key.
+**Why only create?** `confirm` and `cancel` don't need a key — they're protected a
+different way. They act on an intent that already exists, and the state machine won't let
+them run twice: confirming or cancelling an intent that's already finished returns `400`
+(`payment_intent_unexpected_state`). Idempotency-by-key guards the one operation that
+_creates_ something; the state machine guards the rest.
 
-Idempotency is applied to **create only**. `confirm` and `cancel` are guarded by the state machine
-instead — confirming/cancelling a terminal intent returns `400` (`payment_intent_unexpected_state`),
-so they don't need a separate key.
+**How real APIs go further** (this mock keeps it simple on purpose): production services
+also store the full response body and status code (not just the id), **expire** keys
+after ~24h, and return `409 Conflict` if the _same key_ comes back with a _different
+body_ (that means a bug — the client reused a name tag for a different request). This
+mock only maps `key → intent` and ignores the body on replay.
 
-Simplifications vs a real API: production services also store the full response + status code, expire
-keys (~24h), and return `409` when the _same key_ arrives with a _different body_. This mock only maps
-`key → intent` and ignores the body on replay.
+**Confirm** — body `{ cardNumber }` (spaces are ignored). The card number you send
+decides the outcome — see [Test cards](#test-cards). You always get `200` with the
+updated intent; the _status_ tells you what happened:
 
-**Confirm** — body `{ cardNumber }` (spaces are ignored). The card number decides the outcome
-(see the table below). The response is `200` with the updated intent:
+- good card → `status: "succeeded"`
+- declined → `status: "declined"` with a filled-in `error` (still HTTP `200` — a decline
+  is a normal card answer, not a broken connection)
+- needs the bank → `status: "requires_action"` plus a `nextAction` (see 3‑D Secure)
+- slow → `status: "processing"` — keep reading `GET /api/payment-intents/:id` until it
+  settles
 
-- succeeds → `status: "succeeded"`
-- declines → `status: "declined"` with a populated `error` object (still HTTP `200`; the decline is
-  a card result, not a transport error)
-- needs authentication → `status: "requires_action"` with a `nextAction` (see 3‑D Secure)
-- processing → `status: "processing"` (poll `GET /api/payment-intents/:id` for the final state)
-
-Confirming an intent that is already terminal or awaiting authentication returns `400`
-(`payment_intent_unexpected_state`). A confirm against an unknown id returns `404`
+Confirming an intent that's already finished (or waiting on the bank) returns `400`
+(`payment_intent_unexpected_state`). Confirming an id that doesn't exist returns `404`
 (`resource_missing`).
 
-**Cancel** — moves a non-terminal intent to `canceled`; a terminal intent returns `400`.
+**Cancel** — moves a not-yet-finished intent to `canceled`; a finished one returns `400`.
 
 ### 3‑D Secure
 
-| Method | Path                                       | Description                            |
-| ------ | ------------------------------------------ | -------------------------------------- |
-| GET    | `/api/3ds/challenge/:challengeId`          | Challenge page (HTML) or state (JSON). |
-| POST   | `/api/3ds/challenge/:challengeId/complete` | Submit the authentication result.      |
+Some cards require an extra "prove it's really you" step with the bank — a code, a
+push notification. That's 3‑D Secure, and it's the fiddly part of any checkout.
 
-When a confirm returns `requires_action`, the intent carries:
+| Method | Path                                       | What it does                           |
+| ------ | ------------------------------------------ | -------------------------------------- |
+| GET    | `/api/3ds/challenge/:challengeId`          | The bank's challenge page (HTML/JSON). |
+| POST   | `/api/3ds/challenge/:challengeId/complete` | Send the authentication result.        |
+
+When a confirm comes back as `requires_action`, the intent carries the pointer to the
+challenge:
 
 ```jsonc
 "nextAction": {
@@ -169,21 +308,42 @@ When a confirm returns `requires_action`, the intent carries:
 }
 ```
 
-`GET /api/3ds/challenge/:challengeId` returns an HTML authentication screen by default (suitable for
-a redirect or iframe). Send `Accept: application/json` to get the challenge state as JSON instead.
+The whole dance, end to end:
 
-`POST /api/3ds/challenge/:challengeId/complete` accepts either the HTML form field `otp`, a JSON
-body `{ "otp": "1234" }`, or `{ "outcome": "success" | "fail" }`. The test OTP is `1234`.
-Whether authentication actually succeeds is fixed by the card used (a "3DS passes" card can still
-fail on a wrong OTP; a "3DS fails" card always fails). On completion the linked intent becomes
-`succeeded` or `declined` (`authentication_failed`). A JSON request receives
-`{ challenge, paymentIntent }`; an HTML form submit receives a small result page.
+```mermaid
+sequenceDiagram
+    participant App
+    participant API as Mock API
+    participant Bank as 3-D Secure page
+
+    App->>API: confirm (a 3-DS card)
+    API-->>App: requires_action + nextAction.url
+    App->>Bank: open the challenge (iframe or redirect)
+    Bank-->>App: customer enters OTP 1234
+    App->>API: POST /3ds/challenge/:id/complete
+    API-->>App: { challenge, paymentIntent } → succeeded | declined
+```
+
+`GET /api/3ds/challenge/:challengeId` returns an HTML screen by default (good for an
+iframe or a redirect). Ask with `Accept: application/json` to get the state as JSON
+instead.
+
+`POST /api/3ds/challenge/:challengeId/complete` accepts an HTML form field `otp`, or a
+JSON body `{ "otp": "1234" }`, or `{ "outcome": "success" | "fail" }`. The test OTP is
+**`1234`**. Whether authentication really succeeds is decided by the card, not just the
+OTP: a "3DS passes" card can still fail on a wrong OTP; a "3DS fails" card always fails.
+On completion the linked intent becomes `succeeded` or `declined`
+(`authentication_failed`). A JSON request gets `{ challenge, paymentIntent }`; an HTML
+form submit gets a small result page.
+
+---
 
 ## Test cards
 
-Behaviour is keyed on the digits of the card number.
+The mock decides what happens from the **digits of the card number** — so you can force
+any outcome on demand.
 
-| Card number           | Result                                                   |
+| Card number           | What happens                                             |
 | --------------------- | -------------------------------------------------------- |
 | `4242 4242 4242 4242` | Succeeds.                                                |
 | `4000 0000 0000 0002` | Declined — `generic_decline`.                            |
@@ -196,12 +356,17 @@ Behaviour is keyed on the digits of the card number.
 | `4000 0000 0000 0341` | Provider error — responds `503`.                         |
 | any other valid card  | Succeeds.                                                |
 
-## Suggested frontend flow
+---
+
+## A typical checkout, start to finish
 
 ```ts
-// 1. Create the intent (amount in minor units).
+// 0. Show the plans (prices come from the server, never hardcoded).
+const plans = await getPlans() // GET /api/plans
+
+// 1. Start the attempt. One key for this whole attempt; reuse it on retries.
 const idempotencyKey = crypto.randomUUID()
-const intent = await createPaymentIntent({ amount: 4999, currency: 'USD' }, idempotencyKey)
+const intent = await createPaymentIntent({ planId: chosenPlanId }, idempotencyKey)
 
 // 2. Confirm with the entered card.
 let result = await confirmPaymentIntent(intent.id, cardNumber)
@@ -224,13 +389,15 @@ switch (result.status) {
 }
 ```
 
-## Files
+---
+
+## Where things live
 
 ```
 src/mocks/
   browser.ts          worker setup (setupWorker)
   config.ts           latency bounds, test cards, OTP
-  data.ts             in-memory stores (intents, idempotency keys, challenges)
+  data.ts             in-memory stores (plans, intents, idempotency keys, challenges)
   types.ts            request/response and domain types
   lib/
     respond.ts        json() / error() helpers, shared error envelope
@@ -238,17 +405,34 @@ src/mocks/
     validation.ts     body parsing and parameter errors
   handlers/
     index.ts          combines all handlers
+    plans.ts          GET /api/plans
     merchant.ts
     payment-methods.ts
     payment-intents.ts
     three-ds.ts
 ```
 
-## Extending
+---
 
-- **New endpoint:** add a handler module under `handlers/`, export an array, and spread it into
-  `handlers/index.ts`. Use `json` / `error` from `lib/respond.ts` to keep responses consistent.
-- **New test card:** add an entry to `TEST_CARDS` in `config.ts`. Nothing else needs to change —
-  the confirm handler reads its behaviour from there.
+## Adding to it
+
+- **A new endpoint:** drop a handler module under `handlers/`, export an array, and
+  spread it into `handlers/index.ts`. Use `json` / `error` from `lib/respond.ts` so
+  responses keep the same shape.
+- **A new plan:** add an entry to `plans` in `data.ts`. The catalog and the price used
+  for charging both read from there, so they can't drift apart.
+- **A new test card:** add an entry to `TEST_CARDS` in `config.ts`. The confirm handler
+  reads its behaviour from there — nothing else changes.
 
 All state lives in memory and resets on reload.
+
+---
+
+## Further reading
+
+- [MSW documentation](https://mswjs.io/docs/)
+- [Stripe: the PaymentIntents API](https://docs.stripe.com/payments/payment-intents)
+- [Stripe: idempotent requests](https://docs.stripe.com/api/idempotent_requests)
+- [Stripe: 3D Secure authentication](https://docs.stripe.com/payments/3d-secure)
+- [Iframes and 3‑D Secure in this project](../../docs/iframe.md)
+- [Project architecture](../../docs/architecture.md)

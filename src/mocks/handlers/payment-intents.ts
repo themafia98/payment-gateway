@@ -19,13 +19,7 @@ const isTerminal = (status: PaymentIntentStatus) => TERMINAL.includes(status)
 
 const newId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, '')}`
 
-const buildIntent = ({
-  amount,
-  currency,
-}: {
-  amount: number
-  currency: string
-}): PaymentIntent => {
+const buildIntent = ({ amount, currency }: { amount: number; currency: string }): PaymentIntent => {
   const id = newId('pi')
 
   return {

@@ -178,12 +178,12 @@ shown always match the prices the server will charge.
 
 ### Payment intents
 
-| Method | Path                               | What it does                          |
-| ------ | ---------------------------------- | ------------------------------------- |
-| POST   | `/api/payment-intents`             | Start a new charge attempt.           |
-| GET    | `/api/payment-intents/:id`         | Read one back (poll its status).      |
-| POST   | `/api/payment-intents/:id/confirm` | Hand over a card and see what happens.|
-| POST   | `/api/payment-intents/:id/cancel`  | Call off a not-yet-finished attempt.  |
+| Method | Path                               | What it does                           |
+| ------ | ---------------------------------- | -------------------------------------- |
+| POST   | `/api/payment-intents`             | Start a new charge attempt.            |
+| GET    | `/api/payment-intents/:id`         | Read one back (poll its status).       |
+| POST   | `/api/payment-intents/:id/confirm` | Hand over a card and see what happens. |
+| POST   | `/api/payment-intents/:id/cancel`  | Call off a not-yet-finished attempt.   |
 
 **Create** — body is just `{ planId }`. The server resolves the price itself and returns
 `201` with the new intent.

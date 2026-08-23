@@ -44,10 +44,10 @@ In this project: `src/features/checkout/ui/three-ds-challenge.tsx`.
 
 A locked-down frame that grants back only the capabilities you list.
 
-| Flag we use | What it grants | Why |
-| --- | --- | --- |
-| `allow-scripts` | run JavaScript | the bank page needs it |
-| `allow-forms` | submit forms | to send the OTP |
+| Flag we use         | What it grants      | Why                                                                 |
+| ------------------- | ------------------- | ------------------------------------------------------------------- |
+| `allow-scripts`     | run JavaScript      | the bank page needs it                                              |
+| `allow-forms`       | submit forms        | to send the OTP                                                     |
 | `allow-same-origin` | keep its own origin | so its cookies work and its `postMessage` has a real `event.origin` |
 
 Flags we deliberately **do not** grant: `allow-top-navigation` (a frame should not
@@ -100,15 +100,15 @@ In this project: `acs/lib.ts` (`securityHeaders`).
 > Deep dive, header by header in plain words:
 > [security-headers.md](./security-headers.md).
 
-| Header | What it does | Alternative |
-| --- | --- | --- |
-| `Content-Security-Policy: frame-ancestors <origin>` | who may embed this page (anti-clickjacking) | `X-Frame-Options` (legacy) |
-| `X-Frame-Options: ALLOW-FROM / DENY / SAMEORIGIN` | old version of the above; modern browsers ignore `ALLOW-FROM` | use `frame-ancestors` |
-| `Set-Cookie: ...; SameSite=None; Secure` | lets the cookie exist inside a third-party frame (needs https) | `SameSite=Lax/Strict` = no cross-site cookie |
-| `Cross-Origin-Opener-Policy: same-origin` | isolate the browsing-context group | `unsafe-none` to turn off |
-| `Cross-Origin-Embedder-Policy: require-corp` | require subresources to opt in | `unsafe-none` |
-| `Cross-Origin-Resource-Policy: cross-origin` | allow another origin to embed this response | `same-origin` to block |
-| `X-Content-Type-Options: nosniff` | stop MIME sniffing | - |
+| Header                                              | What it does                                                   | Alternative                                  |
+| --------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------- |
+| `Content-Security-Policy: frame-ancestors <origin>` | who may embed this page (anti-clickjacking)                    | `X-Frame-Options` (legacy)                   |
+| `X-Frame-Options: ALLOW-FROM / DENY / SAMEORIGIN`   | old version of the above; modern browsers ignore `ALLOW-FROM`  | use `frame-ancestors`                        |
+| `Set-Cookie: ...; SameSite=None; Secure`            | lets the cookie exist inside a third-party frame (needs https) | `SameSite=Lax/Strict` = no cross-site cookie |
+| `Cross-Origin-Opener-Policy: same-origin`           | isolate the browsing-context group                             | `unsafe-none` to turn off                    |
+| `Cross-Origin-Embedder-Policy: require-corp`        | require subresources to opt in                                 | `unsafe-none`                                |
+| `Cross-Origin-Resource-Policy: cross-origin`        | allow another origin to embed this response                    | `same-origin` to block                       |
+| `X-Content-Type-Options: nosniff`                   | stop MIME sniffing                                             | -                                            |
 
 The cookie line is the one people trip on: a frame from another site is a
 "third-party" context, and modern browsers drop its cookies unless they are
@@ -152,13 +152,13 @@ flowchart TD
 
 Banks do 3-D Secure in one of two shapes, and this project supports both.
 
-| | Iframe | Full-page redirect |
-| --- | --- | --- |
-| Where the bank shows | in a frame inside your page | your whole page navigates to the bank |
-| Return signal | `postMessage` back to the parent | the bank sends a `302` to your return URL |
-| Your state | kept (no reload) | wiped (full reload) - carry what you need in the URL |
-| Cookies | third-party (needs `SameSite=None; Secure`) | first-party on the bank's own page |
-| `frame-ancestors` | matters | not involved (top-level page) |
+|                      | Iframe                                      | Full-page redirect                                   |
+| -------------------- | ------------------------------------------- | ---------------------------------------------------- |
+| Where the bank shows | in a frame inside your page                 | your whole page navigates to the bank                |
+| Return signal        | `postMessage` back to the parent            | the bank sends a `302` to your return URL            |
+| Your state           | kept (no reload)                            | wiped (full reload) - carry what you need in the URL |
+| Cookies              | third-party (needs `SameSite=None; Secure`) | first-party on the bank's own page                   |
+| `frame-ancestors`    | matters                                     | not involved (top-level page)                        |
 
 That last row is the real reason both exist: inside a frame the bank is a
 third-party (strict cookie and clickjacking rules); as a top-level redirect it is

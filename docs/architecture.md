@@ -59,22 +59,22 @@ flowchart TD
 
 ## The layers, in words
 
-| Folder | What lives here | Analogy |
-| --- | --- | --- |
-| `shared/` | tiny generic tools: `http-client`, `saveBlob`, UI kit, base types | the toolbox |
-| `entities/` | the nouns of the domain: a payment, a receipt - their types + the **ports** to reach them | the vocabulary |
-| `features/` | the verbs / scenarios: "pay", "authenticate 3DS", "download receipt" | the actions |
-| `app/`, `routes/` | pages, wiring, navigation - the actual screens | the building |
-| `src/mocks/` | a fake payment backend (MSW) so the app runs with no real server | the practice dummy |
-| `acs/` | a standalone 3-D Secure "bank" server for realistic redirect/iframe tests | the sparring partner |
+| Folder            | What lives here                                                                           | Analogy              |
+| ----------------- | ----------------------------------------------------------------------------------------- | -------------------- |
+| `shared/`         | tiny generic tools: `http-client`, `saveBlob`, UI kit, base types                         | the toolbox          |
+| `entities/`       | the nouns of the domain: a payment, a receipt - their types + the **ports** to reach them | the vocabulary       |
+| `features/`       | the verbs / scenarios: "pay", "authenticate 3DS", "download receipt"                      | the actions          |
+| `app/`, `routes/` | pages, wiring, navigation - the actual screens                                            | the building         |
+| `src/mocks/`      | a fake payment backend (MSW) so the app runs with no real server                          | the practice dummy   |
+| `acs/`            | a standalone 3-D Secure "bank" server for realistic redirect/iframe tests                 | the sparring partner |
 
 ---
 
 ## Ports and adapters
 
 The center never calls `fetch` directly. Instead it depends on a **port** - a
-plain TypeScript interface that says *what* can be done ("create a payment",
-"confirm a card") without saying *how*. A concrete **adapter** implements the port
+plain TypeScript interface that says _what_ can be done ("create a payment",
+"confirm a card") without saying _how_. A concrete **adapter** implements the port
 and does the real HTTP.
 
 ```mermaid
@@ -139,8 +139,8 @@ sequenceDiagram
     F->>U: navigate to success / failure
 ```
 
-The use-case returns a `PaymentResult` - a simple value describing *what
-happened* (`succeeded` / `requires_action` / `declined` / `error`). It does not
+The use-case returns a `PaymentResult` - a simple value describing _what
+happened_ (`succeeded` / `requires_action` / `declined` / `error`). It does not
 navigate and does not touch the network. The page decides where to go from the
 result.
 
@@ -234,15 +234,15 @@ For a static "about" page, don't.
 The design borrows from three well-known approaches. They do **not** compete here -
 they describe different zoom levels of the same picture.
 
-| Approach | One line | What it contributes here |
-| --- | --- | --- |
-| **[Hexagonal (Ports & Adapters)](https://alistair.cockburn.us/hexagonal-architecture/)** | app in the center, interfaces on the edges, plug in adapters | the `*Gateway` ports + `*.adapter.ts` |
-| **[Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)** | concentric rings; dependencies point inward only | the "arrows go down" rule + the use-case ring |
-| **[Feature-Sliced Design (FSD)](https://feature-sliced.design/)** | a concrete folder taxonomy for front-end | the `app / features / entities / shared` layout |
+| Approach                                                                                               | One line                                                     | What it contributes here                        |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ | ----------------------------------------------- |
+| **[Hexagonal (Ports & Adapters)](https://alistair.cockburn.us/hexagonal-architecture/)**               | app in the center, interfaces on the edges, plug in adapters | the `*Gateway` ports + `*.adapter.ts`           |
+| **[Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)** | concentric rings; dependencies point inward only             | the "arrows go down" rule + the use-case ring   |
+| **[Feature-Sliced Design (FSD)](https://feature-sliced.design/)**                                      | a concrete folder taxonomy for front-end                     | the `app / features / entities / shared` layout |
 
-Short version: **Hexagonal** is about the *edges* (how the core talks to the
-world). **Clean** adds the *inner rings* and the strict dependency rule. **FSD**
-is the *folder map* that makes all of it navigable in a React project.
+Short version: **Hexagonal** is about the _edges_ (how the core talks to the
+world). **Clean** adds the _inner rings_ and the strict dependency rule. **FSD**
+is the _folder map_ that makes all of it navigable in a React project.
 
 Analogy: a wall socket (**port**) is a fixed contract; any plug (**adapter**) that
 fits works, and the house doesn't care what's plugged in - that's Hexagonal. Clean
@@ -308,14 +308,14 @@ The web platform behind 3-D Secure (the security details):
 
 ## Glossary
 
-- **Port** - an interface describing *what* can be done, with no implementation.
+- **Port** - an interface describing _what_ can be done, with no implementation.
 - **Adapter** - a concrete class/function implementing a port (the real HTTP, or a
   fake for tests).
 - **Use-case** - one application scenario ("pay", "authenticate"); orchestrates
   ports, contains no UI and no `fetch`.
 - **DTO** - the data shape the server sends over the wire; translated to our domain
   type inside the adapter.
-- **Domain type** - how *our* app describes a thing (e.g. `PaymentResult`),
+- **Domain type** - how _our_ app describes a thing (e.g. `PaymentResult`),
   independent of the server.
 - **Composition root** - the single spot where a concrete adapter is created and
   injected into a use-case (here: the routes/store).

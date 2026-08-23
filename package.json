@@ -21,6 +21,7 @@
     "@tanstack/react-router": "^1.170.30",
     "@tanstack/react-router-devtools": "^1.167.1",
     "clsx": "^2.1.1",
+    "immer": "^11.1.18",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.85.0",

@@ -64,21 +64,21 @@ Every header is a different lock. Below we open each one up.
 ## 1. `Content-Type: text/html; charset=utf-8`
 
 **What it is (plain words).** A label on the package that says "this is an HTML
-page, written in the UTF-8 alphabet." It tells the browser *what kind of thing* it
-just received and *which character set* to read it with.
+page, written in the UTF-8 alphabet." It tells the browser _what kind of thing_ it
+just received and _which character set_ to read it with.
 
 **Why we need it here.** So the browser renders our page as a real web page (not as
 raw text or a file to download), and so accented letters / non-Latin characters show
 up correctly instead of as garbage.
 
 **What it stops.** Naming the charset explicitly removes an old trick where an
-attacker sneaks in characters in a *different* encoding to slip past filters (an
+attacker sneaks in characters in a _different_ encoding to slip past filters (an
 XSS-through-encoding attack). "utf-8, and nothing else" removes that ambiguity.
 
 **Alternatives.** You could leave the charset out and let the browser guess — but
 guessing is exactly what we want to avoid. Being explicit is the safe choice.
 
-**How it differs from similar headers.** `Content-Type` says *what the file is*.
+**How it differs from similar headers.** `Content-Type` says _what the file is_.
 The next header, `X-Content-Type-Options`, tells the browser to **trust that label
 and not second-guess it**. They work as a pair.
 
@@ -95,14 +95,14 @@ We use five rules (directives):
 
 ### 2a. `frame-ancestors http://localhost:5173`
 
-**Plain words.** "Only *this* site is allowed to display me inside its frame."
+**Plain words.** "Only _this_ site is allowed to display me inside its frame."
 `http://localhost:5173` is our own checkout app (the value comes from the
 `PARENT_ORIGIN` setting).
 
 **What it stops — clickjacking.** An attacker copies our real page into a hidden,
 transparent frame on their own evil site, then tricks you into typing your one-time
 code or clicking "Confirm" while you think you're somewhere else. With
-`frame-ancestors`, any site *other than ours* trying to frame the page gets a blank
+`frame-ancestors`, any site _other than ours_ trying to frame the page gets a blank
 box instead. The attack simply fails.
 
 ```mermaid
@@ -117,7 +117,7 @@ sites) and actually respected by all current browsers.
 
 ### 2b. `default-src 'none'`
 
-**Plain words.** "By default, this page may load *nothing* — no scripts, no images,
+**Plain words.** "By default, this page may load _nothing_ — no scripts, no images,
 no fonts, nothing." Then we open up only the few things we truly need. This is the
 "deny everything, then allow a little" approach, which is far safer than "allow
 everything, then block a few bad things."
@@ -133,8 +133,8 @@ reasonable, but `'none'` is stricter and forces every exception to be deliberate
 **Plain words.** "Inline `<style>` written directly in this page is allowed." Our
 page keeps its small CSS right inside the HTML, so we permit that.
 
-**Why not stricter?** The word `'unsafe-inline'` sounds scary, and for *scripts* it
-would be dangerous. For *styles* the risk is small. The cleaner alternative is to
+**Why not stricter?** The word `'unsafe-inline'` sounds scary, and for _scripts_ it
+would be dangerous. For _styles_ the risk is small. The cleaner alternative is to
 move CSS into a separate `.css` file and allow only `'self'` — stricter, at the cost
 of an extra file.
 
@@ -146,7 +146,7 @@ steal your code, a rogue style mostly cannot.
 
 **Plain words.** A **nonce** is a random one-time password generated fresh for each
 page load. Our one legitimate inline `<script>` carries this password. The browser
-runs *only* scripts that show the matching password and refuses every other script.
+runs _only_ scripts that show the matching password and refuses every other script.
 
 **What it stops — XSS (cross-site scripting).** This is the big one. If an attacker
 manages to inject their own `<script>` into the page, it won't have today's random
@@ -162,7 +162,8 @@ flowchart TD
 ```
 
 **Alternatives.**
-- **Hash** — instead of a random password, allow a script whose *content* matches a
+
+- **Hash** — instead of a random password, allow a script whose _content_ matches a
   known fingerprint. Good for scripts that never change.
 - **External file** + `'self'` — move the script to a `.js` file and allow only our
   own domain. Also strong.
@@ -174,7 +175,7 @@ get the tightest possible leash because they are the most dangerous.
 
 ### 2e. `form-action 'self'`
 
-**Plain words.** "Any form on this page may only submit back to *us*." So even if
+**Plain words.** "Any form on this page may only submit back to _us_." So even if
 someone altered the page, the code you type couldn't be posted to a stranger's
 server.
 
@@ -213,7 +214,7 @@ what this file really is." "Sniffing" is the browser's habit of peeking at a fil
 contents and overriding the stated type.
 
 **What it stops — MIME sniffing attacks.** Suppose an attacker uploads a file that
-*claims* to be a harmless image but actually contains script. Without `nosniff`, a
+_claims_ to be a harmless image but actually contains script. Without `nosniff`, a
 browser might "helpfully" notice the script and run it. With `nosniff`, the browser
 takes our word for it and never treats an image as code.
 
@@ -227,15 +228,15 @@ flowchart LR
 **Alternatives.** There is no softer version worth using — you either send `nosniff`
 or you leave the door open. It's a simple on/off switch, and on is correct.
 
-**How it differs from `Content-Type`.** `Content-Type` *states* the type;
-`nosniff` *forbids second-guessing* that statement. One declares, the other enforces.
+**How it differs from `Content-Type`.** `Content-Type` _states_ the type;
+`nosniff` _forbids second-guessing_ that statement. One declares, the other enforces.
 
 ---
 
 ## 5. `Referrer-Policy: no-referrer`
 
 **Plain words.** When you click a link or a page loads another resource, the browser
-normally whispers "by the way, I came from *this* URL" to the destination. That's the
+normally whispers "by the way, I came from _this_ URL" to the destination. That's the
 **referrer**. `no-referrer` tells the browser to stay silent.
 
 **Why we need it here.** Our page's URL can contain sensitive identifiers (session or
@@ -245,16 +246,17 @@ transaction ids). We don't want those leaking to any other server the page talks
 in someone else's server logs.
 
 **Alternatives (from loose to strict).**
+
 - `no-referrer-when-downgrade` — the old default; leaks the full URL to other
   secure sites.
-- `strict-origin` — sends only the *site name* (e.g. `https://bank.com`), never the
+- `strict-origin` — sends only the _site name_ (e.g. `https://bank.com`), never the
   full path. A good middle ground.
 - `no-referrer` — sends nothing at all. We chose the strictest option because the
   page handles money.
 
 **How it differs from the cross-origin headers below.** `Referrer-Policy` controls
-*what info we reveal when we reach out*; COOP/COEP/CORP control *how other pages may
-interact with us*. Different direction of protection.
+_what info we reveal when we reach out_; COOP/COEP/CORP control _how other pages may
+interact with us_. Different direction of protection.
 
 ---
 
@@ -276,7 +278,7 @@ the safe choice.
 
 ## 7. `Cross-Origin-Embedder-Policy: require-corp` (COEP)
 
-**Plain words.** "Everything I load from elsewhere must *explicitly agree* to be
+**Plain words.** "Everything I load from elsewhere must _explicitly agree_ to be
 loaded by me." It refuses to pull in foreign resources that haven't opted in.
 
 **What it stops.** Together with COOP, it puts the page into a hardened, isolated
@@ -290,12 +292,12 @@ setting.
 
 ## 8. `Cross-Origin-Resource-Policy: cross-origin` (CORP)
 
-**Plain words.** "I allow *another* origin (namely our checkout app) to embed this
+**Plain words.** "I allow _another_ origin (namely our checkout app) to embed this
 response." Since our page is deliberately loaded inside a different site's iframe,
 we must say "yes, cross-origin embedding is OK for me."
 
 **What it stops (and why it's set to `cross-origin` here).** CORP normally protects a
-resource from being embedded by strangers. But *our whole point* is to be embedded by
+resource from being embedded by strangers. But _our whole point_ is to be embedded by
 our own app, which is on a different origin — so we open it to `cross-origin` on
 purpose. Setting it to `same-origin` would block our own iframe and break the flow.
 
@@ -306,11 +308,11 @@ purpose. Setting it to `same-origin` would block our own iframe and break the fl
 
 They sound alike but guard different things:
 
-| Header | Question it answers | In one line |
-| --- | --- | --- |
-| **COOP** | Who shares a browser "room" with me? | Isolate my window from other sites. |
-| **COEP** | What am I allowed to pull in? | Only load foreign stuff that opted in. |
-| **CORP** | Who is allowed to embed *me*? | Let our app embed this page across origins. |
+| Header   | Question it answers                  | In one line                                 |
+| -------- | ------------------------------------ | ------------------------------------------- |
+| **COOP** | Who shares a browser "room" with me? | Isolate my window from other sites.         |
+| **COEP** | What am I allowed to pull in?        | Only load foreign stuff that opted in.      |
+| **CORP** | Who is allowed to embed _me_?        | Let our app embed this page across origins. |
 
 COOP + COEP together unlock "cross-origin isolation" (the strong anti-Spectre state);
 CORP is the per-resource opt-in that makes embedding work.
@@ -327,7 +329,7 @@ visit — here it's the challenge session id (`acs_sid`). The extra words after 
   slipped in a script, they couldn't steal the session id with it.
 - **`Secure`** — the cookie is only ever sent over HTTPS (encrypted), never plain
   HTTP. It cannot be sniffed on the wire.
-- **`SameSite=None`** — this is the tricky one. By default, browsers *refuse* to send
+- **`SameSite=None`** — this is the tricky one. By default, browsers _refuse_ to send
   cookies to a page living inside a **third-party iframe** (which is exactly our
   situation). `SameSite=None` says "yes, send this cookie even in a cross-site
   iframe." It only works when paired with `Secure`.
@@ -339,11 +341,11 @@ the same user who started the challenge."
 
 **Why `SameSite=None` and not something stricter?**
 
-| Value | Behavior | Fits our case? |
-| --- | --- | --- |
-| `Strict` | Never sent from another site's context | No — our iframe would get no cookie |
-| `Lax` | Sent on top-level navigation only | No — still blocked inside an iframe |
-| `None` | Sent everywhere, including cross-site iframes | Yes — required here (with `Secure`) |
+| Value    | Behavior                                      | Fits our case?                      |
+| -------- | --------------------------------------------- | ----------------------------------- |
+| `Strict` | Never sent from another site's context        | No — our iframe would get no cookie |
+| `Lax`    | Sent on top-level navigation only             | No — still blocked inside an iframe |
+| `None`   | Sent everywhere, including cross-site iframes | Yes — required here (with `Secure`) |
 
 We use the least strict `SameSite` **on purpose**, because the whole flow depends on a
 cookie surviving inside a cross-site iframe. We claw the safety back with `HttpOnly`
@@ -361,20 +363,20 @@ flowchart TD
 
 ## Cheat sheet
 
-| Header | Protects against | Common alternative |
-| --- | --- | --- |
-| `Content-Type` + charset | encoding-based XSS, garbled text | let the browser guess (worse) |
-| CSP `frame-ancestors` | clickjacking | `X-Frame-Options` (legacy) |
-| CSP `default-src 'none'` | loading anything unexpected | `default-src 'self'` |
-| CSP `style-src` | (allows our inline CSS) | move CSS to a file + `'self'` |
-| CSP `script-src 'nonce-…'` | XSS (injected scripts) | hash, or external file + `'self'` |
-| CSP `form-action 'self'` | data exfiltration via forms | explicit URL allow-list |
-| `X-Frame-Options` | clickjacking (old browsers) | CSP `frame-ancestors` |
-| `X-Content-Type-Options: nosniff` | MIME-sniffing attacks | (none — keep it on) |
-| `Referrer-Policy: no-referrer` | URL / secret leakage | `strict-origin` |
-| COOP `same-origin` | cross-window snooping | `unsafe-none` (off) |
-| COEP `require-corp` | Spectre-style leaks | `unsafe-none` (off) |
-| CORP `cross-origin` | (allows our app to embed us) | `same-origin` (would block us) |
+| Header                                   | Protects against                     | Common alternative                             |
+| ---------------------------------------- | ------------------------------------ | ---------------------------------------------- |
+| `Content-Type` + charset                 | encoding-based XSS, garbled text     | let the browser guess (worse)                  |
+| CSP `frame-ancestors`                    | clickjacking                         | `X-Frame-Options` (legacy)                     |
+| CSP `default-src 'none'`                 | loading anything unexpected          | `default-src 'self'`                           |
+| CSP `style-src`                          | (allows our inline CSS)              | move CSS to a file + `'self'`                  |
+| CSP `script-src 'nonce-…'`               | XSS (injected scripts)               | hash, or external file + `'self'`              |
+| CSP `form-action 'self'`                 | data exfiltration via forms          | explicit URL allow-list                        |
+| `X-Frame-Options`                        | clickjacking (old browsers)          | CSP `frame-ancestors`                          |
+| `X-Content-Type-Options: nosniff`        | MIME-sniffing attacks                | (none — keep it on)                            |
+| `Referrer-Policy: no-referrer`           | URL / secret leakage                 | `strict-origin`                                |
+| COOP `same-origin`                       | cross-window snooping                | `unsafe-none` (off)                            |
+| COEP `require-corp`                      | Spectre-style leaks                  | `unsafe-none` (off)                            |
+| CORP `cross-origin`                      | (allows our app to embed us)         | `same-origin` (would block us)                 |
 | Cookie `HttpOnly; Secure; SameSite=None` | cookie theft; iframe cookie blocking | `SameSite=Lax/Strict` (would break the iframe) |
 
 ---

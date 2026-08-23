@@ -43,11 +43,11 @@ flowchart LR
 
 Закрытый фрейм, которому возвращают только перечисленные возможности.
 
-| Флаг, который мы даём | Что разрешает | Зачем |
-| --- | --- | --- |
-| `allow-scripts` | выполнять JavaScript | странице банка это нужно |
-| `allow-forms` | отправлять формы | чтобы отправить OTP |
-| `allow-same-origin` | сохранить свой origin | чтобы работали её куки и `postMessage` имел настоящий `event.origin` |
+| Флаг, который мы даём | Что разрешает         | Зачем                                                                |
+| --------------------- | --------------------- | -------------------------------------------------------------------- |
+| `allow-scripts`       | выполнять JavaScript  | странице банка это нужно                                             |
+| `allow-forms`         | отправлять формы      | чтобы отправить OTP                                                  |
+| `allow-same-origin`   | сохранить свой origin | чтобы работали её куки и `postMessage` имел настоящий `event.origin` |
 
 Флаги, которые мы намеренно **не** даём: `allow-top-navigation` (фрейм не должен
 уметь увести всё окно), `allow-popups`, `allow-modals`.
@@ -99,15 +99,15 @@ OTP и passkeys.
 > Подробный разбор каждого заголовка простыми словами:
 > [security-headers.ru.md](./security-headers.ru.md).
 
-| Заголовок | Что делает | Альтернатива |
-| --- | --- | --- |
-| `Content-Security-Policy: frame-ancestors <origin>` | кто может встраивать страницу (антиclickjacking) | `X-Frame-Options` (легаси) |
-| `X-Frame-Options: ALLOW-FROM / DENY / SAMEORIGIN` | старая версия того же; современные браузеры игнорируют `ALLOW-FROM` | используйте `frame-ancestors` |
-| `Set-Cookie: ...; SameSite=None; Secure` | разрешает куке жить в third-party фрейме (нужен https) | `SameSite=Lax/Strict` = нет cross-site куки |
-| `Cross-Origin-Opener-Policy: same-origin` | изолирует группу browsing-context | `unsafe-none` - выключить |
-| `Cross-Origin-Embedder-Policy: require-corp` | требует, чтобы субресурсы явно соглашались | `unsafe-none` |
-| `Cross-Origin-Resource-Policy: cross-origin` | разрешает другому origin встроить этот ответ | `same-origin` - заблокировать |
-| `X-Content-Type-Options: nosniff` | запрет MIME-sniffing | - |
+| Заголовок                                           | Что делает                                                          | Альтернатива                                |
+| --------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------- |
+| `Content-Security-Policy: frame-ancestors <origin>` | кто может встраивать страницу (антиclickjacking)                    | `X-Frame-Options` (легаси)                  |
+| `X-Frame-Options: ALLOW-FROM / DENY / SAMEORIGIN`   | старая версия того же; современные браузеры игнорируют `ALLOW-FROM` | используйте `frame-ancestors`               |
+| `Set-Cookie: ...; SameSite=None; Secure`            | разрешает куке жить в third-party фрейме (нужен https)              | `SameSite=Lax/Strict` = нет cross-site куки |
+| `Cross-Origin-Opener-Policy: same-origin`           | изолирует группу browsing-context                                   | `unsafe-none` - выключить                   |
+| `Cross-Origin-Embedder-Policy: require-corp`        | требует, чтобы субресурсы явно соглашались                          | `unsafe-none`                               |
+| `Cross-Origin-Resource-Policy: cross-origin`        | разрешает другому origin встроить этот ответ                        | `same-origin` - заблокировать               |
+| `X-Content-Type-Options: nosniff`                   | запрет MIME-sniffing                                                | -                                           |
 
 Строка с кукой - то, на чём спотыкаются: фрейм с другого сайта это "third-party"
 контекст, и современные браузеры выкидывают его куки, если они не
@@ -151,13 +151,13 @@ flowchart TD
 
 Банки делают 3-D Secure в одной из двух форм, и проект поддерживает обе.
 
-| | Iframe | Полный редирект |
-| --- | --- | --- |
-| Где показывает банк | во фрейме внутри страницы | вся страница уходит в банк |
-| Сигнал возврата | `postMessage` в родителя | банк шлёт `302` на return-URL |
-| Твоё состояние | сохраняется (без перезагрузки) | стирается (полная перезагрузка) - неси нужное в URL |
-| Куки | third-party (нужен `SameSite=None; Secure`) | first-party на странице банка |
-| `frame-ancestors` | важен | не задействован (top-level страница) |
+|                     | Iframe                                      | Полный редирект                                     |
+| ------------------- | ------------------------------------------- | --------------------------------------------------- |
+| Где показывает банк | во фрейме внутри страницы                   | вся страница уходит в банк                          |
+| Сигнал возврата     | `postMessage` в родителя                    | банк шлёт `302` на return-URL                       |
+| Твоё состояние      | сохраняется (без перезагрузки)              | стирается (полная перезагрузка) - неси нужное в URL |
+| Куки                | third-party (нужен `SameSite=None; Secure`) | first-party на странице банка                       |
+| `frame-ancestors`   | важен                                       | не задействован (top-level страница)                |
 
 Последняя строка - и есть причина, зачем существуют оба: во фрейме банк это
 third-party (строгие правила кук и антиclickjacking); как top-level редирект он

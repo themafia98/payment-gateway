@@ -57,8 +57,10 @@ const toPaymentResult = (dto: PaymentIntentDto): PaymentResult => {
 export const createHttpPaymentGatewayAdapter = (
   http: HttpClient = createHttpClient(),
 ): PaymentGateway => ({
-  async createIntent(input: CreateIntentInput): Promise<PaymentIntent> {
-    const dto = await http.post<PaymentIntentDto>('/payment-intents', input)
+  async createIntent(input: CreateIntentInput, idempotencyKey: string): Promise<PaymentIntent> {
+    const dto = await http.post<PaymentIntentDto>('/payment-intents', input, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    })
     return toDomainIntent(dto)
   },
 

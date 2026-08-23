@@ -52,9 +52,11 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
 
     startPayment(form.paymentMethod)
 
+    const idempotencyKey = crypto.randomUUID()
+
     const paymentAction = createPayCheckout(createHttpPaymentGatewayAdapter())
 
-    paymentAction(form)
+    paymentAction(form, idempotencyKey)
       .then((result) => {
         applyResult(result)
 
@@ -84,7 +86,7 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
       .catch((e) => {
         applyResult({
           status: 'error',
-          error: e,
+          error: { message: e instanceof Error ? e.message : 'Payment failed. Please try again.' },
         })
       })
   }
@@ -115,6 +117,11 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         </Section>
         <Section>
           <CheckoutDetails invoice={invoice} />
+          {checkoutError && (
+            <p role="alert" className="text-sm text-red-500">
+              {checkoutError.message}
+            </p>
+          )}
           <CheckoutButton loading={isBusy} />
         </Section>
       </form>

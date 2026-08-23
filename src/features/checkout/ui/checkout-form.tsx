@@ -23,7 +23,6 @@ import {
   useCheckoutIsBusy,
 } from '../store/checkout.selectors'
 import { useEffect } from 'react'
-import { CurrentPlanProvider } from '../model/plan-context'
 
 interface CheckoutFormProps {
   plans: Plan[]
@@ -103,25 +102,23 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         onSubmit={methods.handleSubmit(handlePayment, handleError)}
         className="flex h-full flex-col items-stretch justify-start gap-6 bg-[rgba(21,12,37,0.85)] p-[30.8px] backdrop-blur-[15.4px]"
       >
-        <CurrentPlanProvider value={plans}>
-          <Section>
-            <PlanSelector plans={plans} />
-          </Section>
-          <Section>
-            <PaymentMethodSelector />
-          </Section>
-          <Section>
-            <CreditCardDetails />
-          </Section>
-          <Section>
-            <Billing />
-          </Section>
-          <Section>
-            <CheckoutDetails />
-            <ErrorText>{checkoutError?.message}</ErrorText>
-            <CheckoutButton loading={isBusy} />
-          </Section>
-        </CurrentPlanProvider>
+        <Section>
+          <PlanSelector plans={plans} />
+        </Section>
+        <Section>
+          <PaymentMethodSelector />
+        </Section>
+        <Section>
+          <CreditCardDetails />
+        </Section>
+        <Section>
+          <Billing />
+        </Section>
+        <Section>
+          <CheckoutDetails plans={plans} />
+          <ErrorText>{checkoutError?.message}</ErrorText>
+          <CheckoutButton loading={isBusy} />
+        </Section>
       </form>
     </FormProvider>
   )

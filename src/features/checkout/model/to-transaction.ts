@@ -10,7 +10,7 @@ export const toTransaction = (
   method: PaymentMethod | null,
 ): Transaction => ({
   id: intent.id,
-  amount: `${symbol[intent.currency] ?? ''}${intent.amount.toFixed(2)}`,
+  amount: `${symbol[intent.currency] ?? ''}${(intent.amount / 100).toFixed(2)}`,
   paymentMethod: method ?? '—',
   date: new Date().toLocaleDateString(),
   merchant: MERCHANT,

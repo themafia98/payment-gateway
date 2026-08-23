@@ -103,7 +103,7 @@ npm run dev:mock
 {
   "id": "pi_a1b2…",
   "object": "payment_intent",
-  "amount": 2500,
+  "amount": 25,
   "currency": "USD",
   "status": "requires_payment_method",
   "clientSecret": "pi_a1b2…_secret_…",

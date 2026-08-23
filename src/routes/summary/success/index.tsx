@@ -3,9 +3,8 @@ import { PaymentResultHeader } from '@/widgets/payment-result-header'
 import { TransactionDetails } from '@/entities/transaction'
 import { DownloadReceipt } from '@/features/download-receipt'
 import { ReturnToStoreButton } from '@/features/return-to-store'
-import { useCheckoutStore } from '@/features/checkout/store/checkout.store.ts'
+import { toTransaction, useCheckoutStore } from '@/features/checkout'
 import { createHttpPaymentGatewayAdapter, type PaymentIntent } from '@/entities/payment'
-import { toTransaction } from '@/features/checkout/model/to-transaction.ts'
 import { useMemo } from 'react'
 
 interface SuccessSearch {

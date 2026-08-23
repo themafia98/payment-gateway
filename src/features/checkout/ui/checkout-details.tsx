@@ -1,11 +1,28 @@
-import type { Invoice } from '@/entities/invoice'
 import { Details, Item } from '@/shared/ui'
+import { useFormContext, useWatch } from 'react-hook-form'
+import type { CheckoutFormSchema } from '../model/schema'
+import { useCurrentPlanSelector } from '../model/plan-context'
+import { useMemo } from 'react'
+import { toInvoice } from '../model/to-invoice'
 
-interface IProps {
-  invoice: Invoice
-}
+export const CheckoutDetails = () => {
+  const { control } = useFormContext<CheckoutFormSchema>()
 
-export const CheckoutDetails = ({ invoice }: IProps) => {
+  const selectCurrentPlan = useCurrentPlanSelector()
+
+  const planId = useWatch({
+    control,
+    name: 'planId',
+  })
+
+  const currentPlan = useMemo(() => selectCurrentPlan(planId), [selectCurrentPlan, planId])
+
+  const invoice = useMemo(() => (currentPlan ? toInvoice(currentPlan) : null), [currentPlan])
+
+  if (!invoice) {
+    return null
+  }
+
   return (
     <Details>
       <Item name="Price" value={`${invoice.currency}${invoice.subtotal}`} />

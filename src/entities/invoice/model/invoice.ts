@@ -1,6 +1,6 @@
 export interface Invoice {
   subtotal: number
-  discount?: number
+  discount?: string
   total: number
   currency: string
 }

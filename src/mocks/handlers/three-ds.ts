@@ -115,7 +115,7 @@ const resultScreen = (approved: boolean) => `<!doctype html>
 </html>`
 
 export const threeDsHandlers = [
-  http.get('/api/3ds/challenge/:challengeId', async ({ request, params }) => {
+  http.get('*/api/3ds/challenge/:challengeId', async ({ request, params }) => {
     await networkDelay()
 
     const challenge = threeDSChallenges.get(String(params.challengeId))
@@ -126,7 +126,7 @@ export const threeDsHandlers = [
     return HttpResponse.html(acsScreen(challenge))
   }),
 
-  http.post('/api/3ds/challenge/:challengeId/complete', async ({ request, params }) => {
+  http.post('*/api/3ds/challenge/:challengeId/complete', async ({ request, params }) => {
     await networkDelay()
 
     const challenge = threeDSChallenges.get(String(params.challengeId))

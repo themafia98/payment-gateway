@@ -7,7 +7,7 @@ import { buildReceiptPdf } from '../lib/receipt-pdf'
 export const receiptHandlers = [
   // Server-issued PDF receipt. Only succeeded intents have one (like the real world).
   // Frontend: fetch this, read as Blob, trigger a download.
-  http.get('/api/payment-intents/:id/receipt', async ({ params }) => {
+  http.get('*/api/payment-intents/:id/receipt', async ({ params }) => {
     await networkDelay()
 
     const intent = paymentIntents.get(String(params.id))

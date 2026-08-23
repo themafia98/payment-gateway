@@ -60,7 +60,7 @@ const toHttpError = async (response: Response): Promise<HttpError> => {
   return new HttpError(response.status, error)
 }
 
-export const createHttpClient = (baseUrl = '/api'): HttpClient => {
+export const createHttpClient = (baseUrl = `${import.meta.env.BASE_URL}api`): HttpClient => {
   // One place that talks to fetch; wraps network-level failures as HttpError(0).
   const rawFetch = async (
     method: 'GET' | 'POST',

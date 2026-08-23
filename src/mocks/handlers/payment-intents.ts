@@ -45,7 +45,7 @@ const transitionTo = (intent: PaymentIntent, status: PaymentIntentStatus): Payme
   save({ ...intent, status, nextAction: null, error: null })
 
 export const paymentIntentHandlers = [
-  http.post('/api/payment-intents', async ({ request }) => {
+  http.post('*/api/payment-intents', async ({ request }) => {
     await networkDelay()
 
     const idempotencyKey = request.headers.get('Idempotency-Key')
@@ -68,7 +68,7 @@ export const paymentIntentHandlers = [
     return json(intent, { status: 201 })
   }),
 
-  http.get('/api/payment-intents/:id', async ({ params }) => {
+  http.get('*/api/payment-intents/:id', async ({ params }) => {
     await networkDelay()
 
     const intent = paymentIntents.get(String(params.id))
@@ -77,7 +77,7 @@ export const paymentIntentHandlers = [
     return json(intent)
   }),
 
-  http.post('/api/payment-intents/:id/confirm', async ({ request, params }) => {
+  http.post('*/api/payment-intents/:id/confirm', async ({ request, params }) => {
     await networkDelay()
 
     const intent = paymentIntents.get(String(params.id))
@@ -136,7 +136,7 @@ export const paymentIntentHandlers = [
     }
   }),
 
-  http.post('/api/payment-intents/:id/cancel', async ({ params }) => {
+  http.post('*/api/payment-intents/:id/cancel', async ({ params }) => {
     await networkDelay()
 
     const intent = paymentIntents.get(String(params.id))

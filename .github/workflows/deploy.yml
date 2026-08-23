@@ -32,8 +32,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Build (with in-browser mock backend)
+        run: npm run build:mock
+
+      # GitHub Pages has no SPA server rewrite: serve index.html for deep links too.
+      - name: SPA fallback
+        run: cp dist/index.html dist/404.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

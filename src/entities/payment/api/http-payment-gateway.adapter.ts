@@ -66,53 +66,16 @@ export const createHttpPaymentGatewayAdapter = (
 
   async confirm(intentId: string, card: CardInput): Promise<PaymentResult> {
     try {
-      const dto = await http.post<PaymentIntent>(`/payment-intents/${intentId}/confirm`, {
+      const dto = await http.post<PaymentIntentDto>(`/payment-intents/${intentId}/confirm`, {
         cardNumber: normalizeCardNumber(card.number),
       })
 
-      switch (dto.status) {
-        case 'succeeded':
-          return { status: 'succeeded', intent: dto }
-        case 'requires_action':
-          if (!dto.nextAction || !dto.nextAction.three_d_secure) {
-            throw new Error('Missing nextAction.three_d_secure for requires_action status')
-          }
-          return {
-            status: 'requires_action',
-            intent: dto,
-            challenge: {
-              challengeId: dto.nextAction.three_d_secure.challengeId,
-              url: dto.nextAction.three_d_secure.url,
-            },
-          }
-        case 'declined':
-          return {
-            status: 'declined',
-            intent: dto,
-            error: {
-              message: `Unexpected status ${dto.status}`,
-            },
-          }
-        default:
-          return {
-            status: 'error',
-            error:
-              dto instanceof HttpError
-                ? dto
-                : {
-                    message: 'Unexpected error occurred',
-                  },
-          }
-      }
+      return toPaymentResult(dto)
     } catch (cause) {
       return {
         status: 'error',
         error:
-          cause instanceof HttpError
-            ? cause
-            : {
-                message: 'Unexpected error occurred',
-              },
+          cause instanceof HttpError ? cause.payload : { message: 'Unexpected error occurred' },
       }
     }
   },

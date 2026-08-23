@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures'
 import { CARDS } from './data/cards'
 import { URL_PATTERNS } from './data/routes'
-import { PLANS } from './data/text'
+import { PLANS, TEXT } from './data/text'
 
 test.describe('Checkout', () => {
   test('a good card completes the payment and shows the receipt', async ({
@@ -24,7 +24,10 @@ test.describe('Checkout', () => {
     await checkoutPage.goto()
     await checkoutPage.pay(CARDS.declined)
 
-    await expect(checkoutPage.errorAlert).toContainText(/declined/i)
+    // The exact issuer message, not just /declined/i: the adapter used to report
+    // "Unexpected status declined", which matched the old regex while showing the
+    // user nonsense.
+    await expect(checkoutPage.errorAlert).toHaveText(TEXT.declinedMessage)
     await expect(page).not.toHaveURL(URL_PATTERNS.summary)
   })
 

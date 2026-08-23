@@ -65,16 +65,10 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         }
 
         if (result.status === 'requires_action') {
-          const challengeId = result.challenge.url.split('/').pop()
-
-          if (!challengeId) {
-            return
-          }
-
           navigate({
             to: '/3ds/challenge/$challengeId',
             params: {
-              challengeId,
+              challengeId: result.challenge.challengeId,
             },
             search: {
               intentId: result.intent.id,

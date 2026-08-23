@@ -3,9 +3,9 @@
 :root {
   --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  /* The app always renders on the dark gradient from <Main>, so lock the scheme
-     and base tones dark — no light/dark duplication needed. The root background
-     matches the darkest gradient stop so overscroll and first paint never flash white. */
+  /* The app always renders on the dark gradient, so lock the scheme and base tones
+     dark — no light/dark duplication needed. This background matches the gradients
+     darkest stop so overscroll and first paint never flash white. */
   color-scheme: dark;
   color: #b0b0b0;
   background-color: #06040a;
@@ -26,6 +26,10 @@
   display: flex;
   flex-direction: column;
   min-height: 100svh;
+
+  /* On the root element, not in <Main>: the router renders its pending component
+     before <Main> mounts, and a gradient scoped there would flash in afterwards. */
+  background: linear-gradient(to bottom right, #06040a, #10091c, #2a0f46);
 }
 
 h2 {

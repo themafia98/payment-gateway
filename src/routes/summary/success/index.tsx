@@ -6,6 +6,7 @@ import { ReturnToStoreButton } from '@/features/return-to-store'
 import { toTransaction, useCheckoutStore } from '@/features/checkout'
 import { createHttpPaymentGatewayAdapter, type PaymentIntent } from '@/entities/payment'
 import { useMemo } from 'react'
+import { useMerchant } from '@/entities/merchant'
 
 interface SuccessSearch {
   intentId?: string
@@ -30,7 +31,7 @@ export const Route = createFileRoute('/summary/success/')({
     }
 
     if (!intent || intent.status !== 'succeeded') {
-      throw redirect({ to: '/summary/failure' })
+      throw redirect({ to: '/summary/failure', search: { intentId: deps.intentId } })
     }
 
     return { intent, method: state.method }
@@ -41,7 +42,12 @@ export const Route = createFileRoute('/summary/success/')({
 function SuccessPage() {
   const { intent, method } = Route.useLoaderData()
 
-  const transaction = useMemo(() => toTransaction(intent, method), [intent, method])
+  const merchant = useMerchant()
+
+  const transaction = useMemo(
+    () => toTransaction(intent, method, merchant.name),
+    [intent, method, merchant],
+  )
 
   return (
     <>

@@ -28,9 +28,9 @@ function ThreeDSPage() {
       .then((result: PaymentResult) =>
         result.status === 'succeeded'
           ? navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
-          : navigate({ to: '/summary/failure' }),
+          : navigate({ to: '/summary/failure', search: { intentId } }),
       )
-      .catch(() => navigate({ to: '/summary/failure' }))
+      .catch(() => navigate({ to: '/summary/failure', search: { intentId } }))
   }
 
   return <ThreeDSChallenge challengeId={challengeId} onCres={handleCres} intentId={intentId} />

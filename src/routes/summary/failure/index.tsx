@@ -1,28 +1,56 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { PaymentResultHeader } from '@/widgets/payment-result-header'
-import { TransactionDetails, type Transaction } from '@/entities/transaction'
+import { TransactionDetails } from '@/entities/transaction'
 import { RetryPayment } from '@/features/retry-payment'
+import { toTransaction, useCheckoutStore } from '@/features/checkout'
+import { createHttpPaymentGatewayAdapter, type PaymentIntent } from '@/entities/payment'
+import { useMerchant } from '@/entities/merchant'
+import { useMemo } from 'react'
+
+interface FailureSearch {
+  intentId?: string
+}
 
 export const Route = createFileRoute('/summary/failure/')({
+  validateSearch: (search: Record<string, unknown>): FailureSearch => ({
+    intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ intentId: search.intentId }),
+  loader: async ({ deps }) => {
+    const state = useCheckoutStore.getState()
+
+    const isSameIntent = state.intent?.id === deps.intentId
+
+    let intent: PaymentIntent | null = isSameIntent ? state.intent : null
+
+    if (!isSameIntent && deps.intentId) {
+      intent = await createHttpPaymentGatewayAdapter().getIntent(deps.intentId)
+    }
+
+    if (!intent) {
+      throw redirect({ to: '/' })
+    }
+
+    return { intent, method: state.method, error: state.error }
+  },
   component: FailurePage,
 })
 
-// TODO: test
-const transaction: Transaction = {
-  id: 'TXN-789123456',
-  amount: '$100.00',
-  paymentMethod: 'Bank Transfer',
-  date: '04/2026',
-  merchant: 'Store',
-  error: true,
-}
-
 function FailurePage() {
+  const { intent, method, error } = Route.useLoaderData()
+
+  const merchant = useMerchant()
+
+  const transaction = useMemo(
+    () => toTransaction(intent, method, merchant.name),
+    [intent, method, merchant],
+  )
+
   return (
     <>
       <PaymentResultHeader />
 
-      <TransactionDetails transaction={transaction} />
+      <TransactionDetails transaction={transaction} errorMessage={error?.message} />
 
       <RetryPayment />
     </>

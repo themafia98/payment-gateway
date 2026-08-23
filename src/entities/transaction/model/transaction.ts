@@ -4,5 +4,4 @@ export interface Transaction {
   paymentMethod: string
   date: string
   merchant: string
-  error?: boolean
 }

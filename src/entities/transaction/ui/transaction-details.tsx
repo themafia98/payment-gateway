@@ -2,9 +2,10 @@ import type { Transaction } from '../model/transaction'
 
 interface IProps {
   transaction: Transaction
+  errorMessage?: string
 }
 
-export const TransactionDetails = ({ transaction }: IProps) => (
+export const TransactionDetails = ({ transaction, errorMessage }: IProps) => (
   <div className="bg-[#3d3d3d] rounded-lg p-4 space-y-3">
     <div className="flex justify-between text-white items-center gap-2">
       <span>Amount</span>
@@ -18,10 +19,10 @@ export const TransactionDetails = ({ transaction }: IProps) => (
       <span>Payment Method</span>
       <span>{transaction.paymentMethod}</span>
     </div>
-    {transaction?.error && (
+    {!!errorMessage && (
       <div className="flex justify-between text-white items-center gap-2">
         <span>Status</span>
-        <span className="text-red-400">Failed</span>
+        <span className="text-red-400">Failed - {errorMessage}</span>
       </div>
     )}
     <div className="flex justify-between text-white items-center gap-2">

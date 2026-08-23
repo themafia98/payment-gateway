@@ -80,7 +80,7 @@ export const ThreeDSChallenge = ({ challengeId, onCres, intentId }: ThreeDSChall
         sandbox="allow-scripts allow-forms allow-same-origin"
         referrerPolicy="no-referrer"
         className="h-[70svh] w-full max-w-full rounded-xl border border-[#2e303a] bg-white"
-        onError={() => navigate({ to: '/summary/failure' })}
+        onError={() => navigate({ to: '/summary/failure', search: { intentId } })}
       />
 
       {/* redirect mode: same POST, but termUrl tells the ACS to send the whole window back */}

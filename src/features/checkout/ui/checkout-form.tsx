@@ -100,7 +100,7 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
     <FormProvider {...methods}>
       <form
         onSubmit={methods.handleSubmit(handlePayment, handleError)}
-        className="flex h-full flex-col items-stretch justify-start gap-6 bg-[rgba(21,12,37,0.85)] p-[30.8px] backdrop-blur-[15.4px]"
+        className="flex flex-col items-stretch justify-start gap-6"
       >
         <Section>
           <PlanSelector plans={plans} />

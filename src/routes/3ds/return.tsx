@@ -34,7 +34,7 @@ function ThreeDSReturnPage() {
     settled.current = true
 
     if (!challengeId) {
-      navigate({ to: '/summary/failure' })
+      navigate({ to: '/summary/failure', search: { intentId } })
       return
     }
 
@@ -44,9 +44,9 @@ function ThreeDSReturnPage() {
       .then((result: PaymentResult) =>
         result.status === 'succeeded'
           ? navigate({ to: '/summary/success', search: { intentId } })
-          : navigate({ to: '/summary/failure' }),
+          : navigate({ to: '/summary/failure', search: { intentId } }),
       )
-      .catch(() => navigate({ to: '/summary/failure' }))
+      .catch(() => navigate({ to: '/summary/failure', search: { intentId } }))
   }, [challengeId, transStatus, intentId, navigate])
 
   return (

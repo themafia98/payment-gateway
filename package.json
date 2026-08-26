@@ -22,7 +22,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@js-temporal/polyfill": "^0.5.1",
     "@tailwindcss/vite": "^4.3.3",
-    "@tanstack/react-router": "^1.170.30",
+    "@tanstack/react-router": "^1.170.32",
     "@tanstack/react-router-devtools": "^1.167.1",
     "clsx": "^2.1.1",
     "immer": "^11.1.18",

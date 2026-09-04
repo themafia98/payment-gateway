@@ -1,3 +1,4 @@
+import { acquiringHandlers } from './acquiring'
 import { merchantHandlers } from './merchant'
 import type { HttpHandler } from 'msw'
 import { paymentMethodHandlers } from './payment-methods'
@@ -7,6 +8,7 @@ import { threeDsHandlers } from './three-ds'
 import { receiptHandlers } from './receipts'
 
 export const handlers: HttpHandler[] = [
+  ...acquiringHandlers,
   ...merchantHandlers,
   ...paymentMethodHandlers,
   ...paymentIntentHandlers,

@@ -3,6 +3,7 @@ import type { HttpHandler } from 'msw'
 import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
 import { idempotencyKeys, paymentIntents, plansById, processingSettlesAt } from '../data'
 import { PROCESSING_SETTLE_MS } from '../config'
+import { createChallenge } from '../lib/challenges'
 import { networkDelay } from '../lib/delay'
 import { error, invalidJson, json, notFound } from '../lib/respond'
 import { invalidParam, missingParam, normalizeCardNumber, readJson } from '../lib/validation'
@@ -13,7 +14,6 @@ import type {
   PaymentIntent,
   PaymentIntentStatus,
 } from '../types'
-import { createChallenge } from './three-ds'
 
 const TERMINAL: PaymentIntentStatus[] = ['succeeded', 'canceled', 'declined']
 

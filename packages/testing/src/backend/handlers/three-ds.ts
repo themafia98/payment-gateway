@@ -1,57 +1,15 @@
 import { http, HttpResponse } from 'msw'
 import type { HttpHandler } from 'msw'
 import { OTP_SUCCESS } from '../config'
-import { paymentIntents, threeDSChallenges } from '../data'
+import { threeDSChallenges } from '../data'
 import { networkDelay } from '../lib/delay'
+import { settleIntent } from '../lib/challenges'
 import { error, json, notFound } from '../lib/respond'
-import type { CompleteChallengeRequest, PaymentIntent, ThreeDSChallenge } from '../types'
-
-const challengeId = () => `tdsc_${crypto.randomUUID().replace(/-/g, '')}`
-
-export const createChallenge = (
-  paymentIntentId: string,
-  outcome: 'pass' | 'fail',
-): ThreeDSChallenge => {
-  const challenge: ThreeDSChallenge = {
-    id: challengeId(),
-    paymentIntentId,
-    outcome,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-  }
-
-  threeDSChallenges.set(challenge.id, challenge)
-
-  return challenge
-}
+import type { CompleteChallengeRequest, ThreeDSChallenge } from '../types'
 
 const wantsJson = (request: Request) =>
   request.headers.get('Accept')?.includes('application/json') ||
   request.headers.get('Content-Type')?.includes('application/json')
-
-const settleIntent = (challenge: ThreeDSChallenge, approved: boolean): PaymentIntent | null => {
-  const intent = paymentIntents.get(challenge.paymentIntentId)
-  if (!intent) return null
-
-  const updated: PaymentIntent = approved
-    ? { ...intent, status: 'succeeded', nextAction: null, error: null }
-    : {
-        ...intent,
-        status: 'declined',
-        nextAction: null,
-        error: {
-          type: 'card_error',
-          code: 'authentication_failed',
-          message: '3D Secure authentication failed.',
-        },
-      }
-
-  paymentIntents.set(updated.id, updated)
-  challenge.status = approved ? 'succeeded' : 'failed'
-  threeDSChallenges.set(challenge.id, challenge)
-
-  return updated
-}
 
 const readOtp = async (request: Request): Promise<string> => {
   if (request.headers.get('Content-Type')?.includes('application/json')) {

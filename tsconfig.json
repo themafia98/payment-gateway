@@ -5,6 +5,7 @@
     { "path": "./packages/runtime-browser" },
     { "path": "./packages/react" },
     { "path": "./packages/provider-psp" },
+    { "path": "./packages/provider-acquiring" },
     { "path": "./packages/testing" },
     { "path": "./packages/conformance" },
     { "path": "./apps/demo" },

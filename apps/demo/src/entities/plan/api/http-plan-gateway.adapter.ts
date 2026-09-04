@@ -1,6 +1,6 @@
 import type { Plan } from '../model/types'
 import type { PlanGateway } from './plan-gateway'
-import { createHttpClient, type HttpClient } from '@/shared/api'
+import { createApiClient, type HttpClient } from '@/shared/api'
 
 interface PlanDto {
   id: string
@@ -24,7 +24,7 @@ const toDomainPlan = (dto: PlanDto): Plan => ({
 })
 
 export const createHttpPlanGatewayAdapter = (
-  http: HttpClient = createHttpClient(),
+  http: HttpClient = createApiClient(),
 ): PlanGateway => ({
   async getPlans(): Promise<Plan[]> {
     const dtos = await http.get<PlanDto[]>('/plans')

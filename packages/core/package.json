@@ -1,0 +1,50 @@
+{
+  "name": "@pg/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless checkout core: domain vocabulary, the payment plugin contract, and an HTTP client with no opinions about payments.",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "@pg/source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./domain": {
+      "@pg/source": "./src/domain/index.ts",
+      "default": "./dist/domain/index.mjs"
+    },
+    "./engine": {
+      "@pg/source": "./src/engine/index.ts",
+      "default": "./dist/engine/index.mjs"
+    },
+    "./http": {
+      "@pg/source": "./src/http/index.ts",
+      "default": "./dist/http/index.mjs"
+    },
+    "./provider": {
+      "@pg/source": "./src/provider/index.ts",
+      "default": "./dist/provider/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./domain": "./dist/domain/index.mjs",
+      "./engine": "./dist/engine/index.mjs",
+      "./http": "./dist/http/index.mjs",
+      "./provider": "./dist/provider/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

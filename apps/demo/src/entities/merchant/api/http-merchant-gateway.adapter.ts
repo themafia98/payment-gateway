@@ -1,4 +1,4 @@
-import { createHttpClient, type HttpClient } from '@/shared/api'
+import { createApiClient, type HttpClient } from '@/shared/api'
 import type { MerchantConfig } from '../model/types'
 import type { MerchantGateway } from './merchant-gateway'
 
@@ -15,7 +15,7 @@ const toMerchantConfig = (dto: MerchantDto): MerchantConfig => ({
 })
 
 export const createHttpMerchantGatewayAdapter = (
-  http: HttpClient = createHttpClient(),
+  http: HttpClient = createApiClient(),
 ): MerchantGateway => ({
   async getConfig(): Promise<MerchantConfig> {
     const dto = await http.get<MerchantDto>('/merchant/config')

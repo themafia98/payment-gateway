@@ -11,8 +11,10 @@
     "dev": "npm run dev -w @pg/demo",
     "dev:mock": "npm run dev:mock -w @pg/demo",
     "dev:bank": "npm run dev -w @pg/bank-sim",
-    "build": "npm run build -w @pg/demo",
-    "build:mock": "npm run build:mock -w @pg/demo",
+    "build:packages": "tsdown",
+    "build": "npm run build:packages && npm run build -w @pg/demo",
+    "build:mock": "npm run build:packages && npm run build:mock -w @pg/demo",
+    "verify:dist": "node scripts/verify-dist.mjs",
     "preview": "npm run preview -w @pg/demo",
     "preview:mock": "npm run preview:mock -w @pg/demo",
     "typecheck": "tsc -b",
@@ -20,11 +22,15 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix-dangerously",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "purity": "node scripts/check-core-purity.mjs"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
     "oxlint": "^1.75.0",
     "prettier": "^3.9.6",
+    "publint": "^0.3.14",
+    "tsdown": "^0.16.5",
     "typescript": "~7.0.2"
   }
 }

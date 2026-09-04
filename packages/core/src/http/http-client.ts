@@ -1,6 +1,10 @@
-// Thin fetch wrapper: base URL, JSON, headers, status codes — nothing about payments.
-// Response->domain mapping stays in the adapters. Error shape matches the mock backend
-// (src/mocks/lib/respond.ts): { error: { type, code?, message, param? } }.
+// A thin fetch wrapper: base URL, body encoding, headers, status codes - nothing about
+// payments. Response-to-domain mapping belongs to the plugins.
+//
+// Two things are configurable because real integrations differ on exactly these points:
+// `encoding`, since bank host-to-host APIs speak form-urlencoded rather than JSON, and
+// `parseError`, since not everyone reports failures the same way (some put a business
+// error code inside an HTTP 200). Everything else is deliberately fixed.
 
 export interface ApiErrorPayload {
   type: string
@@ -34,6 +38,37 @@ export interface HttpClient {
   getBlob(path: string, options?: RequestOptions): Promise<Blob>
 }
 
+export interface HttpClientConfig {
+  /**
+   * Required on purpose. The core must not know how the host computes its API root, so
+   * there is no `import.meta.env` fallback hiding in here.
+   */
+  baseUrl: string
+  /** Defaults sent with every request; a per-request header of the same name wins. */
+  headers?: Record<string, string>
+  encoding?: 'json' | 'form'
+  /** Turn a failed response into an error payload. Defaults to the `{ error: {...} }` envelope. */
+  parseError?: (response: Response, payload: unknown) => ApiErrorPayload
+  /** Injectable for tests; defaults to the platform `fetch`. */
+  fetch?: typeof fetch
+}
+
+interface BodyEncoder {
+  contentType: string
+  encode(body: unknown): string
+}
+
+const encoders: Record<'json' | 'form', BodyEncoder> = {
+  json: {
+    contentType: 'application/json',
+    encode: (body) => JSON.stringify(body),
+  },
+  form: {
+    contentType: 'application/x-www-form-urlencoded',
+    encode: (body) => new URLSearchParams(body as Record<string, string>).toString(),
+  },
+}
+
 const parseBody = async (response: Response): Promise<unknown> => {
   const text = await response.text()
   if (!text) return undefined
@@ -51,16 +86,25 @@ const isErrorEnvelope = (value: unknown): value is { error: ApiErrorPayload } =>
   typeof (value as { error: unknown }).error === 'object' &&
   (value as { error: unknown }).error !== null
 
-/** Read a failed response's body and turn it into an HttpError (shared by all verbs). */
-const toHttpError = async (response: Response): Promise<HttpError> => {
-  const payload = await parseBody(response)
-  const error: ApiErrorPayload = isErrorEnvelope(payload)
+const defaultParseError = (response: Response, payload: unknown): ApiErrorPayload =>
+  isErrorEnvelope(payload)
     ? payload.error
     : { type: 'api_error', message: `Request failed with status ${response.status}` }
-  return new HttpError(response.status, error)
-}
 
-export const createHttpClient = (baseUrl = `${import.meta.env.BASE_URL}api`): HttpClient => {
+export const createHttpClient = (config: HttpClientConfig): HttpClient => {
+  const {
+    baseUrl,
+    headers: defaultHeaders,
+    encoding = 'json',
+    parseError = defaultParseError,
+  } = config
+  const doFetch = config.fetch ?? fetch
+  const encoder = encoders[encoding]
+
+  /** Read a failed response's body and turn it into an HttpError (shared by all verbs). */
+  const toHttpError = async (response: Response): Promise<HttpError> =>
+    new HttpError(response.status, parseError(response, await parseBody(response)))
+
   // One place that talks to fetch; wraps network-level failures as HttpError(0).
   const rawFetch = async (
     method: 'GET' | 'POST',
@@ -70,17 +114,18 @@ export const createHttpClient = (baseUrl = `${import.meta.env.BASE_URL}api`): Ht
   ): Promise<Response> => {
     const hasBody = body !== undefined
     try {
-      return await fetch(`${baseUrl}${path}`, {
+      return await doFetch(`${baseUrl}${path}`, {
         method,
         headers: {
-          ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+          ...(hasBody ? { 'Content-Type': encoder.contentType } : {}),
+          ...defaultHeaders,
           ...options.headers,
         },
-        body: hasBody ? JSON.stringify(body) : undefined,
+        body: hasBody ? encoder.encode(body) : undefined,
         signal: options.signal,
       })
     } catch (cause) {
-      // fetch rejects only on network-level failures (offline, DNS, CORS…).
+      // fetch rejects only on network-level failures (offline, DNS, CORS...).
       throw new HttpError(0, {
         type: 'network_error',
         message: cause instanceof Error ? cause.message : 'Network request failed',

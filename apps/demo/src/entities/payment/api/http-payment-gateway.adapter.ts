@@ -1,6 +1,6 @@
 import type { PaymentGateway, CreateIntentInput, CardInput } from './payment-gateway'
 import type { PaymentIntent, PaymentResult, PaymentStatus } from '../model/types'
-import { createHttpClient, type HttpClient, HttpError } from '@/shared/api'
+import { createApiClient, type HttpClient, HttpError } from '@/shared/api'
 import { normalizeCardNumber } from '@/shared/lib'
 
 // Wire format (DTO) the backend returns. Declared locally (not imported from
@@ -55,7 +55,7 @@ const toPaymentResult = (dto: PaymentIntentDto): PaymentResult => {
 // The http client is injected (defaults to a real one) for testing with a fake.
 
 export const createHttpPaymentGatewayAdapter = (
-  http: HttpClient = createHttpClient(),
+  http: HttpClient = createApiClient(),
 ): PaymentGateway => ({
   async createIntent(input: CreateIntentInput, idempotencyKey: string): Promise<PaymentIntent> {
     const dto = await http.post<PaymentIntentDto>('/payment-intents', input, {

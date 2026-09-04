@@ -22,7 +22,7 @@
     </style>
   </head>
   <body>
-    <form class="card" method="post" action="/challenge/<%= id %>/complete">
+    <form class="card" method="post" action="<%= action %>">
       <h1>Verify your payment</h1>
       <p>Your bank sent a one-time code. Test code: <code><%= OTP_SUCCESS %></code>.</p>
       <% if (error) { %><p class="err"><%= error %></p><% } %>
@@ -31,6 +31,9 @@
       <% if (termUrl) { %>
         <input type="hidden" name="termUrl" value="<%= termUrl %>" />
       <% } %>
+      <% hidden.forEach(function (field) { %>
+        <input type="hidden" name="<%= field.name %>" value="<%= field.value %>" />
+      <% }); %>
       <button type="submit">Submit</button>
       <div class="meta">
         acsTransID: <%= creq?.acsTransID || '—' %><br />

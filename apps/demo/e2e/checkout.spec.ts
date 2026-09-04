@@ -87,9 +87,10 @@ test.describe('Result pages', () => {
     await expect(failurePage.heading).toBeVisible()
   })
 
-  // Abandoning a challenge is not just a navigation: the engine tells the provider to
-  // cancel the intent, so the shopper is not left with a pending authorization.
-  test('canceling a 3-D Secure challenge releases the payment', async ({
+  // That the intent is actually released is asserted where it can be said without naming
+  // an endpoint: the conformance suite proves each plugin cancels, and an engine test
+  // proves it happens exactly once. Here the question is only what the shopper sees.
+  test('canceling a challenge takes the shopper off it', async ({
     page,
     checkoutPage,
     threeDsPage,
@@ -101,12 +102,8 @@ test.describe('Result pages', () => {
 
     await expect(page).toHaveURL(URL_PATTERNS.threeDsChallenge)
 
-    const cancelRequest = page.waitForRequest(
-      (request) => request.url().includes('/cancel') && request.method() === 'POST',
-    )
     await threeDsPage.cancelButton.click()
 
-    await expect(cancelRequest).resolves.toBeTruthy()
     await expect(page).toHaveURL(URL_PATTERNS.failure)
     await expect(failurePage.heading).toBeVisible()
   })

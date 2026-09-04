@@ -2,6 +2,7 @@ import { type Locator, type Page } from '@playwright/test'
 import { ROUTES } from '../data/routes'
 import { PLACEHOLDERS, TEXT } from '../data/text'
 import { VALID_BILLING } from '../data/cards'
+import { PROVIDERS, type ProviderId } from '../data/providers'
 
 export class CheckoutPage {
   readonly page: Page
@@ -12,9 +13,11 @@ export class CheckoutPage {
   readonly postalCode: Locator
   readonly payButton: Locator
   readonly errorAlert: Locator
+  readonly providerTab: Locator
 
-  constructor(page: Page) {
+  constructor(page: Page, provider: ProviderId = 'psp') {
     this.page = page
+    this.providerTab = page.getByRole('tab', { name: PROVIDERS[provider] })
     this.cardNumber = page.getByPlaceholder(PLACEHOLDERS.cardNumber)
     this.expiry = page.getByPlaceholder(PLACEHOLDERS.expiry)
     this.cvc = page.getByPlaceholder(PLACEHOLDERS.cvc)
@@ -31,6 +34,10 @@ export class CheckoutPage {
   async goto() {
     await this.page.goto(ROUTES.checkout)
     await this.payButton.waitFor()
+
+    // Chosen through the UI rather than by poking at app state: the switch is part of
+    // what every test exercises.
+    await this.providerTab.click()
   }
 
   async fillBillingAndCard(cardNumber: string) {

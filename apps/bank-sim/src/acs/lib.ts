@@ -58,14 +58,24 @@ export const readForm = (req: IncomingMessage): Promise<URLSearchParams> =>
     req.on('end', () => resolve(new URLSearchParams(raw)))
   })
 
-export const decodeCreq = (value: string | null): CReq | null => {
+/**
+ * Both 3-D Secure versions hand the browser a base64 blob to bring here - a `CReq` in
+ * version 2, a `PaReq` in version 1 - so one decoder serves both. base64url first, since
+ * that is what version 2 uses; plain base64 as a fallback for version 1.
+ */
+export const decodeBase64Json = <T>(value: string | null): T | null => {
   if (!value) return null
-  try {
-    return JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as CReq
-  } catch {
-    return null
+  for (const encoding of ['base64url', 'base64'] as const) {
+    try {
+      return JSON.parse(Buffer.from(value, encoding).toString('utf8')) as T
+    } catch {
+      // Try the other encoding before giving up.
+    }
   }
+  return null
 }
+
+export const decodeCreq = (value: string | null): CReq | null => decodeBase64Json<CReq>(value)
 
 export const sendHtml = (
   res: ServerResponse,

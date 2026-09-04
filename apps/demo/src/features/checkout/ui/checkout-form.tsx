@@ -82,17 +82,21 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         }
 
         if (result.status === 'requires_action') {
-          // An action that wants the whole window has nothing to render here: running it
-          // navigates away by itself, and a screen in between would only flash. Anything
-          // that needs a frame gets a page to live on.
-          if (result.action.surface === 'top') {
-            void engine.runPendingAction()
+          // Where the action happens decides where the shopper goes, and that is the only
+          // thing this form needs to know about it.
+          const { surface } = result.action
+
+          // Nothing of ours to render: a redirect leaves by itself, and a wallet draws its
+          // own sheet over the page. Either way, staying here is right - a screen in
+          // between would only flash, and a decline should land on the form.
+          if (surface === 'top' || surface === 'none') {
+            void engine.runPendingAction().then(handleSettled)
             return
           }
 
           // Fields belong where the shopper is already looking. Navigating away to show a
           // card form that is supposed to sit inside the checkout would be absurd.
-          if (result.action.surface === 'inline') return
+          if (surface === 'inline') return
 
           navigate({
             to: '/payment/action/$actionId',

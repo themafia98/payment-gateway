@@ -75,4 +75,7 @@ export const hostedPageTest = onlyFor('hosted-page')
 /** Specs about the provider's card fields, embedded in our page. */
 export const hostedFieldsTest = onlyFor('hosted-fields')
 
+/** Specs about a wallet, whose sheet is drawn by someone else's script. */
+export const walletTest = onlyFor('wallet')
+
 export { expect } from '@playwright/test'

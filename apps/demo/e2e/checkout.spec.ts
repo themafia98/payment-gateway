@@ -1,4 +1,11 @@
-import { test, cardEntryTest, hostedPageTest, hostedFieldsTest, expect } from './fixtures'
+import {
+  test,
+  cardEntryTest,
+  hostedPageTest,
+  hostedFieldsTest,
+  walletTest,
+  expect,
+} from './fixtures'
 import { CARDS } from './data/cards'
 import { URL_PATTERNS } from './data/routes'
 import { PLANS, TEXT } from './data/text'
@@ -138,6 +145,51 @@ test.describe('Payments taken in the provider frame', () => {
         expect(body).not.toContain(CARDS.success)
       }
       expect(shopRequests.some((body) => body.includes('tok_'))).toBe(true)
+    },
+  )
+})
+
+test.describe('Payments approved in a wallet', () => {
+  walletTest(
+    'the wallet sheet approves the payment',
+    async ({ page, checkoutPage, successPage }) => {
+      await checkoutPage.goto()
+      await expect(checkoutPage.cardNumber).toHaveCount(0)
+      await checkoutPage.fillBilling()
+      await checkoutPage.payButton.click()
+
+      // Drawn by a script the checkout loaded by URL and cannot see inside.
+      await page.getByRole('button', { name: 'Confirm payment' }).click()
+
+      await expect(page).toHaveURL(URL_PATTERNS.success)
+      await expect(successPage.heading).toBeVisible()
+    },
+  )
+
+  walletTest('a card the wallet holds can still be declined', async ({ page, checkoutPage }) => {
+    await checkoutPage.goto()
+    await checkoutPage.fillBilling()
+    await checkoutPage.payButton.click()
+
+    // A wallet is a way of presenting a card, not of escaping one.
+    await page.getByRole('button', { name: 'Visa •••• 0002 (declines)' }).click()
+    await page.getByRole('button', { name: 'Confirm payment' }).click()
+
+    await expect(checkoutPage.errorAlert).toHaveText(TEXT.declinedMessage)
+    await expect(page).not.toHaveURL(URL_PATTERNS.summary)
+  })
+
+  walletTest(
+    'closing the wallet leaves the shopper where they were',
+    async ({ page, checkoutPage }) => {
+      await checkoutPage.goto()
+      await checkoutPage.fillBilling()
+      await checkoutPage.payButton.click()
+
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+
+      await expect(checkoutPage.payButton).toBeVisible()
+      await expect(page).not.toHaveURL(URL_PATTERNS.summary)
     },
   )
 })

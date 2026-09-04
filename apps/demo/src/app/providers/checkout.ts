@@ -13,6 +13,17 @@ import type { PspConfig } from '@pg/provider-psp'
 import type { AcquiringConfig } from '@pg/provider-acquiring'
 import type { HostedPageConfig } from '@pg/provider-hpp'
 import type { HostedFieldsConfig } from '@pg/provider-hosted-fields'
+import type { WalletConfig } from '@pg/provider-wallet'
+
+interface WalletSheetParams {
+  merchantName: string
+  amount: number
+  currency: string
+}
+
+interface DemoWallet {
+  show(params: WalletSheetParams): Promise<{ walletToken: string }>
+}
 
 const BASE_URL = import.meta.env.BASE_URL
 const ACS_ORIGIN: string = import.meta.env.VITE_ACS_ORIGIN ?? 'https://localhost:5100'
@@ -51,11 +62,34 @@ const hostedFieldsConfig: HostedFieldsConfig = {
   fieldsOrigin: window.location.origin,
 }
 
+// Someone else's script, someone else's sheet. The checkout only asks for a payload.
+const walletConfig: WalletConfig = {
+  baseUrl: `${BASE_URL}api`,
+  sdk: 'demo-wallet',
+  scriptUrl: `${BASE_URL}wallet-sdk.js`,
+  merchantName: 'Demo Store',
+}
+
 // The return URL is built from BASE_URL, so it stays correct when the app is served from
 // a sub-path. Hand-assembling it from `window.location.origin` is how that breaks.
 const runtime = createBrowserRuntime({
   returnPath: `${BASE_URL}payment/return`,
   redirect: { frameTitle: () => '3-D Secure authentication' },
+  collectFields: { frameTitle: () => 'Card details' },
+  // How to drive the wallet once its script has loaded. The runner knows nothing about
+  // this SDK; this adapter is the whole of the coupling, and it lives in the app.
+  sdk: {
+    adapters: [
+      {
+        sdk: 'demo-wallet',
+        request: async (params) => {
+          const wallet = (window as unknown as { DemoWallet?: DemoWallet }).DemoWallet
+          if (!wallet) throw new Error('The wallet SDK did not register itself.')
+          return await wallet.show(params as unknown as WalletSheetParams)
+        },
+      },
+    ],
+  },
 })
 
 export const checkout: CheckoutEngine = createCheckout({
@@ -85,6 +119,11 @@ export const checkout: CheckoutEngine = createCheckout({
       id: 'hostedfields',
       config: hostedFieldsConfig,
       load: () => import('@pg/provider-hosted-fields'),
+    }),
+    defineProvider({
+      id: 'wallet',
+      config: walletConfig,
+      load: () => import('@pg/provider-wallet'),
     }),
   ],
   defaultProviderId: 'psp',

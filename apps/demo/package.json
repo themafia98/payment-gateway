@@ -21,6 +21,7 @@
     "@pg/provider-hosted-fields": "*",
     "@pg/provider-hpp": "*",
     "@pg/provider-psp": "*",
+    "@pg/provider-wallet": "*",
     "@pg/react": "*",
     "@pg/runtime-browser": "*",
     "@tanstack/react-router": "^1.170.30",

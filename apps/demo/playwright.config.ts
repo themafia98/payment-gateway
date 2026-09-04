@@ -30,6 +30,10 @@ export default defineConfig<CheckoutOptions>({
       name: 'hostedfields',
       use: { ...devices['Desktop Chrome'], paymentProvider: 'hostedfields' },
     },
+    {
+      name: 'wallet',
+      use: { ...devices['Desktop Chrome'], paymentProvider: 'wallet' },
+    },
   ],
   webServer: {
     command: 'npm run dev:mock',

@@ -12,6 +12,7 @@ export const PROVIDERS = {
   acquiring: { label: 'Acquiring bank', flow: 'card' },
   hpp: { label: 'Bank page', flow: 'hosted-page' },
   hostedfields: { label: 'Hosted fields', flow: 'hosted-fields' },
+  wallet: { label: 'Wallet', flow: 'wallet' },
 } as const
 
 export type ProviderId = keyof typeof PROVIDERS

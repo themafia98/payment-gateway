@@ -12,6 +12,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   acquiring: 'Acquiring bank',
   hpp: 'Bank page',
   hostedfields: 'Hosted fields',
+  wallet: 'Wallet',
 }
 
 export const ProviderSelector = () => {

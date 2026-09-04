@@ -15,6 +15,7 @@ import {
   type CollectFieldsRunnerOptions,
 } from './runners/collect-fields'
 import { createRedirectRunner, type RedirectRunnerOptions } from './runners/redirect'
+import { createSdkHandoffRunner, type SdkHandoffRunnerOptions } from './runners/sdk-handoff'
 import { sessionStorageAdapter } from './storage/session-storage'
 
 export interface BrowserRuntime {
@@ -35,6 +36,7 @@ export interface BrowserRuntimeOptions {
   readonly returnPath: string
   readonly redirect?: RedirectRunnerOptions
   readonly collectFields?: CollectFieldsRunnerOptions
+  readonly sdk?: SdkHandoffRunnerOptions
   readonly storage?: StorageAdapter
 }
 
@@ -42,6 +44,7 @@ export const createBrowserRuntime = (options: BrowserRuntimeOptions): BrowserRun
   const runners = createRunnerRegistry()
   runners.register(createRedirectRunner(options.redirect))
   runners.register(createCollectFieldsRunner(options.collectFields))
+  runners.register(createSdkHandoffRunner(options.sdk))
 
   return {
     runners,

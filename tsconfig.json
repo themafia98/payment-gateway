@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/core" },
+    { "path": "./packages/runtime-browser" },
     { "path": "./packages/testing" },
     { "path": "./apps/demo" },
     { "path": "./apps/bank-sim" }

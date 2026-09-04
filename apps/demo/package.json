@@ -24,6 +24,7 @@
     "@pg/provider-wallet": "*",
     "@pg/react": "*",
     "@pg/runtime-browser": "*",
+    "@pg/ui": "*",
     "@tanstack/react-router": "^1.170.30",
     "@tanstack/react-router-devtools": "^1.167.1",
     "clsx": "^2.1.1",

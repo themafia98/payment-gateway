@@ -11,7 +11,7 @@
     "dev": "npm run dev -w @pg/demo",
     "dev:mock": "npm run dev:mock -w @pg/demo",
     "dev:bank": "npm run dev -w @pg/bank-sim",
-    "build:packages": "tsdown",
+    "build:packages": "tsdown && node scripts/copy-ui-styles.mjs",
     "build": "npm run build:packages && npm run build -w @pg/demo",
     "build:mock": "npm run build:packages && npm run build:mock -w @pg/demo",
     "verify:dist": "node scripts/verify-dist.mjs",

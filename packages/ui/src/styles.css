@@ -1,0 +1,171 @@
+/**
+ * The checkout kit's styles.
+ *
+ * Plain CSS on purpose. A distributable UI package that needs the consumer to run a
+ * particular version of a particular utility framework is not distributable; this ships one
+ * small stylesheet and asks for nothing.
+ *
+ * Everything is themed through `--pg-*` custom properties with defaults, so a host restyles
+ * the checkout by setting a handful of variables rather than by fighting specificity:
+ *
+ *   .pg-root { --pg-accent: #0a7; --pg-radius: 8px; }
+ *
+ * Every selector is scoped under `.pg-root` and kept to a single class, so nothing here
+ * reaches into a host's markup and nothing here is hard to override.
+ */
+
+.pg-root {
+  --pg-font: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --pg-accent: #aa3bff;
+  --pg-accent-contrast: #ffffff;
+  --pg-surface: #3d3d3d;
+  --pg-surface-raised: #4f4f4f;
+  --pg-text: #e9e9e9;
+  --pg-text-muted: #9aa0ac;
+  --pg-danger: #f87171;
+  --pg-success: #4ade80;
+
+  --pg-radius: 14px;
+  --pg-radius-small: 10px;
+  --pg-gap: 16px;
+  --pg-control-height: 66px;
+
+  font-family: var(--pg-font);
+  color: var(--pg-text);
+}
+
+.pg-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--pg-gap);
+}
+
+.pg-button {
+  display: flex;
+  width: 100%;
+  height: var(--pg-control-height);
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: var(--pg-radius);
+  background: var(--pg-accent);
+  color: var(--pg-accent-contrast);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pg-button--secondary {
+  background: color-mix(in srgb, var(--pg-accent) 50%, transparent);
+}
+
+.pg-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pg-input {
+  display: flex;
+  height: var(--pg-control-height);
+  width: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  border: 0;
+  border-radius: var(--pg-radius-small);
+  background: var(--pg-surface);
+  padding: 0 16px;
+  color: var(--pg-text);
+  font: inherit;
+}
+
+.pg-input::placeholder {
+  color: var(--pg-text-muted);
+}
+
+.pg-input:focus-visible {
+  outline: 2px solid var(--pg-accent);
+  outline-offset: 2px;
+}
+
+.pg-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  border-radius: var(--pg-radius-small);
+  background: var(--pg-surface);
+  padding: 6px;
+}
+
+.pg-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--pg-radius-small);
+  background: transparent;
+  padding: 14px 12px;
+  color: var(--pg-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pg-tab[aria-selected='true'] {
+  background: var(--pg-surface-raised);
+}
+
+.pg-tab[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pg-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pg-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pg-item__name {
+  color: var(--pg-text-muted);
+}
+
+.pg-item--total .pg-item__name,
+.pg-item--total .pg-item__value {
+  color: var(--pg-text);
+  font-weight: 600;
+}
+
+.pg-error {
+  margin: 0;
+  color: var(--pg-danger);
+  font-size: 14px;
+}
+
+.pg-error:empty {
+  display: none;
+}
+
+.pg-status {
+  margin: 0;
+  font-size: 15px;
+}
+
+.pg-status--success {
+  color: var(--pg-success);
+}
+
+.pg-status--failure {
+  color: var(--pg-danger);
+}

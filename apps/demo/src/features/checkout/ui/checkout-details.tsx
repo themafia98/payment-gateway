@@ -31,7 +31,7 @@ export const CheckoutDetails = ({ plans }: IProps) => {
     <Details>
       <Item name="Price" value={`${invoice.currency}${invoice.subtotal}`} />
       {!!invoice.discount && <Item name="Discount applied" value={invoice.discount} />}
-      <Item name="Total due" variant="secondary" value={`${invoice.currency}${invoice.total}`} />
+      <Item name="Total due" total value={`${invoice.currency}${invoice.total}`} />
     </Details>
   )
 }

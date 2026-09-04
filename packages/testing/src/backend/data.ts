@@ -40,3 +40,13 @@ export const paymentIntents: Map<string, PaymentIntent> = new Map()
 export const idempotencyKeys: Map<string, string> = new Map()
 
 export const threeDSChallenges: Map<string, ThreeDSChallenge> = new Map()
+
+/**
+ * Wipes the in-memory backend. The browser gets a fresh one on every reload; a test run
+ * does not, so each case has to ask for one.
+ */
+export const resetBackend = (): void => {
+  paymentIntents.clear()
+  idempotencyKeys.clear()
+  threeDSChallenges.clear()
+}

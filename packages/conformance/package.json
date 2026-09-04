@@ -1,9 +1,9 @@
 {
-  "name": "@pg/provider-psp",
+  "name": "@pg/conformance",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Payment plugin for a Stripe-shaped PSP: JSON API, idempotency header, 3-D Secure 2 challenge.",
+  "description": "The contract every payment plugin must satisfy, as a runnable vitest suite.",
   "sideEffects": false,
   "files": [
     "dist"
@@ -12,7 +12,10 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "@pg/core": "*"
+    "@pg/core": "*",
+    "@pg/testing": "*",
+    "msw": "^2.15.0",
+    "vitest": "^5.0.0"
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
@@ -29,10 +32,5 @@
       ".": "./dist/index.mjs",
       "./package.json": "./package.json"
     }
-  },
-  "devDependencies": {
-    "@pg/conformance": "*",
-    "@pg/testing": "*",
-    "msw": "^2.15.0"
   }
 }

@@ -41,6 +41,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Unit tests and plugin contract
+        run: npm run test
+
       - name: Check core purity
         run: npm run purity
 

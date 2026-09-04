@@ -6,6 +6,7 @@ export const CARDS = {
   success: SCENARIO_CARDS.approve,
   declined: SCENARIO_CARDS.decline,
   requiresAction: SCENARIO_CARDS.challengePass,
+  processing: SCENARIO_CARDS.processing,
 } as const
 
 export const VALID_BILLING = {

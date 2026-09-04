@@ -44,6 +44,20 @@ test.describe('Checkout', () => {
     await expect(threeDsPage.challengeFrame).toBeVisible()
   })
 
+  // Some authorizations are answered later. Nothing pushes the result to the browser, so
+  // the checkout has to keep asking - and used to sit there forever instead.
+  test('a payment that settles asynchronously is waited out', async ({
+    page,
+    checkoutPage,
+    successPage,
+  }) => {
+    await checkoutPage.goto()
+    await checkoutPage.pay(CARDS.processing)
+
+    await expect(page).toHaveURL(URL_PATTERNS.success, { timeout: 15_000 })
+    await expect(successPage.heading).toBeVisible()
+  })
+
   test('the plan catalog is fetched from the backend', async ({ page, checkoutPage }) => {
     const plansResponse = page.waitForResponse((res) => res.url().includes('/api/plans'))
 

@@ -42,6 +42,12 @@ export const idempotencyKeys: Map<string, string> = new Map()
 export const threeDSChallenges: Map<string, ThreeDSChallenge> = new Map()
 
 /**
+ * When a `processing` intent becomes final. The browser learns about it by asking again -
+ * there is no webhook here, and there is no push either.
+ */
+export const processingSettlesAt: Map<string, number> = new Map()
+
+/**
  * Wipes the in-memory backend. The browser gets a fresh one on every reload; a test run
  * does not, so each case has to ask for one.
  */
@@ -49,4 +55,5 @@ export const resetBackend = (): void => {
   paymentIntents.clear()
   idempotencyKeys.clear()
   threeDSChallenges.clear()
+  processingSettlesAt.clear()
 }

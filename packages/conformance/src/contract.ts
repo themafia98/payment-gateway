@@ -192,6 +192,16 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       expect(again.status).toBe('error')
     })
 
+    it('reports an authorization that has not settled yet', async () => {
+      if (!suite.provider.capabilities.poll) return
+
+      const { result } = await startPayment('processing')
+
+      // Not succeeded, and not declined either: saying either one here would be a lie the
+      // shopper acts on. The engine polls from this state.
+      expect(result.status).toBe('processing')
+    })
+
     it('turns a provider-side outage into an error, not an exception', async () => {
       const { result } = await startPayment('chaos')
 

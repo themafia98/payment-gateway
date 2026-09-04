@@ -56,9 +56,9 @@ const capabilities: ProviderCapabilities = {
   authentication: ['none', '3ds2'],
   session: 'lazy',
   cancel: true,
-  // Turned on once the backend actually settles a `processing` intent; until then a
-  // pending payment would be polled forever.
-  poll: false,
+  // Some authorizations come back later. The engine keeps asking until the payment is
+  // final, because nothing here pushes.
+  poll: true,
   idempotency: 'header',
 }
 

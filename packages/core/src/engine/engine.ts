@@ -441,6 +441,18 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
         }))
 
       emit({ type: 'action_finished', action, evidence })
+
+      // A payment canceled while its action was running is already settled. The runner
+      // still reports back - that is how it stops - and that late report must not drag the
+      // payment back into the flow.
+      if (store.getSnapshot().phase === 'canceled') {
+        return {
+          status: 'error',
+          intent,
+          error: { code: 'canceled', message: 'The payment was canceled.' },
+        }
+      }
+
       transition('action_done')
       return await engine.resumeWith(evidence)
     },

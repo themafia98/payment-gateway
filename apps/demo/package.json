@@ -18,6 +18,7 @@
     "@js-temporal/polyfill": "^0.5.1",
     "@pg/core": "*",
     "@pg/provider-acquiring": "*",
+    "@pg/provider-hpp": "*",
     "@pg/provider-psp": "*",
     "@pg/react": "*",
     "@pg/runtime-browser": "*",

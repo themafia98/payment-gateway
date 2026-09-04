@@ -18,6 +18,7 @@ import type { ActionEvidence } from '../domain/evidence'
 import type { PaymentInstrument } from '../domain/instrument'
 import type { CreateIntentInput, PaymentError, PaymentIntent } from '../domain/intent'
 import type { PaymentResult } from '../domain/result'
+import type { ProviderCapabilities } from '../provider/capabilities'
 import type { CallOptions, PaymentProviderInstance } from '../provider/provider'
 import { silentLogger, type Logger } from '../support/logger'
 import type { EngineEvent, EngineEventOf, EngineEventType } from './events'
@@ -40,6 +41,13 @@ import { createStore } from './store'
 export interface CheckoutSnapshot {
   readonly phase: CheckoutPhase
   readonly providerId: string | null
+  /**
+   * What the current provider can do, once it has loaded. `null` until then.
+   *
+   * Meant for rendering and validation - whether to ask for a card at all - never for
+   * deciding what a payment needs. That is what the returned action is for.
+   */
+  readonly capabilities: ProviderCapabilities | null
   readonly intent: PaymentIntent | null
   /** The action waiting to be run, or the one currently running. */
   readonly action: PaymentAction | null
@@ -105,6 +113,7 @@ export interface CheckoutEngineConfig {
 const INITIAL: CheckoutSnapshot = {
   phase: 'idle',
   providerId: null,
+  capabilities: null,
   intent: null,
   action: null,
   error: null,
@@ -175,8 +184,15 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
     throw new Error('No payment provider selected. Pass `defaultProviderId` or call useProvider().')
   }
 
-  const instanceOf = async (providerId: string): Promise<PaymentProviderInstance> =>
-    (await registry.load(providerId)).instance
+  const instanceOf = async (providerId: string): Promise<PaymentProviderInstance> => {
+    const loaded = await registry.load(providerId)
+    // Publishing capabilities on load rather than on demand keeps them in the snapshot,
+    // so a form that renders differently per provider re-renders when one arrives.
+    if (store.getSnapshot().providerId === providerId) {
+      store.set({ capabilities: loaded.provider.capabilities })
+    }
+    return loaded.instance
+  }
 
   const callOptions = (): CallOptions => ({
     idempotencyKey: idempotencyKey ?? uuid(),
@@ -338,8 +354,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
       if (isBusyPhase(store.getSnapshot().phase)) {
         throw new Error('Cannot switch provider while a payment is in flight.')
       }
-      await registry.load(providerId)
-      store.set({ providerId })
+      const loaded = await registry.load(providerId)
+      store.set({ providerId, capabilities: loaded.provider.capabilities })
       emit({ type: 'provider_changed', providerId })
     },
 
@@ -577,7 +593,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
       idempotencyKey = null
       clearPendingCheckout(storage)
       transition('reset')
-      store.set({ ...INITIAL, providerId: store.getSnapshot().providerId })
+      const { providerId, capabilities } = store.getSnapshot()
+      store.set({ ...INITIAL, providerId, capabilities })
     },
   }
 
@@ -588,9 +605,16 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
     if (!registration.eager) continue
     // Nothing is waiting on this, so a failed import would otherwise vanish into an
     // unhandled rejection and only resurface as a confusing error at the till.
-    void registry.load(registration.id).catch((cause: unknown) => {
-      log.error('could not load a payment provider', { providerId: registration.id, cause })
-    })
+    void registry
+      .load(registration.id)
+      .then((loaded) => {
+        if (store.getSnapshot().providerId === registration.id) {
+          store.set({ capabilities: loaded.provider.capabilities })
+        }
+      })
+      .catch((cause: unknown) => {
+        log.error('could not load a payment provider', { providerId: registration.id, cause })
+      })
   }
 
   return engine

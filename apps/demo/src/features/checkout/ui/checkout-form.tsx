@@ -10,11 +10,11 @@ import { formDefaultValues } from '../model/default-values'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   type CheckoutFormInput,
-  checkoutFormSchema,
+  createCheckoutFormSchema,
   type CheckoutFormSchema,
 } from '../model/schema'
 import { CheckoutDetails } from './checkout-details'
-import { useCheckoutEngine } from '@pg/react'
+import { useCheckout } from '@pg/react'
 import type { Plan } from '@/entities/plan'
 import {
   useCheckoutActions,
@@ -28,13 +28,19 @@ interface CheckoutFormProps {
 }
 
 export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
+  const { engine, capabilities } = useCheckout()
+
+  // Whether this provider wants a card at all. A hosted payment page collects it on the
+  // bank's own site; asking for it here would be pointless, and the fields would go
+  // nowhere. Until the plugin has loaded, assume the common case.
+  const collectsCard = capabilities?.instruments.includes('card') ?? true
+
   const methods = useForm<CheckoutFormInput, unknown, CheckoutFormSchema>({
-    resolver: zodResolver(checkoutFormSchema),
+    resolver: zodResolver(createCheckoutFormSchema(collectsCard)),
     defaultValues: formDefaultValues,
   })
 
   const navigate = useNavigate()
-  const engine = useCheckoutEngine()
 
   const isBusy = useCheckoutIsBusy()
   const checkoutError = useCheckoutError()
@@ -58,12 +64,9 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
     engine
       .pay({
         input: { planId: form.planId },
-        instrument: {
-          kind: 'card',
-          number: form.card.number,
-          exp: form.card.exp,
-          cvc: form.card.cvc,
-        },
+        // No card is a perfectly good instrument: it is what a provider that collects one
+        // elsewhere expects to be handed.
+        instrument: form.card ? { kind: 'card', ...form.card } : { kind: 'none' },
       })
       .then((result) => {
         if (result.status === 'succeeded') {
@@ -72,9 +75,17 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         }
 
         if (result.status === 'requires_action') {
+          // An action that wants the whole window has nothing to render here: running it
+          // navigates away by itself, and a screen in between would only flash. Anything
+          // that needs a frame gets a page to live on.
+          if (result.action.surface === 'top') {
+            void engine.runPendingAction()
+            return
+          }
+
           navigate({
-            to: '/3ds/challenge/$challengeId',
-            params: { challengeId: result.action.id },
+            to: '/payment/action/$actionId',
+            params: { actionId: result.action.id },
             search: { intentId: result.intent.id },
           })
         }
@@ -104,9 +115,11 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         <Section>
           <PaymentMethodSelector />
         </Section>
-        <Section>
-          <CreditCardDetails />
-        </Section>
+        {collectsCard && (
+          <Section>
+            <CreditCardDetails />
+          </Section>
+        )}
         <Section>
           <Billing />
         </Section>

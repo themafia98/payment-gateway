@@ -4,6 +4,7 @@
 
 export { handlers } from './handlers'
 export { acquiringHandlers } from './handlers/acquiring'
+export { hostedPageHandlers } from './handlers/hosted-page'
 export { merchantHandlers } from './handlers/merchant'
 export { paymentIntentHandlers } from './handlers/payment-intents'
 export { paymentMethodHandlers } from './handlers/payment-methods'

@@ -8,5 +8,5 @@ export const URL_PATTERNS = {
   success: /\/summary\/success/,
   failure: /\/summary\/failure/,
   summary: /\/summary/,
-  threeDsChallenge: /\/3ds\/challenge\//,
+  paymentAction: /\/payment\/action\//,
 } as const

@@ -10,10 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as R3dsReturnRouteImport } from './routes/3ds/return'
+import { Route as HostedPageRouteImport } from './routes/hosted-page'
+import { Route as PaymentReturnRouteImport } from './routes/payment/return'
 import { Route as SummaryFailureRouteRouteImport } from './routes/summary/failure/route'
 import { Route as SummarySuccessRouteRouteImport } from './routes/summary/success/route'
-import { Route as R3dsChallengeChallengeIdRouteImport } from './routes/3ds/challenge/$challengeId'
+import { Route as PaymentActionActionIdRouteImport } from './routes/payment/action.$actionId'
 import { Route as SummaryFailureIndexRouteImport } from './routes/summary/failure/index'
 import { Route as SummarySuccessIndexRouteImport } from './routes/summary/success/index'
 
@@ -22,9 +23,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const R3dsReturnRoute = R3dsReturnRouteImport.update({
-  id: '/3ds/return',
-  path: '/3ds/return',
+const HostedPageRoute = HostedPageRouteImport.update({
+  id: '/hosted-page',
+  path: '/hosted-page',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentReturnRoute = PaymentReturnRouteImport.update({
+  id: '/payment/return',
+  path: '/payment/return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SummaryFailureRouteRoute = SummaryFailureRouteRouteImport.update({
@@ -37,12 +43,11 @@ const SummarySuccessRouteRoute = SummarySuccessRouteRouteImport.update({
   path: '/summary/success',
   getParentRoute: () => rootRouteImport,
 } as any)
-const R3dsChallengeChallengeIdRoute =
-  R3dsChallengeChallengeIdRouteImport.update({
-    id: '/3ds/challenge/$challengeId',
-    path: '/3ds/challenge/$challengeId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+const PaymentActionActionIdRoute = PaymentActionActionIdRouteImport.update({
+  id: '/payment/action/$actionId',
+  path: '/payment/action/$actionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SummaryFailureIndexRoute = SummaryFailureIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -56,27 +61,30 @@ const SummarySuccessIndexRoute = SummarySuccessIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/hosted-page': typeof HostedPageRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
-  '/3ds/return': typeof R3dsReturnRoute
-  '/3ds/challenge/$challengeId': typeof R3dsChallengeChallengeIdRoute
+  '/payment/return': typeof PaymentReturnRoute
+  '/payment/action/$actionId': typeof PaymentActionActionIdRoute
   '/summary/failure/': typeof SummaryFailureIndexRoute
   '/summary/success/': typeof SummarySuccessIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/3ds/return': typeof R3dsReturnRoute
-  '/3ds/challenge/$challengeId': typeof R3dsChallengeChallengeIdRoute
+  '/hosted-page': typeof HostedPageRoute
+  '/payment/return': typeof PaymentReturnRoute
+  '/payment/action/$actionId': typeof PaymentActionActionIdRoute
   '/summary/failure': typeof SummaryFailureIndexRoute
   '/summary/success': typeof SummarySuccessIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/hosted-page': typeof HostedPageRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
-  '/3ds/return': typeof R3dsReturnRoute
-  '/3ds/challenge/$challengeId': typeof R3dsChallengeChallengeIdRoute
+  '/payment/return': typeof PaymentReturnRoute
+  '/payment/action/$actionId': typeof PaymentActionActionIdRoute
   '/summary/failure/': typeof SummaryFailureIndexRoute
   '/summary/success/': typeof SummarySuccessIndexRoute
 }
@@ -84,36 +92,40 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/hosted-page'
     | '/summary/failure'
     | '/summary/success'
-    | '/3ds/return'
-    | '/3ds/challenge/$challengeId'
+    | '/payment/return'
+    | '/payment/action/$actionId'
     | '/summary/failure/'
     | '/summary/success/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/3ds/return'
-    | '/3ds/challenge/$challengeId'
+    | '/hosted-page'
+    | '/payment/return'
+    | '/payment/action/$actionId'
     | '/summary/failure'
     | '/summary/success'
   id:
     | '__root__'
     | '/'
+    | '/hosted-page'
     | '/summary/failure'
     | '/summary/success'
-    | '/3ds/return'
-    | '/3ds/challenge/$challengeId'
+    | '/payment/return'
+    | '/payment/action/$actionId'
     | '/summary/failure/'
     | '/summary/success/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HostedPageRoute: typeof HostedPageRoute
   SummaryFailureRouteRoute: typeof SummaryFailureRouteRouteWithChildren
   SummarySuccessRouteRoute: typeof SummarySuccessRouteRouteWithChildren
-  R3dsReturnRoute: typeof R3dsReturnRoute
-  R3dsChallengeChallengeIdRoute: typeof R3dsChallengeChallengeIdRoute
+  PaymentReturnRoute: typeof PaymentReturnRoute
+  PaymentActionActionIdRoute: typeof PaymentActionActionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -125,11 +137,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/3ds/return': {
-      id: '/3ds/return'
-      path: '/3ds/return'
-      fullPath: '/3ds/return'
-      preLoaderRoute: typeof R3dsReturnRouteImport
+    '/hosted-page': {
+      id: '/hosted-page'
+      path: '/hosted-page'
+      fullPath: '/hosted-page'
+      preLoaderRoute: typeof HostedPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/return': {
+      id: '/payment/return'
+      path: '/payment/return'
+      fullPath: '/payment/return'
+      preLoaderRoute: typeof PaymentReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/summary/failure': {
@@ -146,11 +165,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SummarySuccessRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/3ds/challenge/$challengeId': {
-      id: '/3ds/challenge/$challengeId'
-      path: '/3ds/challenge/$challengeId'
-      fullPath: '/3ds/challenge/$challengeId'
-      preLoaderRoute: typeof R3dsChallengeChallengeIdRouteImport
+    '/payment/action/$actionId': {
+      id: '/payment/action/$actionId'
+      path: '/payment/action/$actionId'
+      fullPath: '/payment/action/$actionId'
+      preLoaderRoute: typeof PaymentActionActionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/summary/failure/': {
@@ -194,10 +213,11 @@ const SummarySuccessRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HostedPageRoute: HostedPageRoute,
   SummaryFailureRouteRoute: SummaryFailureRouteRouteWithChildren,
   SummarySuccessRouteRoute: SummarySuccessRouteRouteWithChildren,
-  R3dsReturnRoute: R3dsReturnRoute,
-  R3dsChallengeChallengeIdRoute: R3dsChallengeChallengeIdRoute,
+  PaymentReturnRoute: PaymentReturnRoute,
+  PaymentActionActionIdRoute: PaymentActionActionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

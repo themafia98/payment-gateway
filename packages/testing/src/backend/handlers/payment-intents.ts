@@ -1,7 +1,16 @@
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'
 import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
-import { idempotencyKeys, paymentIntents, plansById, processingSettlesAt } from '../data'
+import {
+  clearSettlement,
+  idempotencyKeys,
+  paymentIntents,
+  plansById,
+  processingSettlesAt,
+  rememberIdempotencyKey,
+  saveIntent,
+  scheduleSettlement,
+} from '../data'
 import { PROCESSING_SETTLE_MS } from '../config'
 import { createChallenge } from '../lib/challenges'
 import { networkDelay } from '../lib/delay'
@@ -38,13 +47,8 @@ const buildIntent = ({ amount, currency }: { amount: number; currency: string })
   }
 }
 
-const save = (intent: PaymentIntent): PaymentIntent => {
-  paymentIntents.set(intent.id, intent)
-  return intent
-}
-
 const transitionTo = (intent: PaymentIntent, status: PaymentIntentStatus): PaymentIntent =>
-  save({ ...intent, status, nextAction: null, error: null })
+  saveIntent({ ...intent, status, nextAction: null, error: null })
 
 /**
  * Finish an asynchronous authorization if its time has come.
@@ -56,7 +60,7 @@ const settleIfDue = (intent: PaymentIntent): PaymentIntent => {
   const due = processingSettlesAt.get(intent.id)
   if (intent.status !== 'processing' || due === undefined || Date.now() < due) return intent
 
-  processingSettlesAt.delete(intent.id)
+  clearSettlement(intent.id)
   return transitionTo(intent, 'succeeded')
 }
 
@@ -78,8 +82,8 @@ export const paymentIntentHandlers: HttpHandler[] = [
     const plan = plansById.get(body.planId)
     if (!plan) return error(422, invalidParam('planId', 'Unknown plan.'))
 
-    const intent = save(buildIntent({ amount: plan.amount, currency: plan.currency }))
-    if (idempotencyKey) idempotencyKeys.set(idempotencyKey, intent.id)
+    const intent = saveIntent(buildIntent({ amount: plan.amount, currency: plan.currency }))
+    if (idempotencyKey) rememberIdempotencyKey(idempotencyKey, intent.id)
 
     return json(intent, { status: 201 })
   }),
@@ -125,13 +129,13 @@ export const paymentIntentHandlers: HttpHandler[] = [
 
       case 'processing': {
         // Authorized, not settled. The answer exists later, and only if someone asks.
-        processingSettlesAt.set(intent.id, Date.now() + PROCESSING_SETTLE_MS)
+        scheduleSettlement(intent.id, Date.now() + PROCESSING_SETTLE_MS)
         return json(transitionTo(intent, 'processing'))
       }
 
       case 'decline':
         return json(
-          save({
+          saveIntent({
             ...intent,
             status: 'declined',
             nextAction: null,
@@ -150,7 +154,7 @@ export const paymentIntentHandlers: HttpHandler[] = [
           },
         }
 
-        return json(save({ ...intent, status: 'requires_action', nextAction, error: null }))
+        return json(saveIntent({ ...intent, status: 'requires_action', nextAction, error: null }))
       }
     }
   }),

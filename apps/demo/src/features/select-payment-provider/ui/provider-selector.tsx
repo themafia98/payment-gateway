@@ -10,6 +10,7 @@ import { Tabs, Tab } from '@/shared/ui'
 const PROVIDER_LABELS: Record<string, string> = {
   psp: 'Card processor',
   acquiring: 'Acquiring bank',
+  hpp: 'Bank page',
 }
 
 export const ProviderSelector = () => {

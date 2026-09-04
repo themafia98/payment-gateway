@@ -1,7 +1,11 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Center } from '@/shared/ui'
 
-// Where the bank sends the browser back after a full-page authentication.
+// Where a provider sends the browser back after taking over the whole window.
+//
+// Not a 3-D Secure route, despite where it started: a hosted payment page returns here
+// too, and so would anything else that needs the browser to leave. Which is the point -
+// the route has no idea what the shopper was just doing.
 //
 // The reload wiped every bit of React state, so the payment is picked up from what the
 // engine wrote down before it left: which provider, which intent, which action. The query
@@ -22,7 +26,7 @@ const toParams = (search: ReturnSearch): Record<string, string> =>
     Object.entries(search).filter(([, value]) => typeof value === 'string'),
   ) as Record<string, string>
 
-export const Route = createFileRoute('/3ds/return')({
+export const Route = createFileRoute('/payment/return')({
   validateSearch: (search: Record<string, unknown>): ReturnSearch => ({
     intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
     challengeId: typeof search.challengeId === 'string' ? search.challengeId : undefined,

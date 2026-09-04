@@ -6,6 +6,7 @@
     { "path": "./packages/react" },
     { "path": "./packages/provider-psp" },
     { "path": "./packages/provider-acquiring" },
+    { "path": "./packages/provider-hpp" },
     { "path": "./packages/testing" },
     { "path": "./packages/conformance" },
     { "path": "./apps/demo" },

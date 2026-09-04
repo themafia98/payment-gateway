@@ -35,17 +35,88 @@ export const plans: PlanRecord[] = [
 
 export const plansById: Map<string, PlanRecord> = new Map(plans.map((plan) => [plan.id, plan]))
 
-export const paymentIntents: Map<string, PaymentIntent> = new Map()
+// Payments live in memory, and a full-page redirect to a bank throws that memory away.
+// A real backend does not forget while the shopper is off authenticating, so this one
+// keeps its state in sessionStorage: same lifetime as the tab, restored on reload.
+//
+// Without it, no redirect-based integration could be exercised at all - the payment would
+// come back to a backend that had never heard of it.
+const STORAGE_KEY = 'pg:mock-backend'
 
-export const idempotencyKeys: Map<string, string> = new Map()
+interface Persisted {
+  paymentIntents: [string, PaymentIntent][]
+  idempotencyKeys: [string, string][]
+  threeDSChallenges: [string, ThreeDSChallenge][]
+  processingSettlesAt: [string, number][]
+}
 
-export const threeDSChallenges: Map<string, ThreeDSChallenge> = new Map()
+const readPersisted = (): Partial<Persisted> => {
+  try {
+    return JSON.parse(globalThis.sessionStorage?.getItem(STORAGE_KEY) ?? '{}') as Partial<Persisted>
+  } catch {
+    // No storage (Node tests), or somebody else's data under our key.
+    return {}
+  }
+}
+
+const restored = readPersisted()
+
+export const paymentIntents: Map<string, PaymentIntent> = new Map(restored.paymentIntents ?? [])
+
+export const idempotencyKeys: Map<string, string> = new Map(restored.idempotencyKeys ?? [])
+
+export const threeDSChallenges: Map<string, ThreeDSChallenge> = new Map(
+  restored.threeDSChallenges ?? [],
+)
 
 /**
  * When a `processing` intent becomes final. The browser learns about it by asking again -
  * there is no webhook here, and there is no push either.
  */
-export const processingSettlesAt: Map<string, number> = new Map()
+export const processingSettlesAt: Map<string, number> = new Map(restored.processingSettlesAt ?? [])
+
+/** Write the whole backend down. Cheap enough at this size to do after every change. */
+export const persistBackend = (): void => {
+  try {
+    globalThis.sessionStorage?.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        paymentIntents: [...paymentIntents],
+        idempotencyKeys: [...idempotencyKeys],
+        threeDSChallenges: [...threeDSChallenges],
+        processingSettlesAt: [...processingSettlesAt],
+      } satisfies Persisted),
+    )
+  } catch {
+    // Storage is unavailable or full; the mock still works for anything that stays on one
+    // page, which is every flow except a redirect.
+  }
+}
+
+/**
+ * The one place an intent is written. Every facade goes through it, which is what keeps
+ * them describing the same payment rather than three of their own.
+ */
+export const saveIntent = (intent: PaymentIntent): PaymentIntent => {
+  paymentIntents.set(intent.id, intent)
+  persistBackend()
+  return intent
+}
+
+export const rememberIdempotencyKey = (key: string, intentId: string): void => {
+  idempotencyKeys.set(key, intentId)
+  persistBackend()
+}
+
+export const scheduleSettlement = (intentId: string, at: number): void => {
+  processingSettlesAt.set(intentId, at)
+  persistBackend()
+}
+
+export const clearSettlement = (intentId: string): void => {
+  processingSettlesAt.delete(intentId)
+  persistBackend()
+}
 
 /**
  * Wipes the in-memory backend. The browser gets a fresh one on every reload; a test run
@@ -56,4 +127,5 @@ export const resetBackend = (): void => {
   idempotencyKeys.clear()
   threeDSChallenges.clear()
   processingSettlesAt.clear()
+  persistBackend()
 }

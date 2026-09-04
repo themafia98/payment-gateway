@@ -6,7 +6,7 @@
 // and one rule about what a passing code means. Keeping that here is what makes a payment
 // started through one facade visible through the other.
 
-import { paymentIntents, threeDSChallenges } from '../data'
+import { paymentIntents, persistBackend, saveIntent, threeDSChallenges } from '../data'
 import type { PaymentIntent, ThreeDSChallenge } from '../types'
 
 const challengeId = () => `tdsc_${crypto.randomUUID().replace(/-/g, '')}`
@@ -24,6 +24,7 @@ export const createChallenge = (
   }
 
   threeDSChallenges.set(challenge.id, challenge)
+  persistBackend()
 
   return challenge
 }
@@ -54,9 +55,10 @@ export const settleIntent = (
         },
       }
 
-  paymentIntents.set(updated.id, updated)
+  saveIntent(updated)
   challenge.status = approved ? 'succeeded' : 'failed'
   threeDSChallenges.set(challenge.id, challenge)
+  persistBackend()
 
   return updated
 }

@@ -17,7 +17,7 @@ export class CheckoutPage {
 
   constructor(page: Page, provider: ProviderId = 'psp') {
     this.page = page
-    this.providerTab = page.getByRole('tab', { name: PROVIDERS[provider] })
+    this.providerTab = page.getByRole('tab', { name: PROVIDERS[provider].label })
     this.cardNumber = page.getByPlaceholder(PLACEHOLDERS.cardNumber)
     this.expiry = page.getByPlaceholder(PLACEHOLDERS.expiry)
     this.cvc = page.getByPlaceholder(PLACEHOLDERS.cvc)
@@ -40,12 +40,16 @@ export class CheckoutPage {
     await this.providerTab.click()
   }
 
+  async fillBilling() {
+    await this.country.fill(VALID_BILLING.country)
+    await this.postalCode.fill(VALID_BILLING.postalCode)
+  }
+
   async fillBillingAndCard(cardNumber: string) {
     await this.cardNumber.fill(cardNumber)
     await this.expiry.fill(VALID_BILLING.expiry)
     await this.cvc.fill(VALID_BILLING.cvc)
-    await this.country.fill(VALID_BILLING.country)
-    await this.postalCode.fill(VALID_BILLING.postalCode)
+    await this.fillBilling()
   }
 
   async pay(cardNumber: string) {

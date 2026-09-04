@@ -14,10 +14,14 @@ import { http } from 'msw'
 import type { HttpHandler } from 'msw'
 import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
 import {
+  clearSettlement,
   idempotencyKeys,
   paymentIntents,
   plansById,
   processingSettlesAt,
+  rememberIdempotencyKey,
+  saveIntent,
+  scheduleSettlement,
   threeDSChallenges,
 } from '../data'
 import { PROCESSING_SETTLE_MS } from '../config'
@@ -66,19 +70,14 @@ const ok = (payload: Record<string, unknown> = {}) => json({ errorCode: '0', ...
 const authenticated = (form: URLSearchParams): boolean =>
   field(form, 'userName') === USER_NAME && field(form, 'password') === PASSWORD
 
-const save = (intent: PaymentIntent): PaymentIntent => {
-  paymentIntents.set(intent.id, intent)
-  return intent
-}
-
 const transitionTo = (intent: PaymentIntent, status: PaymentIntentStatus): PaymentIntent =>
-  save({ ...intent, status, nextAction: null, error: null })
+  saveIntent({ ...intent, status, nextAction: null, error: null })
 
 const settleIfDue = (intent: PaymentIntent): PaymentIntent => {
   const due = processingSettlesAt.get(intent.id)
   if (intent.status !== 'processing' || due === undefined || Date.now() < due) return intent
 
-  processingSettlesAt.delete(intent.id)
+  clearSettlement(intent.id)
   return transitionTo(intent, 'succeeded')
 }
 
@@ -115,8 +114,8 @@ export const acquiringHandlers: HttpHandler[] = [
       nextAction: null,
       error: null,
     }
-    save(intent)
-    if (orderNumber) idempotencyKeys.set(orderNumber, intent.id)
+    saveIntent(intent)
+    if (orderNumber) rememberIdempotencyKey(orderNumber, intent.id)
 
     return ok({ orderId: intent.id, formUrl: `/acquiring/pay/${intent.id}` })
   }),
@@ -146,12 +145,12 @@ export const acquiringHandlers: HttpHandler[] = [
         return ok({ info: 'Payment processed' })
 
       case 'processing':
-        processingSettlesAt.set(intent.id, Date.now() + PROCESSING_SETTLE_MS)
+        scheduleSettlement(intent.id, Date.now() + PROCESSING_SETTLE_MS)
         transitionTo(intent, 'processing')
         return ok({ info: 'Payment accepted' })
 
       case 'decline':
-        save({
+        saveIntent({
           ...intent,
           status: 'declined',
           nextAction: null,

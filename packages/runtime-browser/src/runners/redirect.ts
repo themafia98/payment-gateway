@@ -124,7 +124,9 @@ const runInTopWindow = (action: RedirectAction, ctx: RunnerContext): Promise<Act
   ctx.report({ stage: 'leaving', detail: action.url })
 
   if (action.method === 'GET') {
-    const url = new URL(action.url)
+    // Resolved against the current page: a provider is entitled to hand back a relative
+    // URL, and `new URL` alone would throw on one.
+    const url = new URL(action.url, window.location.href)
     for (const [name, value] of Object.entries(action.fields ?? {})) {
       url.searchParams.set(name, value)
     }

@@ -22,6 +22,10 @@ export default defineConfig<CheckoutOptions>({
       name: 'acquiring',
       use: { ...devices['Desktop Chrome'], paymentProvider: 'acquiring' },
     },
+    {
+      name: 'hpp',
+      use: { ...devices['Desktop Chrome'], paymentProvider: 'hpp' },
+    },
   ],
   webServer: {
     command: 'npm run dev:mock',

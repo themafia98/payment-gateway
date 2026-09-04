@@ -2,15 +2,16 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { PaymentActionHost } from '@pg/react'
 import type { PaymentResult } from '@/entities/payment'
 
-// The page an authentication step is shown on. It contains no protocol: the engine holds
-// the action the provider asked for, and this route only decides where it renders and
-// where the shopper goes afterwards.
+// Where an action that needs a screen is shown - a 3-D Secure challenge today, hosted card
+// fields tomorrow. It contains no protocol at all: the engine holds the action the
+// provider asked for, and this route only decides where it renders and where the shopper
+// goes once it is done.
 
 interface ChallengeSearch {
   intentId?: string
 }
 
-export const Route = createFileRoute('/3ds/challenge/$challengeId')({
+export const Route = createFileRoute('/payment/action/$actionId')({
   validateSearch: (search: Record<string, unknown>): ChallengeSearch => ({
     intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
   }),

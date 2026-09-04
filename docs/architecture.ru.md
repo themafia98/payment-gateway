@@ -49,14 +49,14 @@ flowchart TD
 
 ## Слои простыми словами
 
-| Папка             | Что живёт                                                                 | Аналогия               |
-| ----------------- | ------------------------------------------------------------------------- | ---------------------- |
-| `shared/`         | мелкие общие инструменты: `http-client`, `saveBlob`, UI-кит, базовые типы | ящик с инструментами   |
-| `entities/`       | существительные домена: платёж, чек - их типы + **порты** к ним           | словарь                |
-| `features/`       | глаголы / сценарии: "оплатить", "пройти 3DS", "скачать чек"               | действия               |
-| `app/`, `routes/` | страницы, связывание, навигация - реальные экраны                         | здание                 |
-| `src/mocks/`      | фейковый платёжный бэкенд (MSW), чтобы приложение работало без сервера    | манекен для тренировки |
-| `acs/`            | отдельный 3-D Secure "банк" для реалистичных тестов redirect/iframe       | спарринг-партнёр       |
+| Папка                           | Что живёт                                                                 | Аналогия               |
+| ------------------------------- | ------------------------------------------------------------------------- | ---------------------- |
+| `shared/`                       | мелкие общие инструменты: `http-client`, `saveBlob`, UI-кит, базовые типы | ящик с инструментами   |
+| `entities/`                     | существительные домена: платёж, чек - их типы + **порты** к ним           | словарь                |
+| `features/`                     | глаголы / сценарии: "оплатить", "пройти 3DS", "скачать чек"               | действия               |
+| `app/`, `routes/`               | страницы, связывание, навигация - реальные экраны                         | здание                 |
+| `packages/testing/src/backend/` | фейковый платёжный бэкенд (MSW), чтобы приложение работало без сервера    | манекен для тренировки |
+| `apps/bank-sim/src/acs/`        | отдельный 3-D Secure "банк" для реалистичных тестов redirect/iframe       | спарринг-партнёр       |
 
 ---
 
@@ -98,8 +98,8 @@ flowchart LR
 
 Порты в проекте:
 
-- `PaymentGateway` - `src/entities/payment/api/payment-gateway.ts`
-- `ReceiptGateway` - `src/entities/receipt/api/receipt-gateway.ts`
+- `PaymentGateway` - `apps/demo/src/entities/payment/api/payment-gateway.ts`
+- `ReceiptGateway` - `apps/demo/src/entities/receipt/api/receipt-gateway.ts`
 
 Их HTTP-адаптеры лежат рядом как `*.adapter.ts`.
 
@@ -194,7 +194,7 @@ sequenceDiagram
 ```
 
 Чек - это непрозрачный PDF, который выдаёт сервер; фронт просто его скачивает.
-`saveBlob` (`src/shared/lib/save-blob.ts`) - единственное место, которое трогает
+`saveBlob` (`apps/demo/src/shared/lib/save-blob.ts`) - единственное место, которое трогает
 DOM, чтобы запустить скачивание.
 
 ---
@@ -243,7 +243,7 @@ Hexagonal. Clean добавляет правило "проводка в стен
 ## Где что лежит
 
 ```
-src/
+apps/demo/src/
   app/           настройка приложения, провайдеры, переключатель моков
   routes/        страницы + навигация (в т.ч. 3ds/challenge, 3ds/return, summary/*)
   features/
@@ -261,8 +261,8 @@ src/
   shared/
     api/         http-client.ts (обёртка над fetch: get/post/getBlob)
     lib/         save-blob.ts, форматирование, branded-типы
-src/mocks/       фейковый бэкенд на MSW (см. src/mocks/README.md)
-acs/             симулятор 3-D Secure ACS (см. acs/README.md)
+packages/testing/src/backend/       фейковый бэкенд на MSW (см. packages/testing/README.md)
+apps/bank-sim/src/acs/             симулятор 3-D Secure ACS (см. apps/bank-sim/README.md)
 ```
 
 ---

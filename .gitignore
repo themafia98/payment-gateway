@@ -13,13 +13,13 @@ dist-ssr
 *.local
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
 # ACS simulator self-signed certs (generate locally, never commit)
-acs/certs/
+apps/bank-sim/certs/
 
 # Editor directories and files
 .vscode/*
@@ -32,3 +32,6 @@ acs/certs/
 *.njsproj
 *.sln
 *.sw?
+
+# TanStack Router plugin cache
+.tanstack/

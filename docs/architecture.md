@@ -59,14 +59,14 @@ flowchart TD
 
 ## The layers, in words
 
-| Folder            | What lives here                                                                           | Analogy              |
-| ----------------- | ----------------------------------------------------------------------------------------- | -------------------- |
-| `shared/`         | tiny generic tools: `http-client`, `saveBlob`, UI kit, base types                         | the toolbox          |
-| `entities/`       | the nouns of the domain: a payment, a receipt - their types + the **ports** to reach them | the vocabulary       |
-| `features/`       | the verbs / scenarios: "pay", "authenticate 3DS", "download receipt"                      | the actions          |
-| `app/`, `routes/` | pages, wiring, navigation - the actual screens                                            | the building         |
-| `src/mocks/`      | a fake payment backend (MSW) so the app runs with no real server                          | the practice dummy   |
-| `acs/`            | a standalone 3-D Secure "bank" server for realistic redirect/iframe tests                 | the sparring partner |
+| Folder                          | What lives here                                                                           | Analogy              |
+| ------------------------------- | ----------------------------------------------------------------------------------------- | -------------------- |
+| `shared/`                       | tiny generic tools: `http-client`, `saveBlob`, UI kit, base types                         | the toolbox          |
+| `entities/`                     | the nouns of the domain: a payment, a receipt - their types + the **ports** to reach them | the vocabulary       |
+| `features/`                     | the verbs / scenarios: "pay", "authenticate 3DS", "download receipt"                      | the actions          |
+| `app/`, `routes/`               | pages, wiring, navigation - the actual screens                                            | the building         |
+| `packages/testing/src/backend/` | a fake payment backend (MSW) so the app runs with no real server                          | the practice dummy   |
+| `apps/bank-sim/src/acs/`        | a standalone 3-D Secure "bank" server for realistic redirect/iframe tests                 | the sparring partner |
 
 ---
 
@@ -108,8 +108,8 @@ Why this is worth the extra file:
 
 Ports in this repo:
 
-- `PaymentGateway` - `src/entities/payment/api/payment-gateway.ts`
-- `ReceiptGateway` - `src/entities/receipt/api/receipt-gateway.ts`
+- `PaymentGateway` - `apps/demo/src/entities/payment/api/payment-gateway.ts`
+- `ReceiptGateway` - `apps/demo/src/entities/receipt/api/receipt-gateway.ts`
 
 Their HTTP adapters sit next to them as `*.adapter.ts`.
 
@@ -205,7 +205,7 @@ sequenceDiagram
 ```
 
 The receipt is an opaque PDF the server issues; the front end just downloads it.
-`saveBlob` (`src/shared/lib/save-blob.ts`) is the only piece that touches the DOM
+`saveBlob` (`apps/demo/src/shared/lib/save-blob.ts`) is the only piece that touches the DOM
 to trigger the download.
 
 ---
@@ -254,7 +254,7 @@ FSD is the floor plan that says which room each thing goes in.
 ## Where things live
 
 ```
-src/
+apps/demo/src/
   app/           app setup, providers, mocking switch
   routes/        pages + navigation (incl. 3ds/challenge, 3ds/return, summary/*)
   features/
@@ -272,8 +272,8 @@ src/
   shared/
     api/         http-client.ts (fetch wrapper: get/post/getBlob)
     lib/         save-blob.ts, formatting, branded types
-src/mocks/       MSW fake backend (see src/mocks/README.md)
-acs/             3-D Secure ACS simulator (see acs/README.md)
+packages/testing/src/backend/       MSW fake backend (see packages/testing/README.md)
+apps/bank-sim/src/acs/             3-D Secure ACS simulator (see apps/bank-sim/README.md)
 ```
 
 ---

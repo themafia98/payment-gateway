@@ -37,7 +37,7 @@ flowchart LR
 
 ## Что ставит родитель (атрибуты `<iframe>`)
 
-В проекте: `src/features/checkout/ui/three-ds-challenge.tsx`.
+В проекте: `apps/demo/src/features/checkout/ui/three-ds-challenge.tsx`.
 
 ### `sandbox`
 
@@ -94,7 +94,7 @@ OTP и passkeys.
 
 ## Что ставит встроенная страница (HTTP-заголовки)
 
-В проекте: `acs/lib.ts` (`securityHeaders`).
+В проекте: `apps/bank-sim/src/acs/lib.ts` (`securityHeaders`).
 
 > Подробный разбор каждого заголовка простыми словами:
 > [security-headers.ru.md](./security-headers.ru.md).
@@ -167,11 +167,11 @@ first-party, и правила смягчаются.
 
 ## Как это связано в проекте
 
-- Родитель / UI: `src/features/checkout/ui/three-ds-challenge.tsx` - сам `<iframe>`,
+- Родитель / UI: `apps/demo/src/features/checkout/ui/three-ds-challenge.tsx` - сам `<iframe>`,
   его `sandbox`/`referrerpolicy`, две формы (iframe и redirect) и слушатель
   `message` с проверкой origin.
-- Встроенный "банк": `acs/` - отдельный https-сервер, который ставит заголовки выше
-  и в режиме redirect делает `302` на `/3ds/return`. См. [acs/README.md](../acs/README.md).
+- Встроенный "банк": `apps/bank-sim/src/acs/` - отдельный https-сервер, который ставит заголовки выше
+  и в режиме redirect делает `302` на `/3ds/return`. См. [apps/bank-sim/README.md](../apps/bank-sim/README.md).
 - Общая картина платежей: [architecture.ru.md](./architecture.ru.md).
 
 ---

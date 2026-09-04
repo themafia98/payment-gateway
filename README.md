@@ -13,11 +13,25 @@ npm install
 
 npm run dev        # app only
 npm run dev:mock   # app + mock payment backend (MSW)
-npm run dev:acs    # 3-D Secure ACS simulator (run alongside dev:mock)
+npm run dev:bank   # 3-D Secure ACS simulator (run alongside dev:mock)
 ```
 
-For the full 3-D Secure flow, run `dev:acs` and `dev:mock` in two terminals. See
+For the full 3-D Secure flow, run `dev:bank` and `dev:mock` in two terminals. See
 the ACS notes below for the one-time certificate step.
+
+## Repository layout
+
+This is an npm workspaces monorepo.
+
+```
+apps/demo/       the checkout app (React SPA) with its MSW mock backend and e2e tests
+apps/bank-sim/   the standalone 3-D Secure ACS simulator (its own https origin)
+packages/        reusable checkout packages (see below)
+docs/            architecture and security notes
+```
+
+Root scripts delegate to the workspaces, so `npm run dev:mock` and friends still work
+from the repository root.
 
 ## Architecture and docs
 
@@ -32,12 +46,12 @@ doc below exists in English and Russian, except the ACS notes. Start here:
 - **Security headers on the challenge page** ([English](./docs/security-headers.md) / [Русский](./docs/security-headers.ru.md)) -
   every header the ACS sends, one by one: CSP, `X-Frame-Options`, `nosniff`,
   COOP / COEP / CORP, `Referrer-Policy` and the cookie flags.
-- **Mock payment API** ([English](./src/mocks/README.md) / [Русский](./src/mocks/README.ru.md)) -
+- **Mock payment API** ([English](./packages/testing/README.md) / [Русский](./packages/testing/README.ru.md)) -
   the MSW fake backend: endpoints, the PaymentIntent state machine, test cards, and
-  **idempotency** ([English](./src/mocks/README.md#idempotency--making-retry-safe) /
-  [Русский](./src/mocks/README.ru.md#идемпотентность--как-сделать-повтор-безопасным)) -
+  **idempotency** ([English](./packages/testing/README.md#idempotency--making-retry-safe) /
+  [Русский](./packages/testing/README.ru.md#идемпотентность--как-сделать-повтор-безопасным)) -
   why a retried `POST /payment-intents` must not charge twice.
-- **[3-D Secure ACS simulator](./acs/README.md)** - the standalone bank server, iframe
+- **[3-D Secure ACS simulator](./apps/bank-sim/README.md)** - the standalone bank server, iframe
   vs redirect modes, and where to inspect the security surface in DevTools.
 
 ## Tooling notes

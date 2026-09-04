@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -18,10 +16,16 @@ jobs:
   build:
     name: Build site
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -37,17 +41,27 @@ jobs:
 
       # GitHub Pages has no SPA server rewrite: serve index.html for deep links too.
       - name: SPA fallback
-        run: cp dist/index.html dist/404.html
+        run: cp apps/demo/dist/index.html apps/demo/dist/404.html
+
+      - name: Verify Pages artifact
+        shell: bash
+        run: |
+          test -s apps/demo/dist/index.html
+          test -s apps/demo/dist/404.html
+          test -n "$(find apps/demo/dist/assets -type f -print -quit)"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: dist
+          path: apps/demo/dist
 
   deploy:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    /* Playwright honours these mappings, so the specs read the testing package straight
+       from source. Without them e2e would only run after `npm run build:packages`. */
+    "paths": {
+      "@pg/testing": ["../../../packages/testing/src/index.ts"]
+    }
+  },
+  "include": ["."]
+}

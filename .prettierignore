@@ -1,4 +1,4 @@
 dist
 node_modules
-src/routeTree.gen.ts
-public/mockServiceWorker.js
+apps/demo/src/routeTree.gen.ts
+apps/demo/public/mockServiceWorker.js

@@ -11,7 +11,7 @@ Our 3-D Secure challenge page (the bank's "enter the one-time code" screen) runs
 **inside an iframe** on the checkout page. An iframe is one web page shown inside
 another. Because money and login codes are involved, that page sends a careful set
 of these rules to protect itself. All of them live in one place:
-`acs/lib.ts` → `securityHeaders(nonce)`.
+`apps/bank-sim/src/acs/lib.ts` → `securityHeaders(nonce)`.
 
 This document explains every header we send, in plain words:
 
@@ -384,7 +384,7 @@ flowchart TD
 ## Where this lives in the code
 
 All of these are set in one function:
-[`acs/lib.ts`](../acs/lib.ts) → `securityHeaders(nonce)`.
+[`apps/bank-sim/src/acs/lib.ts`](../apps/bank-sim/src/acs/lib.ts) → `securityHeaders(nonce)`.
 
 Want to see them for real? Open the challenge page in your browser's DevTools →
 **Network** tab → click the request → **Headers**. Every rule above will be listed

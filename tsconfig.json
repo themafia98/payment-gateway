@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+  "references": [
+    { "path": "./packages/testing" },
+    { "path": "./apps/demo" },
+    { "path": "./apps/bank-sim" }
+  ]
 }

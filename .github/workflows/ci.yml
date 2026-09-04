@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   test:
-    name: Lint, format, and build
+    name: Checks, tests and build
     runs-on: ubuntu-latest
 
     steps:
@@ -49,6 +49,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # The build regenerates two kinds of committed file: each package's `exports` map
+      # and the router's route tree. A stale one would otherwise be noticed by whoever
+      # installed the package, or not at all.
+      - name: Check that generated files are committed
+        run: git diff --exit-code
 
   dist:
     name: Packages resolve as published

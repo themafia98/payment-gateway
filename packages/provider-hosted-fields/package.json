@@ -1,0 +1,38 @@
+{
+  "name": "@pg/provider-hosted-fields",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Payment plugin for hosted card fields: the provider renders the inputs in its own frame and hands back a token.",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "peerDependencies": {
+    "@pg/core": "*"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "@pg/source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  },
+  "devDependencies": {
+    "@pg/conformance": "*",
+    "@pg/testing": "*",
+    "msw": "^2.15.0"
+  }
+}

@@ -12,6 +12,7 @@ import { createBrowserRuntime } from '@pg/runtime-browser'
 import type { PspConfig } from '@pg/provider-psp'
 import type { AcquiringConfig } from '@pg/provider-acquiring'
 import type { HostedPageConfig } from '@pg/provider-hpp'
+import type { HostedFieldsConfig } from '@pg/provider-hosted-fields'
 
 const BASE_URL = import.meta.env.BASE_URL
 const ACS_ORIGIN: string = import.meta.env.VITE_ACS_ORIGIN ?? 'https://localhost:5100'
@@ -40,6 +41,14 @@ const acquiringConfig: AcquiringConfig = {
 const hostedPageConfig: HostedPageConfig = {
   baseUrl: `${BASE_URL}api`,
   pageUrl: `${BASE_URL}hosted-page`,
+}
+
+// The card is typed inside the provider's frame. In production its origin is not ours;
+// here it is, because a front-end-only mock cannot serve a second one.
+const hostedFieldsConfig: HostedFieldsConfig = {
+  baseUrl: `${BASE_URL}api`,
+  fieldsUrl: `${BASE_URL}hosted-fields`,
+  fieldsOrigin: window.location.origin,
 }
 
 // The return URL is built from BASE_URL, so it stays correct when the app is served from
@@ -71,6 +80,11 @@ export const checkout: CheckoutEngine = createCheckout({
       id: 'hpp',
       config: hostedPageConfig,
       load: () => import('@pg/provider-hpp'),
+    }),
+    defineProvider({
+      id: 'hostedfields',
+      config: hostedFieldsConfig,
+      load: () => import('@pg/provider-hosted-fields'),
     }),
   ],
   defaultProviderId: 'psp',

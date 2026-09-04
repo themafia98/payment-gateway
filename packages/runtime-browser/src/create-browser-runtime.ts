@@ -10,6 +10,10 @@ import {
   type RunnerRegistry,
   type StorageAdapter,
 } from '@pg/core'
+import {
+  createCollectFieldsRunner,
+  type CollectFieldsRunnerOptions,
+} from './runners/collect-fields'
 import { createRedirectRunner, type RedirectRunnerOptions } from './runners/redirect'
 import { sessionStorageAdapter } from './storage/session-storage'
 
@@ -30,12 +34,14 @@ export interface BrowserRuntimeOptions {
    */
   readonly returnPath: string
   readonly redirect?: RedirectRunnerOptions
+  readonly collectFields?: CollectFieldsRunnerOptions
   readonly storage?: StorageAdapter
 }
 
 export const createBrowserRuntime = (options: BrowserRuntimeOptions): BrowserRuntime => {
   const runners = createRunnerRegistry()
   runners.register(createRedirectRunner(options.redirect))
+  runners.register(createCollectFieldsRunner(options.collectFields))
 
   return {
     runners,

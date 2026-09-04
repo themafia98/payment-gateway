@@ -1,4 +1,4 @@
-import { test, cardEntryTest, hostedPageTest, expect } from './fixtures'
+import { test, cardEntryTest, hostedPageTest, hostedFieldsTest, expect } from './fixtures'
 import { CARDS } from './data/cards'
 import { URL_PATTERNS } from './data/routes'
 import { PLANS, TEXT } from './data/text'
@@ -104,6 +104,40 @@ test.describe('Payments taken on the bank site', () => {
 
       await expect(page).toHaveURL(URL_PATTERNS.failure)
       await expect(failurePage.heading).toBeVisible()
+    },
+  )
+})
+
+test.describe('Payments taken in the provider frame', () => {
+  hostedFieldsTest(
+    'the card is typed in the provider frame and only a token reaches the shop',
+    async ({ page, checkoutPage, successPage }) => {
+      // Everything the checkout itself sends, recorded so it can be searched afterwards.
+      const shopRequests: string[] = []
+      page.on('request', (request) => {
+        if (request.url().includes('/api/hosted-fields/charges')) {
+          shopRequests.push(request.postData() ?? '')
+        }
+      })
+
+      await checkoutPage.goto()
+      await expect(checkoutPage.cardNumber).toHaveCount(0)
+      await checkoutPage.fillBilling()
+      await checkoutPage.payButton.click()
+
+      const fields = page.frameLocator('iframe[title="Card details"]')
+      await fields.getByPlaceholder('0000 0000 0000 0000').fill(CARDS.success)
+      await fields.getByRole('button', { name: 'Pay securely' }).click()
+
+      await expect(page).toHaveURL(URL_PATTERNS.success)
+      await expect(successPage.heading).toBeVisible()
+
+      // The whole reason this integration exists: the shop charges a token it cannot read
+      // a card out of, and never sends the card anywhere itself.
+      for (const body of shopRequests) {
+        expect(body).not.toContain(CARDS.success)
+      }
+      expect(shopRequests.some((body) => body.includes('tok_'))).toBe(true)
     },
   )
 })

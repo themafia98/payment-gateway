@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HostedFieldsRouteImport } from './routes/hosted-fields'
 import { Route as HostedPageRouteImport } from './routes/hosted-page'
 import { Route as PaymentReturnRouteImport } from './routes/payment/return'
 import { Route as SummaryFailureRouteRouteImport } from './routes/summary/failure/route'
@@ -21,6 +22,11 @@ import { Route as SummarySuccessIndexRouteImport } from './routes/summary/succes
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HostedFieldsRoute = HostedFieldsRouteImport.update({
+  id: '/hosted-fields',
+  path: '/hosted-fields',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HostedPageRoute = HostedPageRouteImport.update({
@@ -61,6 +67,7 @@ const SummarySuccessIndexRoute = SummarySuccessIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/hosted-fields': typeof HostedFieldsRoute
   '/hosted-page': typeof HostedPageRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/hosted-fields': typeof HostedFieldsRoute
   '/hosted-page': typeof HostedPageRoute
   '/payment/return': typeof PaymentReturnRoute
   '/payment/action/$actionId': typeof PaymentActionActionIdRoute
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/hosted-fields': typeof HostedFieldsRoute
   '/hosted-page': typeof HostedPageRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
@@ -92,6 +101,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/hosted-fields'
     | '/hosted-page'
     | '/summary/failure'
     | '/summary/success'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/hosted-fields'
     | '/hosted-page'
     | '/payment/return'
     | '/payment/action/$actionId'
@@ -110,6 +121,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/hosted-fields'
     | '/hosted-page'
     | '/summary/failure'
     | '/summary/success'
@@ -121,6 +133,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HostedFieldsRoute: typeof HostedFieldsRoute
   HostedPageRoute: typeof HostedPageRoute
   SummaryFailureRouteRoute: typeof SummaryFailureRouteRouteWithChildren
   SummarySuccessRouteRoute: typeof SummarySuccessRouteRouteWithChildren
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hosted-fields': {
+      id: '/hosted-fields'
+      path: '/hosted-fields'
+      fullPath: '/hosted-fields'
+      preLoaderRoute: typeof HostedFieldsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hosted-page': {
@@ -213,6 +233,7 @@ const SummarySuccessRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HostedFieldsRoute: HostedFieldsRoute,
   HostedPageRoute: HostedPageRoute,
   SummaryFailureRouteRoute: SummaryFailureRouteRouteWithChildren,
   SummarySuccessRouteRoute: SummarySuccessRouteRouteWithChildren,

@@ -48,6 +48,7 @@ interface Persisted {
   idempotencyKeys: [string, string][]
   threeDSChallenges: [string, ThreeDSChallenge][]
   processingSettlesAt: [string, number][]
+  tokenizedCards: [string, string][]
 }
 
 const readPersisted = (): Partial<Persisted> => {
@@ -75,6 +76,14 @@ export const threeDSChallenges: Map<string, ThreeDSChallenge> = new Map(
  */
 export const processingSettlesAt: Map<string, number> = new Map(restored.processingSettlesAt ?? [])
 
+/**
+ * token -> card, for the hosted-fields integration. It lives with the rest of the backend
+ * state and not in that handler, because a field frame is a *separate browsing context*:
+ * it tokenizes from its own copy of this module, and the checkout charges from another.
+ * Two stores would mean the token issued in the frame was unknown to the shop.
+ */
+export const tokenizedCards: Map<string, string> = new Map(restored.tokenizedCards ?? [])
+
 /** Write the whole backend down. Cheap enough at this size to do after every change. */
 export const persistBackend = (): void => {
   try {
@@ -85,6 +94,7 @@ export const persistBackend = (): void => {
         idempotencyKeys: [...idempotencyKeys],
         threeDSChallenges: [...threeDSChallenges],
         processingSettlesAt: [...processingSettlesAt],
+        tokenizedCards: [...tokenizedCards],
       } satisfies Persisted),
     )
   } catch {
@@ -113,6 +123,25 @@ export const scheduleSettlement = (intentId: string, at: number): void => {
   persistBackend()
 }
 
+export const rememberToken = (token: string, cardNumber: string): void => {
+  tokenizedCards.set(token, cardNumber)
+  persistBackend()
+}
+
+export const consumeToken = (token: string): string | undefined => {
+  // Read through to storage first. The token was minted in the field frame - a separate
+  // browsing context with its own copy of this module - so the map here has not seen it.
+  for (const [minted, card] of readPersisted().tokenizedCards ?? []) {
+    if (!tokenizedCards.has(minted)) tokenizedCards.set(minted, card)
+  }
+
+  const cardNumber = tokenizedCards.get(token)
+  // Single use, like the real thing.
+  tokenizedCards.delete(token)
+  persistBackend()
+  return cardNumber
+}
+
 export const clearSettlement = (intentId: string): void => {
   processingSettlesAt.delete(intentId)
   persistBackend()
@@ -127,5 +156,6 @@ export const resetBackend = (): void => {
   idempotencyKeys.clear()
   threeDSChallenges.clear()
   processingSettlesAt.clear()
+  tokenizedCards.clear()
   persistBackend()
 }

@@ -4,7 +4,7 @@ import { SuccessPage } from './pages/success.page'
 import { FailurePage } from './pages/failure.page'
 import { ThreeDSPage } from './pages/three-ds.page'
 import { HostedBankPage } from './pages/hosted.page'
-import { PROVIDERS, type ProviderId } from './data/providers'
+import { PROVIDERS, type PaymentFlow, type ProviderId } from './data/providers'
 
 export type CheckoutOptions = {
   /**
@@ -52,31 +52,27 @@ export const test = base.extend<CheckoutOptions & Fixtures>({
  * An automatic fixture rather than a `beforeEach`: a hook would attach to the whole file
  * and skip the provider-agnostic specs along with these.
  */
-export const cardEntryTest = test.extend<{ requiresCardEntry: void }>({
-  requiresCardEntry: [
-    async ({ paymentProvider }, use) => {
-      test.skip(
-        !PROVIDERS[paymentProvider].collectsCard,
-        'this provider collects the card on its own page',
-      )
-      await use()
-    },
-    { auto: true },
-  ],
-})
+const onlyFor = (flow: PaymentFlow) =>
+  test.extend<{ requiresFlow: void }>({
+    requiresFlow: [
+      async ({ paymentProvider }, use) => {
+        test.skip(
+          PROVIDERS[paymentProvider].flow !== flow,
+          `this provider uses the ${PROVIDERS[paymentProvider].flow} flow`,
+        )
+        await use()
+      },
+      { auto: true },
+    ],
+  })
 
-/** The mirror image: specs that only make sense when the card is collected elsewhere. */
-export const hostedPageTest = test.extend<{ requiresHostedPage: void }>({
-  requiresHostedPage: [
-    async ({ paymentProvider }, use) => {
-      test.skip(
-        PROVIDERS[paymentProvider].collectsCard,
-        'this provider collects the card on the checkout itself',
-      )
-      await use()
-    },
-    { auto: true },
-  ],
-})
+/** Specs that type a card into the checkout's own form. */
+export const cardEntryTest = onlyFor('card')
+
+/** Specs about paying on the bank's own site. */
+export const hostedPageTest = onlyFor('hosted-page')
+
+/** Specs about the provider's card fields, embedded in our page. */
+export const hostedFieldsTest = onlyFor('hosted-fields')
 
 export { expect } from '@playwright/test'

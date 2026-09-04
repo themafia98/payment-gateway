@@ -1,4 +1,5 @@
 import { acquiringHandlers } from './acquiring'
+import { hostedFieldsHandlers } from './hosted-fields'
 import { hostedPageHandlers } from './hosted-page'
 import { merchantHandlers } from './merchant'
 import type { HttpHandler } from 'msw'
@@ -10,6 +11,7 @@ import { receiptHandlers } from './receipts'
 
 export const handlers: HttpHandler[] = [
   ...acquiringHandlers,
+  ...hostedFieldsHandlers,
   ...hostedPageHandlers,
   ...merchantHandlers,
   ...paymentMethodHandlers,

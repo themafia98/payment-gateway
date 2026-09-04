@@ -585,7 +585,12 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
     store.set({ providerId: config.defaultProviderId })
   }
   for (const registration of config.providers) {
-    if (registration.eager) void registry.load(registration.id)
+    if (!registration.eager) continue
+    // Nothing is waiting on this, so a failed import would otherwise vanish into an
+    // unhandled rejection and only resurface as a confusing error at the till.
+    void registry.load(registration.id).catch((cause: unknown) => {
+      log.error('could not load a payment provider', { providerId: registration.id, cause })
+    })
   }
 
   return engine

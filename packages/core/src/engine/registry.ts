@@ -22,6 +22,44 @@ export interface ProviderRegistration<TConfig = unknown> {
   readonly eager?: boolean
 }
 
+/**
+ * Where plugins announce the config they need.
+ *
+ * A plugin package augments this interface, so the host gets its id and its config
+ * checked without importing any of its code:
+ *
+ * ```ts
+ * declare module '@pg/core' {
+ *   interface ProviderConfigRegistry {
+ *     acquiring: AcquiringConfig
+ *   }
+ * }
+ * ```
+ *
+ * The same trick the router uses for its own type registration. It is what lets a
+ * provider be a `() => import(...)` - loaded only when it is used, and still fully typed
+ * at the point where it is configured.
+ */
+export interface ProviderConfigRegistry {}
+
+export type KnownProviderId = keyof ProviderConfigRegistry & string
+
+export type ConfigOf<Id extends KnownProviderId> = ProviderConfigRegistry[Id]
+
+/**
+ * Declares one provider for `createCheckout`.
+ *
+ * Written as a function rather than a type on the array so the id and the config are
+ * checked against each other: a typo in the id, a missing field or one that belongs to a
+ * different provider all fail here, at the composition root, rather than at the till.
+ */
+export const defineProvider = <Id extends KnownProviderId>(registration: {
+  readonly id: Id
+  readonly config: ConfigOf<Id>
+  readonly load: () => ProviderModule<ConfigOf<Id>> | Promise<ProviderModule<ConfigOf<Id>>>
+  readonly eager?: boolean
+}): ProviderRegistration => registration as ProviderRegistration
+
 export interface LoadedProvider {
   readonly provider: PaymentProvider<unknown>
   readonly instance: PaymentProviderInstance

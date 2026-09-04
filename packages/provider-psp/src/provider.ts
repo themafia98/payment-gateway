@@ -35,6 +35,15 @@ export interface PspConfig {
   readonly acsOrigin: string
 }
 
+// Announces this plugin to the host's type system. Importing the config type is enough to
+// pick it up, so `defineProvider({ id: 'psp', ... })` is checked even when the plugin
+// itself is only ever loaded through a dynamic import.
+declare module '@pg/core' {
+  interface ProviderConfigRegistry {
+    psp: PspConfig
+  }
+}
+
 interface PaymentIntentDto {
   id: string
   amount: number

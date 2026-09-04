@@ -1,0 +1,48 @@
+// Where a payment action is allowed to render, and the thing that starts it.
+//
+// The host component owns no protocol knowledge at all: it hands the engine a DOM node to
+// render into and reports the result back. Whether that node ends up holding a 3-D Secure
+// challenge, a bank's payment page or the provider's card fields is decided by the plugin.
+
+import { useEffect, useRef, type ReactElement } from 'react'
+import { createMount } from '@pg/runtime-browser'
+import type { ActionSurface, PaymentResult } from '@pg/core'
+import { useCheckout } from './use-checkout'
+
+export interface PaymentActionHostProps {
+  /** Called once the action has run and the provider has judged its evidence. */
+  onSettled?: (result: PaymentResult) => void
+  /** Override the surface the provider asked for, e.g. to take over the whole window. */
+  surface?: ActionSurface
+  /** Start as soon as an action is pending. Turn off to run it on a click instead. */
+  autoRun?: boolean
+  className?: string
+}
+
+export const PaymentActionHost = ({
+  onSettled,
+  surface,
+  autoRun = true,
+  className,
+}: PaymentActionHostProps): ReactElement => {
+  const { engine, action, phase } = useCheckout()
+  const mountRef = useRef<HTMLDivElement>(null)
+  // React 19 mounts effects twice in development. Running a challenge twice would send
+  // the shopper two authentication requests, so each action is started at most once.
+  const startedRef = useRef<string | null>(null)
+  const onSettledRef = useRef(onSettled)
+  onSettledRef.current = onSettled
+
+  useEffect(() => {
+    if (!autoRun || !action || phase !== 'action_pending') return
+    if (startedRef.current === action.id) return
+    startedRef.current = action.id
+
+    const mount = mountRef.current ? createMount(mountRef.current) : null
+    void engine.runPendingAction({ mount, surface }).then((result) => {
+      onSettledRef.current?.(result)
+    })
+  }, [engine, action, phase, autoRun, surface])
+
+  return <div ref={mountRef} className={className} data-pg-action-host="" />
+}

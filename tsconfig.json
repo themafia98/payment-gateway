@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/runtime-browser" },
+    { "path": "./packages/react" },
     { "path": "./packages/testing" },
     { "path": "./apps/demo" },
     { "path": "./apps/bank-sim" }

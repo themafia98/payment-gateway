@@ -14,8 +14,7 @@ import {
   type CheckoutFormSchema,
 } from '../model/schema'
 import { CheckoutDetails } from './checkout-details'
-import { createPayCheckout } from '../model/pay.usecase'
-import { createHttpPaymentGatewayAdapter } from '@/entities/payment'
+import { useCheckoutEngine } from '@pg/react'
 import type { Plan } from '@/entities/plan'
 import {
   useCheckoutActions,
@@ -35,6 +34,7 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
   })
 
   const navigate = useNavigate()
+  const engine = useCheckoutEngine()
 
   const isBusy = useCheckoutIsBusy()
   const checkoutError = useCheckoutError()
@@ -42,7 +42,8 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
 
   useEffect(() => {
     reset()
-  }, [reset])
+    engine.reset()
+  }, [reset, engine])
 
   const handlePayment: SubmitHandler<CheckoutFormSchema> = (form) => {
     if (isBusy) {
@@ -51,11 +52,19 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
 
     startPayment(form.paymentMethod)
 
-    const idempotencyKey = crypto.randomUUID()
-
-    const paymentAction = createPayCheckout(createHttpPaymentGatewayAdapter())
-
-    paymentAction(form, idempotencyKey)
+    // The form hands over card details and a plan; which provider takes them, whether the
+    // card is even sent to us, and what authentication follows are all decided behind the
+    // engine. Nothing here changes when the integration does.
+    engine
+      .pay({
+        input: { planId: form.planId },
+        instrument: {
+          kind: 'card',
+          number: form.card.number,
+          exp: form.card.exp,
+          cvc: form.card.cvc,
+        },
+      })
       .then((result) => {
         applyResult(result)
 
@@ -67,16 +76,12 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         if (result.status === 'requires_action') {
           navigate({
             to: '/3ds/challenge/$challengeId',
-            params: {
-              challengeId: result.challenge.challengeId,
-            },
-            search: {
-              intentId: result.intent.id,
-            },
+            params: { challengeId: result.action.id },
+            search: { intentId: result.intent.id },
           })
         }
       })
-      .catch((e) => {
+      .catch((e: unknown) => {
         applyResult({
           status: 'error',
           error: { message: e instanceof Error ? e.message : 'Payment failed. Please try again.' },

@@ -1,14 +1,9 @@
 import { createRouter } from '@tanstack/react-router'
 import { routeTree } from '@/routeTree.gen'
 import { createGetMerchantConfig, createHttpMerchantGatewayAdapter } from '@/entities/merchant'
-import { createGetPaymentIntent, createHttpPaymentGatewayAdapter } from '@/entities/payment'
 import { createGetPlans, createHttpPlanGatewayAdapter } from '@/entities/plan'
-import { createAuthenticate3ds } from '@/features/checkout'
+import { checkout } from './checkout'
 import { Pending } from '@/shared/ui'
-
-// Composition root: the only place ports meet concrete adapters. One gateway
-// instance is shared by the payment use-cases so they talk to the same client.
-const paymentGateway = createHttpPaymentGatewayAdapter()
 
 export const router = createRouter({
   routeTree,
@@ -26,11 +21,14 @@ export const router = createRouter({
 
   // Checked against RouterContext through routeTree — a missing or mistyped
   // dependency fails the build, with no type import from the routes layer.
+  //
+  // The checkout engine travels as a whole rather than as a handful of unwrapped
+  // callbacks: it is already the seam. Routes talk to `context.checkout` and never learn
+  // which plugin, transport or authentication scheme is behind it.
   context: {
     getMerchantConfig: createGetMerchantConfig(createHttpMerchantGatewayAdapter()),
     getPlans: createGetPlans(createHttpPlanGatewayAdapter()),
-    getPaymentIntent: createGetPaymentIntent(paymentGateway),
-    authenticate3ds: createAuthenticate3ds(paymentGateway),
+    checkout,
   },
 })
 

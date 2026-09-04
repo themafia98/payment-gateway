@@ -5,9 +5,14 @@
 // through the same code path, so making a provider lazy is a one-line change in the host
 // and invisible to everything else.
 
-import type { PaymentProvider, PaymentProviderInstance, ProviderContext } from '../provider/provider'
+import type {
+  PaymentProvider,
+  PaymentProviderInstance,
+  ProviderContext,
+} from '../provider/provider'
 
-export type ProviderModule<TConfig> = PaymentProvider<TConfig> | { default: PaymentProvider<TConfig> }
+export type ProviderModule<TConfig> =
+  PaymentProvider<TConfig> | { default: PaymentProvider<TConfig> }
 
 export interface ProviderRegistration<TConfig = unknown> {
   readonly id: string

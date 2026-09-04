@@ -11,12 +11,7 @@
 // Both are protocol details of *this* integration. A bank doing 3-D Secure 1 with a
 // `PaReq` reaches the identical checkout UI without a single branch in it.
 
-import {
-  createHttpClient,
-  HttpError,
-  type ApiErrorPayload,
-  type HttpClient,
-} from '@pg/core/http'
+import { createHttpClient, HttpError, type ApiErrorPayload, type HttpClient } from '@pg/core/http'
 import type {
   ActionEvidence,
   CallOptions,
@@ -142,7 +137,11 @@ export const createPspProvider = (
             },
           }
         }
-        return { status: 'requires_action', intent, action: toChallengeAction(challenge.challengeId) }
+        return {
+          status: 'requires_action',
+          intent,
+          action: toChallengeAction(challenge.challengeId),
+        }
       }
 
       case 'declined':
@@ -171,8 +170,10 @@ export const createPspProvider = (
 
   /** The ACS verdict, read here rather than anywhere upstream. */
   const outcomeOf = (evidence: ActionEvidence): 'success' | 'fail' | null => {
-    if (evidence.via === 'post_message') return evidence.data.transStatus === 'Y' ? 'success' : 'fail'
-    if (evidence.via === 'return_url') return evidence.params.transStatus === 'Y' ? 'success' : 'fail'
+    if (evidence.via === 'post_message')
+      return evidence.data.transStatus === 'Y' ? 'success' : 'fail'
+    if (evidence.via === 'return_url')
+      return evidence.params.transStatus === 'Y' ? 'success' : 'fail'
     return null
   }
 
@@ -242,15 +243,21 @@ export const createPspProvider = (
     },
 
     getIntent: async (intentId, opts) =>
-      toIntent(await http.get<PaymentIntentDto>(`/payment-intents/${intentId}`, {
-        signal: opts.signal,
-      })),
+      toIntent(
+        await http.get<PaymentIntentDto>(`/payment-intents/${intentId}`, {
+          signal: opts.signal,
+        }),
+      ),
 
     cancel: async (intentId, opts) =>
       toIntent(
-        await http.post<PaymentIntentDto>(`/payment-intents/${intentId}/cancel`, {}, {
-          signal: opts.signal,
-        }),
+        await http.post<PaymentIntentDto>(
+          `/payment-intents/${intentId}/cancel`,
+          {},
+          {
+            signal: opts.signal,
+          },
+        ),
       ),
   }
 }

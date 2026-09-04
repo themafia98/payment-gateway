@@ -30,8 +30,6 @@ export const PaymentActionHost = ({
   // React 19 mounts effects twice in development. Running a challenge twice would send
   // the shopper two authentication requests, so each action is started at most once.
   const startedRef = useRef<string | null>(null)
-  const onSettledRef = useRef(onSettled)
-  onSettledRef.current = onSettled
 
   useEffect(() => {
     if (!autoRun || !action || phase !== 'action_pending') return
@@ -40,9 +38,11 @@ export const PaymentActionHost = ({
 
     const mount = mountRef.current ? createMount(mountRef.current) : null
     void engine.runPendingAction({ mount, surface }).then((result) => {
-      onSettledRef.current?.(result)
+      onSettled?.(result)
     })
-  }, [engine, action, phase, autoRun, surface])
+    // `onSettled` is in the dependency list only to satisfy the exhaustive-deps rule; the
+    // guard above is what actually keeps the action from running twice.
+  }, [engine, action, phase, autoRun, surface, onSettled])
 
   return <div ref={mountRef} className={className} data-pg-action-host="" />
 }

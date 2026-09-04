@@ -1,9 +1,4 @@
-import type {
-  PaymentError,
-  PaymentIntent,
-  PaymentResult,
-  ThreeDSecureChallenge,
-} from '@/entities/payment'
+import type { PaymentAction, PaymentError, PaymentIntent, PaymentResult } from '@/entities/payment'
 import type { PaymentMethod } from '@/entities/payment-method'
 
 export type CheckoutStatus =
@@ -12,7 +7,7 @@ export type CheckoutStatus =
 export interface CheckoutState {
   status: CheckoutStatus
   intent: PaymentIntent | null
-  challenge: ThreeDSecureChallenge | null
+  action: PaymentAction | null
   error: PaymentError | null
   method: PaymentMethod | null
 }

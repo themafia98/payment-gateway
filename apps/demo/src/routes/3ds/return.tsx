@@ -1,11 +1,15 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Center } from '@/shared/ui'
-import type { PaymentResult } from '@/entities/payment'
 
-// Return landing for redirect-mode 3DS. The bank sends the browser back with
-// ?challengeId&transStatus (and our intentId). State is wiped by the reload, so
-// everything rides in the URL; we settle against our backend, then move on.
+// Where the bank sends the browser back after a full-page authentication.
+//
+// The reload wiped every bit of React state, so the payment is picked up from what the
+// engine wrote down before it left: which provider, which intent, which action. The query
+// string is handed over as-is - the plugin decides what `transStatus=Y` means, and the
+// engine re-reads the intent rather than believing it.
+//
+// This runs in the loader, not an effect: the plugin may still need to be fetched, and
+// resuming before it has loaded would be a race.
 
 interface ReturnSearch {
   intentId?: string
@@ -13,39 +17,34 @@ interface ReturnSearch {
   transStatus?: string
 }
 
+const toParams = (search: ReturnSearch): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(search).filter(([, value]) => typeof value === 'string'),
+  ) as Record<string, string>
+
 export const Route = createFileRoute('/3ds/return')({
   validateSearch: (search: Record<string, unknown>): ReturnSearch => ({
     intentId: typeof search.intentId === 'string' ? search.intentId : undefined,
     challengeId: typeof search.challengeId === 'string' ? search.challengeId : undefined,
     transStatus: typeof search.transStatus === 'string' ? search.transStatus : undefined,
   }),
+  loaderDeps: ({ search }) => search,
+  loader: async ({ context, deps }) => {
+    const result = await context.checkout.hydrate(toParams(deps))
+
+    if (result?.status === 'succeeded') {
+      throw redirect({ to: '/summary/success', search: { intentId: result.intent.id } })
+    }
+
+    throw redirect({
+      to: '/summary/failure',
+      search: { intentId: result?.intent?.id ?? deps.intentId },
+    })
+  },
   component: ThreeDSReturnPage,
 })
 
 function ThreeDSReturnPage() {
-  const { intentId, challengeId, transStatus } = Route.useSearch()
-  const { authenticate3ds } = Route.useRouteContext()
-  const navigate = useNavigate()
-  const settled = useRef(false)
-
-  useEffect(() => {
-    if (settled.current) return // run once
-    settled.current = true
-
-    if (!challengeId) {
-      navigate({ to: '/summary/failure', search: { intentId } })
-      return
-    }
-
-    authenticate3ds(challengeId, transStatus === 'Y' ? 'success' : 'fail')
-      .then((result: PaymentResult) =>
-        result.status === 'succeeded'
-          ? navigate({ to: '/summary/success', search: { intentId } })
-          : navigate({ to: '/summary/failure', search: { intentId } }),
-      )
-      .catch(() => navigate({ to: '/summary/failure', search: { intentId } }))
-  }, [authenticate3ds, challengeId, transStatus, intentId, navigate])
-
   return (
     <Center>
       <p className="text-white">Finishing authentication…</p>

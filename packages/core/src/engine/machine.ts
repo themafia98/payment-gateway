@@ -50,9 +50,21 @@ const TRANSITIONS: Record<CheckoutPhase, Partial<Record<MachineEvent, CheckoutPh
   preparing: { prepared: 'ready', failed: 'failed', reset: 'idle' },
   ready: { pay: 'confirming', prepare: 'preparing', failed: 'failed', reset: 'idle' },
   creating: { created: 'confirming', ...SETTLE, reset: 'idle' },
-  confirming: { action_required: 'action_pending', processing: 'polling', ...SETTLE, reset: 'idle' },
+  confirming: {
+    action_required: 'action_pending',
+    processing: 'polling',
+    ...SETTLE,
+    reset: 'idle',
+  },
   action_pending: { run_action: 'action_running', ...SETTLE, reset: 'idle' },
-  action_running: { action_done: 'resuming', ...SETTLE, reset: 'idle' },
+  // `run_action` again is a surface change, not a second payment: the shopper moved
+  // the same action from a frame into the whole window.
+  action_running: {
+    run_action: 'action_running',
+    action_done: 'resuming',
+    ...SETTLE,
+    reset: 'idle',
+  },
   resuming: { action_required: 'action_pending', processing: 'polling', ...SETTLE, reset: 'idle' },
   polling: { processing: 'polling', ...SETTLE, reset: 'idle' },
   succeeded: { reset: 'idle' },

@@ -20,21 +20,23 @@ export const Route = createFileRoute('/summary/success/')({
   }),
   loaderDeps: ({ search }) => ({ intentId: search.intentId }),
   loader: async ({ context, deps }) => {
-    const state = useCheckoutStore.getState()
+    const snapshot = context.checkout.getSnapshot()
 
-    const isSameIntent = state.intent?.id === deps.intentId
+    // The engine's copy is only trusted when it is both the same payment and already
+    // settled; anything else is re-read from the provider. A half-finished intent left
+    // over from a challenge would otherwise be mistaken for the outcome.
+    const known = snapshot.intent
+    const settled =
+      known && known.id === deps.intentId && known.status === 'succeeded' ? known : null
 
-    let intent: PaymentIntent | null = isSameIntent ? state.intent : null
-
-    if (!isSameIntent && deps.intentId) {
-      intent = await context.getPaymentIntent(deps.intentId)
-    }
+    const intent: PaymentIntent | null =
+      settled ?? (deps.intentId ? await context.checkout.fetchIntent(deps.intentId) : null)
 
     if (!intent || intent.status !== 'succeeded') {
       throw redirect({ to: '/summary/failure', search: { intentId: deps.intentId } })
     }
 
-    return { intent, method: state.method }
+    return { intent, method: useCheckoutStore.getState().method }
   },
   component: SuccessPage,
 })

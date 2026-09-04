@@ -5,8 +5,9 @@
 import { createContext, useContext, type Context } from 'react'
 import type { CheckoutEngine } from '@pg/core'
 
-export const CheckoutContext: Context<CheckoutEngine | null> =
-  createContext<CheckoutEngine | null>(null)
+export const CheckoutContext: Context<CheckoutEngine | null> = createContext<CheckoutEngine | null>(
+  null,
+)
 
 export const useCheckoutEngine = (): CheckoutEngine => {
   const engine = useContext(CheckoutContext)

@@ -8,7 +8,7 @@ import { resultToState } from './checkout.mapper'
 const initialState: CheckoutState = {
   status: 'idle',
   intent: null,
-  challenge: null,
+  action: null,
   error: null,
   method: null,
 }

@@ -32,11 +32,7 @@ const DEFAULT_SANDBOX = 'allow-scripts allow-forms allow-same-origin'
 const defaultFrameTitle = (action: RedirectAction): string =>
   action.purpose === 'authenticate' ? 'Payment authentication' : 'Payment'
 
-const buildForm = (
-  action: RedirectAction,
-  target: string,
-  returnUrl: string,
-): HTMLFormElement => {
+const buildForm = (action: RedirectAction, target: string, returnUrl: string): HTMLFormElement => {
   const form = document.createElement('form')
   form.method = action.method
   form.action = action.url
@@ -124,10 +120,7 @@ const runInIframe = async (
   }
 }
 
-const runInTopWindow = (
-  action: RedirectAction,
-  ctx: RunnerContext,
-): Promise<ActionEvidence> => {
+const runInTopWindow = (action: RedirectAction, ctx: RunnerContext): Promise<ActionEvidence> => {
   ctx.report({ stage: 'leaving', detail: action.url })
 
   if (action.method === 'GET') {

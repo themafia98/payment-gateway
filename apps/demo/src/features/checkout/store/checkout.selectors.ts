@@ -5,7 +5,7 @@ import { BUSY, SETTLED } from './constants'
 
 export const selectStatus = (s: CheckoutStore): CheckoutStatus => s.status
 export const selectIntent = (s: CheckoutStore) => s.intent
-export const selectChallenge = (s: CheckoutStore) => s.challenge
+export const selectAction = (s: CheckoutStore) => s.action
 export const selectError = (s: CheckoutStore) => s.error
 
 export const selectIsBusy = (s: CheckoutStore): boolean => BUSY.has(s.status)
@@ -17,7 +17,7 @@ export const selectIsSettled = (s: CheckoutStore): boolean => SETTLED.has(s.stat
 
 export const useCheckoutStatus = () => useCheckoutStore(selectStatus)
 export const useCheckoutIntent = () => useCheckoutStore(selectIntent)
-export const useCheckoutChallenge = () => useCheckoutStore(selectChallenge)
+export const useCheckoutAction = () => useCheckoutStore(selectAction)
 export const useCheckoutError = () => useCheckoutStore(selectError)
 export const useCheckoutIsBusy = () => useCheckoutStore(selectIsBusy)
 

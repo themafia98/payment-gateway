@@ -17,21 +17,21 @@ export const Route = createFileRoute('/summary/failure/')({
   }),
   loaderDeps: ({ search }) => ({ intentId: search.intentId }),
   loader: async ({ context, deps }) => {
-    const state = useCheckoutStore.getState()
+    const snapshot = context.checkout.getSnapshot()
 
-    const isSameIntent = state.intent?.id === deps.intentId
+    const known = snapshot.intent?.id === deps.intentId ? snapshot.intent : null
 
-    let intent: PaymentIntent | null = isSameIntent ? state.intent : null
-
-    if (!isSameIntent && deps.intentId) {
-      intent = await context.getPaymentIntent(deps.intentId)
-    }
+    const intent: PaymentIntent | null =
+      known ?? (deps.intentId ? await context.checkout.fetchIntent(deps.intentId) : null)
 
     if (!intent) {
       throw redirect({ to: '/' })
     }
 
-    return { intent, method: state.method, error: state.error }
+    // The decline message comes from the engine, which got it from the issuer. After a
+    // full-page redirect there is nothing left in memory, so the page shows the status
+    // alone rather than inventing a reason.
+    return { intent, method: useCheckoutStore.getState().method, error: snapshot.error }
   },
   component: FailurePage,
 })

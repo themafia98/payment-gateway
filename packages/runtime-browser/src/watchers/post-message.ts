@@ -42,8 +42,7 @@ export const awaitPostMessage = (expect: PostMessageExpectation): Promise<Action
       if (event.data.type !== expect.type) return
       // A message about someone else's action is not ours to act on. A protocol that
       // names the field differently still gets checked - see `correlationField`.
-      const correlation =
-        event.data.actionId ?? event.data[expect.correlationField ?? 'actionId']
+      const correlation = event.data.actionId ?? event.data[expect.correlationField ?? 'actionId']
       if (correlation !== undefined && correlation !== expect.actionId) return
 
       settle({

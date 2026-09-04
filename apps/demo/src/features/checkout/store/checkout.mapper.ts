@@ -10,15 +10,16 @@ type ResultHandlers = {
 }
 
 const resultHandlers: ResultHandlers = {
-  succeeded: (r) => ({ status: 'succeeded', intent: r.intent, challenge: null, error: null }),
+  succeeded: (r) => ({ status: 'succeeded', intent: r.intent, action: null, error: null }),
   requires_action: (r) => ({
     status: 'requires_action',
     intent: r.intent,
-    challenge: r.challenge,
+    action: r.action,
     error: null,
   }),
-  declined: (r) => ({ status: 'declined', intent: r.intent, challenge: null, error: r.error }),
-  error: (r) => ({ status: 'error', intent: null, challenge: null, error: r.error }),
+  processing: (r) => ({ status: 'processing', intent: r.intent, action: null, error: null }),
+  declined: (r) => ({ status: 'declined', intent: r.intent, action: null, error: r.error }),
+  error: (r) => ({ status: 'error', intent: null, action: null, error: r.error }),
 }
 
 export const resultToState = (result: PaymentResult): CheckoutResultState =>

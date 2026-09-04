@@ -255,7 +255,11 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
 
       case 'error': {
         transition('failed')
-        store.set({ intent: result.intent ?? store.getSnapshot().intent, action: null, error: result.error })
+        store.set({
+          intent: result.intent ?? store.getSnapshot().intent,
+          action: null,
+          error: result.error,
+        })
         clearPendingCheckout(storage)
         emit({ type: 'error', error: result.error })
         return result
@@ -359,7 +363,10 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
     pay: async (request) => {
       const providerId = providerIdOrThrow()
       if (!transition('pay')) {
-        return { status: 'error', error: { code: 'busy', message: 'A payment is already running.' } }
+        return {
+          status: 'error',
+          error: { code: 'busy', message: 'A payment is already running.' },
+        }
       }
 
       abortController = new AbortController()
@@ -408,7 +415,10 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
 
       persistPending(action)
       if (!transition('run_action')) {
-        return { status: 'error', error: { code: 'busy', message: 'The action is already running.' } }
+        return {
+          status: 'error',
+          error: { code: 'busy', message: 'The action is already running.' },
+        }
       }
       store.set({ attempt: store.getSnapshot().attempt + 1 })
       emit({ type: 'action_started', action, surface })
@@ -423,14 +433,12 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
           deadline: now() + actionTimeoutMs,
           report: (progress) => log.debug('action progress', { ...progress, actionId: action.id }),
         })
-        .catch(
-          (cause: unknown): ActionEvidence => ({
-            via: 'aborted',
-            actionId: action.id,
-            reason: 'runner_error',
-            cause,
-          }),
-        )
+        .catch((cause: unknown): ActionEvidence => ({
+          via: 'aborted',
+          actionId: action.id,
+          reason: 'runner_error',
+          cause,
+        }))
 
       emit({ type: 'action_finished', action, evidence })
       transition('action_done')

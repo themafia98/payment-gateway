@@ -12,6 +12,7 @@
     "build": "tsdown"
   },
   "peerDependencies": {
+    "@pg/core": "*",
     "msw": "^2.15.0"
   },
   "peerDependenciesMeta": {
@@ -34,12 +35,17 @@
       "@pg/source": "./src/backend/index.ts",
       "default": "./dist/backend/index.mjs"
     },
+    "./engine": {
+      "@pg/source": "./src/engine/index.ts",
+      "default": "./dist/engine/index.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
       "./backend": "./dist/backend/index.mjs",
+      "./engine": "./dist/engine/index.mjs",
       "./package.json": "./package.json"
     }
   }

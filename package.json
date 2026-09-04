@@ -18,6 +18,8 @@
     "preview": "npm run preview -w @pg/demo",
     "preview:mock": "npm run preview:mock -w @pg/demo",
     "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:e2e": "npm run test:e2e -w @pg/demo",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix-dangerously",
@@ -27,10 +29,12 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
+    "happy-dom": "^20.14.0",
     "oxlint": "^1.75.0",
     "prettier": "^3.9.6",
     "publint": "^0.3.14",
     "tsdown": "^0.16.5",
-    "typescript": "~7.0.2"
+    "typescript": "~7.0.2",
+    "vitest": "^5.0.0"
   }
 }

@@ -14,6 +14,7 @@ export const TEXT = {
   paymentFailed: 'Payment Failed',
   transactionId: 'Transaction ID',
   challengeFrameTitle: '3-D Secure authentication',
+  cancelChallenge: 'Cancel payment',
 
   // Read from the same table the backend answers with: a provider that reports its own
   // wording instead of the issuer's message fails here.

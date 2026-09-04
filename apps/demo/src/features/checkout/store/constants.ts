@@ -8,5 +8,6 @@ export const BUSY: ReadonlySet<CheckoutStatus> = new Set<CheckoutStatus>([
 export const SETTLED: ReadonlySet<CheckoutStatus> = new Set<CheckoutStatus>([
   'succeeded',
   'declined',
+  'canceled',
   'error',
 ])

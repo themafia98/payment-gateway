@@ -3,7 +3,12 @@ import { routeTree } from '@/routeTree.gen'
 import { createGetMerchantConfig, createHttpMerchantGatewayAdapter } from '@/entities/merchant'
 import { createGetPlans, createHttpPlanGatewayAdapter } from '@/entities/plan'
 import { checkout } from './checkout'
+import { connectCheckoutStore } from '@/features/checkout'
 import { Pending } from '@/shared/ui'
+
+// The app keeps its own store, and it follows the engine rather than competing with it.
+// Subscribed once here, for the lifetime of the app.
+connectCheckoutStore(checkout)
 
 export const router = createRouter({
   routeTree,

@@ -4,10 +4,12 @@ import { ACS_ORIGIN, TEXT } from '../data/text'
 export class ThreeDSPage {
   readonly page: Page
   readonly challengeFrame: Locator
+  readonly cancelButton: Locator
 
   constructor(page: Page) {
     this.page = page
     this.challengeFrame = page.getByTitle(TEXT.challengeFrameTitle)
+    this.cancelButton = page.getByRole('button', { name: TEXT.cancelChallenge })
   }
 
   // The ACS bank server isn't running in CI. Stub its origin so the challenge iframe

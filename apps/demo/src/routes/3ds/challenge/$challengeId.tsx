@@ -22,12 +22,20 @@ function ThreeDSPage() {
   const { checkout } = Route.useRouteContext()
   const navigate = useNavigate()
 
+  const goToFailure = () => void navigate({ to: '/summary/failure', search: { intentId } })
+
   const handleSettled = (result: PaymentResult) => {
     if (result.status === 'succeeded') {
       void navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
       return
     }
-    void navigate({ to: '/summary/failure', search: { intentId } })
+    goToFailure()
+  }
+
+  // Giving up releases the money as well as the screen: the engine tells the provider to
+  // cancel the intent, so an abandoned payment does not sit there holding an authorization.
+  const handleCancel = () => {
+    void checkout.abort('user').then(goToFailure)
   }
 
   return (
@@ -37,15 +45,21 @@ function ThreeDSPage() {
         className="h-[70svh] w-full max-w-full overflow-hidden rounded-xl border border-[#2e303a] bg-white"
       />
 
-      {/* Some banks would rather own the whole window. Same action, different surface -
-          the provider is not asked twice and knows nothing about the choice. */}
-      <button
-        type="button"
-        onClick={() => void checkout.runPendingAction({ surface: 'top' })}
-        className="text-sm text-purple-300 underline"
-      >
-        Open bank in this window (full-page redirect)
-      </button>
+      <div className="flex items-center gap-4">
+        {/* Some banks would rather own the whole window. Same action, different surface -
+            the provider is not asked twice and knows nothing about the choice. */}
+        <button
+          type="button"
+          onClick={() => void checkout.runPendingAction({ surface: 'top' })}
+          className="text-sm text-purple-300 underline"
+        >
+          Open bank in this window (full-page redirect)
+        </button>
+
+        <button type="button" onClick={handleCancel} className="text-sm text-[#9aa0ac] underline">
+          Cancel payment
+        </button>
+      </div>
     </div>
   )
 }

@@ -1,26 +1,40 @@
-import type { PaymentResult } from '@/entities/payment'
-import type { CheckoutState } from './checkout.types'
+import type { CheckoutSnapshot, CheckoutPhase } from '@pg/core'
+import type { CheckoutState, CheckoutStatus } from './checkout.types'
 
-type CheckoutResultState = Omit<CheckoutState, 'method'>
+// The engine's phases are finer-grained than anything this UI shows: it distinguishes
+// creating an intent from confirming it, and running an action from resuming after one.
+// The app only needs to know whether to spin, prompt or stop, so several phases collapse
+// into one status here.
+//
+// Written as an exhaustive record rather than a switch on purpose: when the engine gains a
+// phase, this file stops compiling, which is exactly where the decision belongs.
+const STATUS_BY_PHASE: Record<CheckoutPhase, CheckoutStatus> = {
+  idle: 'idle',
+  preparing: 'idle',
+  ready: 'idle',
 
-type ResultOf<S extends PaymentResult['status']> = Extract<PaymentResult, { status: S }>
+  creating: 'processing',
+  confirming: 'processing',
 
-type ResultHandlers = {
-  [S in PaymentResult['status']]: (result: ResultOf<S>) => CheckoutResultState
+  action_pending: 'requires_action',
+
+  // The three phases that finally give `authenticating` something to mean: the shopper is
+  // with the bank, or we are settling what they did there.
+  action_running: 'authenticating',
+  resuming: 'authenticating',
+  polling: 'authenticating',
+
+  succeeded: 'succeeded',
+  declined: 'declined',
+  canceled: 'canceled',
+  failed: 'error',
 }
 
-const resultHandlers: ResultHandlers = {
-  succeeded: (r) => ({ status: 'succeeded', intent: r.intent, action: null, error: null }),
-  requires_action: (r) => ({
-    status: 'requires_action',
-    intent: r.intent,
-    action: r.action,
-    error: null,
-  }),
-  processing: (r) => ({ status: 'processing', intent: r.intent, action: null, error: null }),
-  declined: (r) => ({ status: 'declined', intent: r.intent, action: null, error: r.error }),
-  error: (r) => ({ status: 'error', intent: null, action: null, error: r.error }),
-}
+export const toCheckoutStatus = (phase: CheckoutPhase): CheckoutStatus => STATUS_BY_PHASE[phase]
 
-export const resultToState = (result: PaymentResult): CheckoutResultState =>
-  (resultHandlers[result.status] as (r: PaymentResult) => CheckoutResultState)(result)
+export const snapshotToState = (snapshot: CheckoutSnapshot): Omit<CheckoutState, 'method'> => ({
+  status: toCheckoutStatus(snapshot.phase),
+  intent: snapshot.intent,
+  action: snapshot.action,
+  error: snapshot.error,
+})

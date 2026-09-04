@@ -21,12 +21,9 @@ export const useCheckoutAction = () => useCheckoutStore(selectAction)
 export const useCheckoutError = () => useCheckoutStore(selectError)
 export const useCheckoutIsBusy = () => useCheckoutStore(selectIsBusy)
 
+/**
+ * Only `setMethod` is left: everything else about a payment now comes from the engine, and
+ * a component that wants to change it calls the engine rather than the store.
+ */
 export const useCheckoutActions = () =>
-  useCheckoutStore(
-    useShallow((s) => ({
-      startPayment: s.startPayment,
-      applyResult: s.applyResult,
-      startAuthentication: s.startAuthentication,
-      reset: s.reset,
-    })),
-  )
+  useCheckoutStore(useShallow((s) => ({ setMethod: s.setMethod })))

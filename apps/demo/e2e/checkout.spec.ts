@@ -73,6 +73,30 @@ test.describe('Result pages', () => {
     await expect(failurePage.heading).toBeVisible()
   })
 
+  // Abandoning a challenge is not just a navigation: the engine tells the provider to
+  // cancel the intent, so the shopper is not left with a pending authorization.
+  test('canceling a 3-D Secure challenge releases the payment', async ({
+    page,
+    checkoutPage,
+    threeDsPage,
+    failurePage,
+  }) => {
+    await threeDsPage.stubAcs()
+    await checkoutPage.goto()
+    await checkoutPage.pay(CARDS.requiresAction)
+
+    await expect(page).toHaveURL(URL_PATTERNS.threeDsChallenge)
+
+    const cancelRequest = page.waitForRequest(
+      (request) => request.url().includes('/cancel') && request.method() === 'POST',
+    )
+    await threeDsPage.cancelButton.click()
+
+    await expect(cancelRequest).resolves.toBeTruthy()
+    await expect(page).toHaveURL(URL_PATTERNS.failure)
+    await expect(failurePage.heading).toBeVisible()
+  })
+
   test('the failure page without an intent falls back to the checkout', async ({
     page,
     checkoutPage,

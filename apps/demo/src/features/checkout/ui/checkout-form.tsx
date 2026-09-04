@@ -38,19 +38,19 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
 
   const isBusy = useCheckoutIsBusy()
   const checkoutError = useCheckoutError()
-  const { startPayment, applyResult, reset } = useCheckoutActions()
+  const { setMethod } = useCheckoutActions()
 
+  // A fresh form is a fresh payment. Resetting the engine is enough - the store follows.
   useEffect(() => {
-    reset()
     engine.reset()
-  }, [reset, engine])
+  }, [engine])
 
   const handlePayment: SubmitHandler<CheckoutFormSchema> = (form) => {
     if (isBusy) {
       return
     }
 
-    startPayment(form.paymentMethod)
+    setMethod(form.paymentMethod)
 
     // The form hands over card details and a plan; which provider takes them, whether the
     // card is even sent to us, and what authentication follows are all decided behind the
@@ -66,8 +66,6 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         },
       })
       .then((result) => {
-        applyResult(result)
-
         if (result.status === 'succeeded') {
           navigate({ to: '/summary/success', search: { intentId: result.intent.id } })
           return
@@ -81,11 +79,10 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
           })
         }
       })
-      .catch((e: unknown) => {
-        applyResult({
-          status: 'error',
-          error: { message: e instanceof Error ? e.message : 'Payment failed. Please try again.' },
-        })
+      .catch((cause: unknown) => {
+        // The engine reports failures as results rather than throwing, so reaching here
+        // means something outside the payment broke.
+        if (import.meta.env.DEV) console.error(cause)
       })
   }
 

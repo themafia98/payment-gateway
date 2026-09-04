@@ -517,28 +517,46 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
     },
 
     abort: async (reason = 'user') => {
-      abortController?.abort(reason)
-      const { intent } = store.getSnapshot()
-      const providerId = store.getSnapshot().providerId
+      const { intent, phase, providerId } = store.getSnapshot()
 
-      if (intent && providerId) {
-        const loaded = registry.peek(providerId)
-        if (loaded?.provider.capabilities.cancel && loaded.instance.cancel) {
-          // Best effort: the shopper already left, so a failure here is not their problem.
-          await loaded.instance.cancel(intent.id, callOptions()).catch((cause: unknown) => {
-            log.warn('could not cancel the intent after an abort', { cause })
-          })
-        }
-      }
-
-      clearPendingCheckout(storage)
-      transition('canceled')
-      store.set({ action: null })
-      return {
+      const canceled: PaymentResult = {
         status: 'error',
         intent: intent ?? undefined,
         error: { code: 'canceled', message: 'The payment was canceled.' },
       }
+
+      // Aborting an already-aborted payment must not cancel the intent twice: the runner
+      // that was interrupted reports back with `aborted` evidence, which lands here again.
+      if (phase === 'canceled') return canceled
+
+      abortController?.abort(reason)
+
+      // The phase moves before the network call, and synchronously. The runner that was
+      // just interrupted reports back with `aborted` evidence within the same tick, which
+      // re-enters here; without the phase already set, that second pass would send a
+      // second cancellation.
+      clearPendingCheckout(storage)
+      transition('canceled')
+      store.set({ action: null })
+
+      if (intent && providerId) {
+        const loaded = registry.peek(providerId)
+        if (loaded?.provider.capabilities.cancel && loaded.instance.cancel) {
+          // Deliberately without the abort signal: the controller was just aborted to stop
+          // the runner, and reusing it here would kill this request before it is sent -
+          // leaving the shopper with an authorization nobody released.
+          //
+          // Best effort otherwise: they have already walked away, so a failure to cancel
+          // is ours to log, not theirs to see.
+          await loaded.instance
+            .cancel(intent.id, { idempotencyKey: idempotencyKey ?? uuid() })
+            .catch((cause: unknown) => {
+              log.warn('could not cancel the intent after an abort', { cause })
+            })
+        }
+      }
+
+      return canceled
     },
 
     reset: () => {

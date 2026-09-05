@@ -98,7 +98,7 @@ export const createHostedFieldsProvider = (
         ),
       ),
 
-    confirm: async (intentId, instrument: PaymentInstrument) => {
+    confirm: async (intentId, instrument: PaymentInstrument, opts) => {
       if (instrument.kind !== 'none') {
         return {
           status: 'error',
@@ -110,15 +110,26 @@ export const createHostedFieldsProvider = (
       }
 
       // Ask for the fields. Everything about the card happens on the other side of this.
+      // The charge is read back first: the checkout keeps showing the amount while the
+      // shopper types, and it has to be the real one.
+      let intent: PaymentIntent
+      try {
+        intent = toIntent(
+          await http.get<ChargeDto>(`/hosted-fields/charges/${intentId}`, { signal: opts.signal }),
+        )
+      } catch (cause) {
+        return {
+          status: 'error',
+          error: {
+            code: 'charge_unreadable',
+            message: cause instanceof Error ? cause.message : 'The payment could not be started.',
+          },
+        }
+      }
+
       return {
         status: 'requires_action',
-        intent: {
-          id: intentId,
-          amount: 0,
-          currency: 'USD',
-          status: 'requires_payment_method',
-          providerId: PROVIDER_ID,
-        },
+        intent,
         action: {
           id: intentId,
           kind: 'collect_fields',
@@ -137,6 +148,19 @@ export const createHostedFieldsProvider = (
     },
 
     resume: async (intentId, evidence, opts) => {
+      // These plugins issue one action per payment and name it after the payment, so a
+      // mismatch means the evidence belongs somewhere else. Nothing good follows from
+      // acting on it.
+      if (evidence.actionId !== intentId) {
+        return {
+          status: 'error',
+          error: {
+            code: 'evidence_mismatch',
+            message: 'That result belongs to a different payment.',
+          },
+        }
+      }
+
       if (evidence.via !== 'post_message') {
         return {
           status: 'error',

@@ -153,6 +153,19 @@ export const createWalletProvider = (
     },
 
     resume: async (intentId, evidence, opts) => {
+      // These plugins issue one action per payment and name it after the payment, so a
+      // mismatch means the evidence belongs somewhere else. Nothing good follows from
+      // acting on it.
+      if (evidence.actionId !== intentId) {
+        return {
+          status: 'error',
+          error: {
+            code: 'evidence_mismatch',
+            message: 'That result belongs to a different payment.',
+          },
+        }
+      }
+
       if (evidence.via !== 'sdk_callback') {
         return {
           status: 'error',

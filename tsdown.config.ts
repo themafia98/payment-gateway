@@ -17,7 +17,6 @@ export default defineConfig({
   dts: { oxc: true },
   exports: { devExports: '@pg/source' },
   publint: true,
-  // `esmOnly` is the honest profile here: the package ships no CJS build, so the checks
-  // for CJS consumers and for Node 10 style resolution do not apply to it.
-  attw: { profile: 'esm-only' },
+  // are-the-types-wrong runs separately, in `npm run check:types`. Checking eleven packages
+  // in parallel here failed intermittently while packing them.
 })

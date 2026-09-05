@@ -8,7 +8,8 @@
     "**/*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "styles.css"
   ],
   "scripts": {
     "build": "tsdown"
@@ -27,16 +28,13 @@
       "@pg/source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
-    "./styles.css": {
-      "@pg/source": "./src/styles.css",
-      "default": "./dist/styles.css"
-    },
+    "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
-      "./styles.css": "./dist/styles.css",
+      "./styles.css": "./styles.css",
       "./package.json": "./package.json"
     }
   }

@@ -1,7 +1,7 @@
 // The next step a payment needs. This union - rather than a `requires3ds` flag - is what
 // keeps the engine free of any particular protocol.
 
-export type PaymentActionKind = 'redirect' | 'collect_fields' | 'sdk_handoff' | 'poll'
+export type PaymentActionKind = 'redirect' | 'collect_fields' | 'sdk_handoff' | 'display' | 'poll'
 
 export type ActionSurface = 'top' | 'iframe' | 'popup' | 'inline' | 'none'
 
@@ -62,5 +62,26 @@ export type PaymentAction =
       scriptUrl?: string
       integrity?: string
       params: Readonly<Record<string, unknown>>
+    })
+  | (ActionBase & {
+      kind: 'display'
+      surface: 'inline'
+      /**
+       * Show the shopper something and wait for the money.
+       *
+       * This is how most of the world outside cards pays: a QR code for PIX or UPI, a six
+       * digit code for BLIK, a slip number for Konbini or Boleto. Nothing on this page can
+       * tell when it is done, so `completion` is always `poll`.
+       */
+      format: 'qr' | 'code' | 'instructions'
+      /** The payload itself: the QR string, the code, the reference number. */
+      value: string
+      /** A rendered QR, when the provider draws one. The kit does not encode QR codes. */
+      imageUrl?: string
+      /** Opens the shopper's bank or wallet app, on a phone. */
+      deeplink?: string
+      /** One line saying what to do with the value above. */
+      instructions?: string
+      completion: Extract<CompletionSpec, { via: 'poll' }>
     })
   | (ActionBase & { kind: 'poll'; surface: 'none' })

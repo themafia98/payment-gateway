@@ -7,7 +7,12 @@
 import type { ActionSurface, PaymentAction } from '../domain/action'
 import type { ActionEvidence } from '../domain/evidence'
 import type { PaymentInstrument } from '../domain/instrument'
-import type { CreateIntentInput, PaymentError, PaymentIntent } from '../domain/intent'
+import type {
+  CreateIntentInput,
+  PaymentError,
+  PaymentIntent,
+  PaymentStatus,
+} from '../domain/intent'
 import type { PaymentResult } from '../domain/result'
 import type { ProviderCapabilities } from '../provider/capabilities'
 import type { CallOptions, PaymentProviderInstance } from '../provider/provider'
@@ -274,6 +279,51 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
     }
   }
 
+  const TERMINAL: readonly PaymentStatus[] = ['succeeded', 'declined', 'canceled']
+
+  /** Asks the provider until the payment settles, the deadline passes, or we are told to stop. */
+  const pollForEvidence = async (
+    action: PaymentAction & { completion: { via: 'poll'; intervalMs: number; timeoutMs: number } },
+    intentId: string,
+    signal: AbortSignal,
+  ): Promise<ActionEvidence> => {
+    const instance = await instanceOf(providerIdOrThrow())
+    const deadline = now() + action.completion.timeoutMs
+
+    while (now() < deadline && !signal.aborted) {
+      await sleep(action.completion.intervalMs)
+      if (signal.aborted) break
+
+      // A hiccup mid-poll is not an answer: keep asking until the deadline says otherwise.
+      const intent = await instance.getIntent(intentId, callOptions()).catch(() => null)
+      if (intent && TERMINAL.includes(intent.status)) {
+        return { via: 'poll', actionId: action.id }
+      }
+    }
+
+    return { via: 'aborted', actionId: action.id, reason: signal.aborted ? 'user' : 'timeout' }
+  }
+
+  /** Whichever finishes first wins, and stops the other. */
+  const raceWithPolling = async (
+    action: PaymentAction,
+    intentId: string,
+    fromRunner: Promise<ActionEvidence>,
+    stopRunner: AbortController,
+  ): Promise<ActionEvidence> => {
+    if (action.completion.via !== 'poll') return await fromRunner
+    const stopPolling = new AbortController()
+
+    return await Promise.race([
+      fromRunner.finally(() => stopPolling.abort()),
+      pollForEvidence(
+        { ...action, completion: action.completion },
+        intentId,
+        stopPolling.signal,
+      ).finally(() => stopRunner.abort()),
+    ])
+  }
+
   /**
    * `processing` means accepted but not settled. The only way to learn the outcome is to
    * keep asking the provider.
@@ -431,10 +481,13 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
       emit({ type: 'action_started', action, surface })
 
       abortController ??= new AbortController()
-      const evidence = await runner
+      // Cuts the runner short when the payment finishes somewhere else - see below.
+      const stopRunner = new AbortController()
+
+      const fromRunner = runner
         .run(action, {
           surface,
-          signal: abortController.signal,
+          signal: AbortSignal.any([abortController.signal, stopRunner.signal]),
           returnUrl: config.returnUrl,
           mount: options.mount ?? null,
           deadline: now() + actionTimeoutMs,
@@ -446,6 +499,14 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
           reason: 'runner_error',
           cause,
         }))
+
+      // A QR code or a payment slip is finished by money arriving, which nothing on this
+      // page can observe. So the provider is asked, over and over, in parallel with the
+      // runner - and the shopper can still walk away, which is the other half of the race.
+      const evidence =
+        action.completion.via === 'poll'
+          ? await raceWithPolling(action, intent.id, fromRunner, stopRunner)
+          : await fromRunner
 
       emit({ type: 'action_finished', action, evidence })
 

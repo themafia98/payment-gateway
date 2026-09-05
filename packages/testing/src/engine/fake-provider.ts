@@ -2,6 +2,7 @@
 // real plugins are exercised against the mock backend through the conformance suite.
 
 import type {
+  ActionEvidence,
   CallOptions,
   CreateIntentInput,
   PaymentAction,
@@ -25,7 +26,7 @@ export interface FakeProviderScript {
 export interface FakeProviderCalls {
   readonly createIntent: { input: CreateIntentInput; opts: CallOptions }[]
   readonly confirm: { intentId: string; opts: CallOptions }[]
-  readonly resume: { intentId: string; opts: CallOptions }[]
+  readonly resume: { intentId: string; evidence: ActionEvidence; opts: CallOptions }[]
   readonly cancel: { intentId: string }[]
   readonly getIntent: { intentId: string }[]
 }
@@ -34,7 +35,7 @@ export const FAKE_PROVIDER_ID = 'fake'
 
 const baseCapabilities: ProviderCapabilities = {
   instruments: ['card', 'none'],
-  actions: ['redirect', 'poll', 'collect_fields', 'sdk_handoff'],
+  actions: ['redirect', 'poll', 'collect_fields', 'sdk_handoff', 'display'],
   surfaces: ['iframe', 'top', 'inline', 'none'],
   authentication: ['none', '3ds2'],
   session: 'lazy',
@@ -98,8 +99,8 @@ export const createFakeProvider = (script: FakeProviderScript = {}): FakeProvide
       })
     },
 
-    resume: async (intentId, _evidence, opts) => {
-      calls.resume.push({ intentId, opts })
+    resume: async (intentId, evidence, opts) => {
+      calls.resume.push({ intentId, evidence, opts })
       return nextOf(script.resume, calls.resume.length - 1, {
         status: 'succeeded',
         intent: fakeIntent({ status: 'succeeded' }),

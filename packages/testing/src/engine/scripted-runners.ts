@@ -7,6 +7,7 @@ import {
   type ActionSurface,
   type PaymentAction,
   type PaymentActionKind,
+  type RunnerContext,
   type RunnerRegistry,
 } from '@checkout-kit/core'
 
@@ -14,6 +15,7 @@ const ALL_KINDS: readonly PaymentActionKind[] = [
   'redirect',
   'collect_fields',
   'sdk_handoff',
+  'display',
   'poll',
 ]
 
@@ -21,7 +23,10 @@ const ALL_SURFACES: readonly ActionSurface[] = ['top', 'iframe', 'popup', 'inlin
 
 export interface ScriptedRunnersOptions {
   /** What each action produces. Defaults to a successful 3-D Secure style verdict. */
-  readonly evidence?: (action: PaymentAction) => ActionEvidence | Promise<ActionEvidence>
+  readonly evidence?: (
+    action: PaymentAction,
+    ctx: RunnerContext,
+  ) => ActionEvidence | Promise<ActionEvidence>
   /** Called with every action the engine runs, in order - handy for assertions. */
   readonly onRun?: (action: PaymentAction, surface: ActionSurface) => void
   readonly kinds?: readonly PaymentActionKind[]
@@ -44,7 +49,7 @@ export const createScriptedRunners = (options: ScriptedRunnersOptions = {}): Run
       surfaces: options.surfaces ?? ALL_SURFACES,
       run: async (action, ctx) => {
         options.onRun?.(action, ctx.surface)
-        return await (options.evidence ?? defaultEvidence)(action)
+        return await (options.evidence ?? defaultEvidence)(action, ctx)
       },
     })
   }
@@ -58,3 +63,16 @@ export const abortedEvidence = (action: PaymentAction): ActionEvidence => ({
   actionId: action.id,
   reason: 'user',
 })
+
+/**
+ * A runner that shows something and waits, like a QR code on the screen. It answers only
+ * if the shopper gives up - anything else finishes the payment elsewhere.
+ */
+export const waitsForAbort = (action: PaymentAction, ctx: RunnerContext): Promise<ActionEvidence> =>
+  new Promise<ActionEvidence>((resolve) => {
+    ctx.signal.addEventListener(
+      'abort',
+      () => resolve({ via: 'aborted', actionId: action.id, reason: 'user' }),
+      { once: true },
+    )
+  })

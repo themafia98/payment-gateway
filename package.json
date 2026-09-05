@@ -3,55 +3,38 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "dev:mock": "vite --mode mock",
-    "dev:acs": "node acs/server.ts",
-    "build": "tsc -b && vite build",
-    "build:mock": "tsc -b && vite build --mode mock",
-    "preview:mock": "vite preview --mode mock",
-    "test:e2e": "playwright test",
+    "dev": "npm run dev -w @pg/demo",
+    "dev:mock": "npm run dev:mock -w @pg/demo",
+    "dev:bank": "npm run dev -w @pg/bank-sim",
+    "build:packages": "tsdown && node scripts/add-ui-styles-export.mjs",
+    "build": "npm run build:packages && npm run build -w @pg/demo",
+    "build:mock": "npm run build:packages && npm run build:mock -w @pg/demo",
+    "verify:dist": "node scripts/verify-dist.mjs",
+    "preview": "npm run preview -w @pg/demo",
+    "preview:mock": "npm run preview:mock -w @pg/demo",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run test:e2e -w @pg/demo",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix-dangerously",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@hookform/error-message": "^2.0.1",
-    "@hookform/resolvers": "^5.9.1",
-    "@js-temporal/polyfill": "^0.5.1",
-    "@tailwindcss/vite": "^4.3.3",
-    "@tanstack/react-router": "^1.170.32",
-    "@tanstack/react-router-devtools": "^1.167.1",
-    "clsx": "^2.1.1",
-    "immer": "^11.1.18",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-hook-form": "^7.86.0",
-    "tailwind-merge": "^3.6.0",
-    "tailwindcss": "^4.3.3",
-    "zod": "^4.4.3",
-    "zustand": "^5.0.15"
+    "purity": "node scripts/check-core-purity.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
-    "@tanstack/router-plugin": "^1.168.35",
-    "@types/ejs": "^3.1.5",
-    "@types/node": "^26.2.0",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.1.0",
-    "ejs": "^6.0.1",
-    "msw": "^2.15.0",
+    "@arethetypeswrong/core": "^0.18.2",
+    "happy-dom": "^20.14.0",
     "oxlint": "^1.75.0",
     "prettier": "^3.9.6",
+    "publint": "^0.3.14",
+    "tsdown": "^0.16.5",
     "typescript": "~7.0.2",
-    "vite": "^8.2.0"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
+    "vitest": "^5.0.0"
   }
 }

@@ -38,7 +38,7 @@ flowchart LR
 
 ## What the parent sets (attributes on `<iframe>`)
 
-In this project: `src/features/checkout/ui/three-ds-challenge.tsx`.
+In this project: `apps/demo/src/features/checkout/ui/three-ds-challenge.tsx`.
 
 ### `sandbox`
 
@@ -95,7 +95,7 @@ that is the redirect mode (see below).
 
 ## What the framed page sets (HTTP headers)
 
-In this project: `acs/lib.ts` (`securityHeaders`).
+In this project: `apps/bank-sim/src/acs/lib.ts` (`securityHeaders`).
 
 > Deep dive, header by header in plain words:
 > [security-headers.md](./security-headers.md).
@@ -168,11 +168,11 @@ first-party and those rules relax.
 
 ## How this project wires it
 
-- Parent / UI: `src/features/checkout/ui/three-ds-challenge.tsx` - the `<iframe>`,
+- Parent / UI: `apps/demo/src/features/checkout/ui/three-ds-challenge.tsx` - the `<iframe>`,
   its `sandbox`/`referrerpolicy`, the two forms (iframe and redirect), and the
   origin-checked `message` listener.
-- Framed "bank": `acs/` - a standalone https server that sets the headers above and,
-  in redirect mode, `302`s back to `/3ds/return`. See [acs/README.md](../acs/README.md).
+- Framed "bank": `apps/bank-sim/src/acs/` - a standalone https server that sets the headers above and,
+  in redirect mode, `302`s back to `/3ds/return`. See [apps/bank-sim/README.md](../apps/bank-sim/README.md).
 - The wider payment picture: [architecture.md](./architecture.md).
 
 ---

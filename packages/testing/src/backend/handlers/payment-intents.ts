@@ -1,0 +1,178 @@
+import { http } from 'msw'
+import type { HttpHandler } from 'msw'
+import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
+import {
+  clearSettlement,
+  idempotencyKeys,
+  paymentIntents,
+  plansById,
+  processingSettlesAt,
+  rememberIdempotencyKey,
+  saveIntent,
+  scheduleSettlement,
+} from '../data'
+import { PROCESSING_SETTLE_MS } from '../config'
+import { createChallenge } from '../lib/challenges'
+import { networkDelay } from '../lib/delay'
+import { error, invalidJson, json, notFound } from '../lib/respond'
+import { invalidParam, missingParam, normalizeCardNumber, readJson } from '../lib/validation'
+import type {
+  ConfirmPaymentIntentRequest,
+  CreatePaymentIntentRequest,
+  NextAction,
+  PaymentIntent,
+  PaymentIntentStatus,
+} from '../types'
+
+const TERMINAL: PaymentIntentStatus[] = ['succeeded', 'canceled', 'declined']
+
+const isTerminal = (status: PaymentIntentStatus) => TERMINAL.includes(status)
+
+const newId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, '')}`
+
+const buildIntent = ({ amount, currency }: { amount: number; currency: string }): PaymentIntent => {
+  const id = newId('pi')
+
+  return {
+    id,
+    object: 'payment_intent',
+    amount,
+    currency,
+    status: 'requires_payment_method',
+    clientSecret: `${id}_secret_${crypto.randomUUID().replace(/-/g, '')}`,
+    livemode: false,
+    created: Math.floor(Date.now() / 1000),
+    nextAction: null,
+    error: null,
+  }
+}
+
+const transitionTo = (intent: PaymentIntent, status: PaymentIntentStatus): PaymentIntent =>
+  saveIntent({ ...intent, status, nextAction: null, error: null })
+
+/**
+ * Finish an asynchronous authorization if its time has come.
+ *
+ * Deliberately lazy, on read: a real processor settles on its own schedule and tells
+ * nobody, which is exactly why the client has to keep asking.
+ */
+const settleIfDue = (intent: PaymentIntent): PaymentIntent => {
+  const due = processingSettlesAt.get(intent.id)
+  if (intent.status !== 'processing' || due === undefined || Date.now() < due) return intent
+
+  clearSettlement(intent.id)
+  return transitionTo(intent, 'succeeded')
+}
+
+export const paymentIntentHandlers: HttpHandler[] = [
+  http.post('*/api/payment-intents', async ({ request }) => {
+    await networkDelay()
+
+    const idempotencyKey = request.headers.get('Idempotency-Key')
+    if (idempotencyKey) {
+      const existingId = idempotencyKeys.get(idempotencyKey)
+      const existing = existingId ? paymentIntents.get(existingId) : undefined
+      if (existing) return json(existing)
+    }
+
+    const body = await readJson<Partial<CreatePaymentIntentRequest>>(request)
+    if (!body) return invalidJson()
+
+    if (!body.planId) return error(400, missingParam('planId'))
+    const plan = plansById.get(body.planId)
+    if (!plan) return error(422, invalidParam('planId', 'Unknown plan.'))
+
+    const intent = saveIntent(buildIntent({ amount: plan.amount, currency: plan.currency }))
+    if (idempotencyKey) rememberIdempotencyKey(idempotencyKey, intent.id)
+
+    return json(intent, { status: 201 })
+  }),
+
+  http.get('*/api/payment-intents/:id', async ({ params }) => {
+    await networkDelay()
+
+    const intent = paymentIntents.get(String(params.id))
+    if (!intent) return notFound('payment intent')
+
+    return json(settleIfDue(intent))
+  }),
+
+  http.post('*/api/payment-intents/:id/confirm', async ({ request, params }) => {
+    await networkDelay()
+
+    const intent = paymentIntents.get(String(params.id))
+    if (!intent) return notFound('payment intent')
+
+    if (isTerminal(intent.status) || intent.status === 'requires_action') {
+      return error(400, {
+        type: 'invalid_request_error',
+        code: 'payment_intent_unexpected_state',
+        message: `Payment intent is already in status '${intent.status}'.`,
+      })
+    }
+
+    const body = await readJson<Partial<ConfirmPaymentIntentRequest>>(request)
+    if (!body) return invalidJson()
+    if (!body.cardNumber) return error(400, missingParam('cardNumber'))
+
+    const outcome = TEST_CARDS[normalizeCardNumber(body.cardNumber)] ?? DEFAULT_OUTCOME
+
+    switch (outcome.type) {
+      case 'chaos':
+        return error(503, {
+          type: 'api_error',
+          message: 'The payment provider is temporarily unavailable. Please retry.',
+        })
+
+      case 'succeed':
+        return json(transitionTo(intent, 'succeeded'))
+
+      case 'processing': {
+        // Authorized, not settled. The answer exists later, and only if someone asks.
+        scheduleSettlement(intent.id, Date.now() + PROCESSING_SETTLE_MS)
+        return json(transitionTo(intent, 'processing'))
+      }
+
+      case 'decline':
+        return json(
+          saveIntent({
+            ...intent,
+            status: 'declined',
+            nextAction: null,
+            error: { type: 'card_error', code: outcome.code, message: outcome.message },
+          }),
+        )
+
+      case 'requires_action': {
+        const challenge = createChallenge(intent.id, outcome.threeDS)
+        const nextAction: NextAction = {
+          type: 'redirect_to_url',
+          three_d_secure: {
+            challengeId: challenge.id,
+            url: `/api/3ds/challenge/${challenge.id}`,
+            status: 'pending',
+          },
+        }
+
+        return json(saveIntent({ ...intent, status: 'requires_action', nextAction, error: null }))
+      }
+    }
+  }),
+
+  http.post('*/api/payment-intents/:id/cancel', async ({ params }) => {
+    await networkDelay()
+
+    const intent = paymentIntents.get(String(params.id))
+    if (!intent) return notFound('payment intent')
+
+    if (isTerminal(intent.status)) {
+      return error(400, {
+        type: 'invalid_request_error',
+        code: 'payment_intent_unexpected_state',
+        message: `Payment intent is already in status '${intent.status}'.`,
+      })
+    }
+
+    return json(transitionTo(intent, 'canceled'))
+  }),
+]

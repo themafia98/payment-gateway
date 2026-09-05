@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   test:
-    name: Lint, format, and build
+    name: Checks, tests and build
     runs-on: ubuntu-latest
 
     steps:
@@ -38,8 +38,47 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests and plugin contract
+        run: npm run test
+
+      - name: Check core purity
+        run: npm run purity
+
       - name: Build
         run: npm run build
+
+      # The build regenerates two kinds of committed file: each package's `exports` map
+      # and the router's route tree. A stale one would otherwise be noticed by whoever
+      # installed the package, or not at all.
+      - name: Check that generated files are committed
+        run: git diff --exit-code
+
+  dist:
+    name: Packages resolve as published
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Everyday builds resolve workspace packages through the `@pg/source` condition and
+      # see TypeScript sources, so a broken `exports` map would only surface downstream.
+      # This job builds the app the way a published consumer would; publint and attw run
+      # as part of the package build.
+      - name: Build the demo against the packages' published entry points
+        run: npm run verify:dist
 
   e2e:
     name: E2E (mock backend)
@@ -69,5 +108,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
-          path: playwright-report/
+          path: apps/demo/playwright-report/
           retention-days: 7

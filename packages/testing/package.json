@@ -1,0 +1,52 @@
+{
+  "name": "@pg/testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared test material: the card table every provider is exercised with, and an in-memory payment backend built on MSW.",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "peerDependencies": {
+    "@pg/core": "*",
+    "msw": "^2.15.0"
+  },
+  "peerDependenciesMeta": {
+    "msw": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "msw": "^2.15.0"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "@pg/source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./backend": {
+      "@pg/source": "./src/backend/index.ts",
+      "default": "./dist/backend/index.mjs"
+    },
+    "./engine": {
+      "@pg/source": "./src/engine/index.ts",
+      "default": "./dist/engine/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./backend": "./dist/backend/index.mjs",
+      "./engine": "./dist/engine/index.mjs",
+      "./package.json": "./package.json"
+    }
+  }
+}

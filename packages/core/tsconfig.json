@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "target": "es2023",
+    /* Web platform APIs only (fetch, URL, AbortSignal). No `vite/client`, no `node`: the
+       core must compile for a browser, a Node test and a worker alike. Browser globals it
+       must not touch (window, document, localStorage) are kept out by `npm run purity`,
+       since the DOM lib inevitably declares them. */
+    "lib": ["ES2023", "DOM"],
+    "types": [],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "customConditions": ["@pg/source"],
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "declaration": true,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    /* Declarations are emitted by oxc, not tsc: it needs every exported binding to carry
+       an explicit type, and in return the build does not depend on the TypeScript API. */
+    "isolatedDeclarations": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}

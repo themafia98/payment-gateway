@@ -11,7 +11,7 @@
 **внутри iframe** на странице оформления заказа. Iframe — это одна веб-страница,
 показанная внутри другой. Так как речь про деньги и коды входа, эта страница шлёт
 продуманный набор таких правил, чтобы защитить себя. Все они лежат в одном месте:
-`acs/lib.ts` → `securityHeaders(nonce)`.
+`apps/bank-sim/src/acs/lib.ts` → `securityHeaders(nonce)`.
 
 Этот документ разбирает каждый заголовок простыми словами:
 
@@ -392,7 +392,7 @@ flowchart TD
 ## Где это в коде
 
 Всё это задаётся в одной функции:
-[`acs/lib.ts`](../acs/lib.ts) → `securityHeaders(nonce)`.
+[`apps/bank-sim/src/acs/lib.ts`](../apps/bank-sim/src/acs/lib.ts) → `securityHeaders(nonce)`.
 
 Хотите увидеть вживую? Откройте challenge-страницу в DevTools браузера → вкладка
 **Network** → кликните на запрос → **Headers**. Все правила выше будут в разделе

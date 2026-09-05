@@ -1,0 +1,57 @@
+{
+  "name": "@pg/demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:mock": "vite --mode mock",
+    "build": "tsc -b && vite build",
+    "build:mock": "tsc -b && vite build --mode mock",
+    "preview": "vite preview",
+    "preview:mock": "vite preview --mode mock",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@hookform/error-message": "^2.0.1",
+    "@hookform/resolvers": "^5.9.1",
+    "@js-temporal/polyfill": "^0.5.1",
+    "@pg/core": "*",
+    "@pg/provider-acquiring": "*",
+    "@pg/provider-hosted-fields": "*",
+    "@pg/provider-hpp": "*",
+    "@pg/provider-psp": "*",
+    "@pg/provider-wallet": "*",
+    "@pg/react": "*",
+    "@pg/runtime-browser": "*",
+    "@pg/ui": "*",
+    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-router-devtools": "^1.167.1",
+    "clsx": "^2.1.1",
+    "immer": "^11.1.18",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.86.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@pg/testing": "*",
+    "@playwright/test": "^1.62.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/router-plugin": "^1.168.35",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.1.0",
+    "msw": "^2.15.0",
+    "vite": "^8.2.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@pg/bank-sim",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Standalone 3-D Secure ACS simulator: a separate https origin the checkout talks to.",
+  "scripts": {
+    "dev": "node src/acs/server.ts"
+  },
+  "dependencies": {
+    "ejs": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/node": "^26.2.0"
+  }
+}

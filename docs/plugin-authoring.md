@@ -177,6 +177,13 @@ If a test fails and the assertion looks wrong for your provider, say so. The sui
 what the engine and the UI are allowed to assume, and an integration that cannot meet it is
 one they cannot use safely.
 
+## Worked examples
+
+[Real providers, mapped onto the contract](./real-world-providers.md) shows what Stripe,
+Adyen, PayPal, the wallets and a bank acquirer return, and which action to produce for each.
+The regional guides go further: [Europe](./providers/europe.md),
+[the Americas](./providers/americas.md), [Asia](./providers/asia.md).
+
 ## Registering it
 
 ```ts

@@ -129,6 +129,14 @@ Every doc exists in English and Russian, except the bank simulator's notes.
   are.
 - **Writing a payment plugin** ([English](./docs/plugin-authoring.md) / [Русский](./docs/plugin-authoring.ru.md)) —
   the contract, the rules that types cannot enforce, and the suite a plugin must pass.
+- **Real providers, mapped onto the contract** ([English](./docs/real-world-providers.md) / [Русский](./docs/real-world-providers.ru.md)) —
+  what Stripe, Adyen, PayPal, Apple Pay and a bank acquirer return, and which action a
+  plugin produces for each.
+- **Integration guides by region** — [Europe](./docs/providers/europe.md)
+  ([ru](./docs/providers/europe.ru.md)), [the Americas](./docs/providers/americas.md)
+  ([ru](./docs/providers/americas.ru.md)), [Asia](./docs/providers/asia.md)
+  ([ru](./docs/providers/asia.ru.md)): the providers people actually use there, the local
+  payment methods, and the banks.
 - **Iframes and 3-D Secure** ([English](./docs/iframe.md) / [Русский](./docs/iframe.ru.md)) —
   how an embedded bank page is sandboxed and secured.
 - **Security headers on the challenge page** ([English](./docs/security-headers.md) / [Русский](./docs/security-headers.ru.md)) —

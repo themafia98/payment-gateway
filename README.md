@@ -141,6 +141,8 @@ Every doc exists in English and Russian, except the bank simulator's notes.
   are.
 - **Writing a payment plugin** ([English](./docs/plugin-authoring.md) / [Русский](./docs/plugin-authoring.ru.md)) —
   the contract, the rules that types cannot enforce, and the suite a plugin must pass.
+- **Practical questions** ([English](./docs/adopting.md) / [Русский](./docs/adopting.ru.md)) —
+  size, server rendering, screen readers, translation, and which browsers it drops.
 - **The backend a plugin talks to** ([English](./docs/backend.md) / [Русский](./docs/backend.ru.md)) —
   the half this repository does not have: what your API must expose, why the plugin cannot
   call a provider directly, and a worked example.

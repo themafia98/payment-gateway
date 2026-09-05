@@ -37,7 +37,7 @@ export const Field = ({
   const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
 
   return (
-    <div className={cx('ck-field', Boolean(error) && 'ck-field--invalid', className)}>
+    <div className={cx('ck-field', error && 'ck-field--invalid', className)}>
       <label className="ck-field__label" htmlFor={id}>
         {label}
         {!required && optionalText ? (

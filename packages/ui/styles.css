@@ -813,6 +813,173 @@
   color: var(--ck-danger);
 }
 
+/* ───────────────────────────────────────────────────────────── checkout ── */
+
+.ck-checkout {
+  display: grid;
+  gap: var(--ck-space-6);
+  inline-size: 100%;
+  max-inline-size: var(--ck-layout-max);
+  margin-inline: auto;
+}
+
+/* Room for a summary beside the form, rather than above it. */
+@container ck (min-width: 48rem) {
+  .ck-checkout--with-aside {
+    max-inline-size: calc(var(--ck-layout-max) + var(--ck-layout-aside) + var(--ck-space-8));
+    grid-template-columns: minmax(0, 1fr) var(--ck-layout-aside);
+    gap: var(--ck-space-8);
+    align-items: start;
+  }
+
+  .ck-checkout--with-aside .ck-checkout__aside {
+    position: sticky;
+    inset-block-start: var(--ck-space-6);
+  }
+}
+
+.ck-checkout__main,
+.ck-checkout__aside {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: var(--ck-space-6);
+}
+
+.ck-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-6);
+}
+
+.ck-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+}
+
+.ck-sticky-actions {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--ck-z-sticky);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+  /* Clears the home indicator on a phone; zero everywhere else. */
+  padding-block: var(--ck-space-4);
+  padding-block-end: max(var(--ck-space-4), var(--ck-safe-block-end));
+  background: linear-gradient(to bottom, transparent, var(--ck-p-neutral-1000) 40%);
+}
+
+.ck-payment-button__amount {
+  margin-inline-start: var(--ck-space-2);
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.ck-payment-status {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+  text-align: center;
+}
+
+.ck-payment-status:empty {
+  display: none;
+}
+
+.ck-payment-status--success {
+  color: var(--ck-success);
+}
+
+.ck-payment-status--failure {
+  color: var(--ck-danger);
+}
+
+/* ─────────────────────────────────────────────────────── payment states ── */
+
+.ck-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ck-space-4);
+  text-align: center;
+}
+
+/* Focused on arrival so a screen reader starts at the answer, but never outlined for it. */
+.ck-state:focus {
+  outline: none;
+}
+
+.ck-state__icon {
+  display: flex;
+  color: var(--ck-text-muted);
+}
+
+.ck-state--success .ck-state__icon {
+  color: var(--ck-success);
+}
+
+.ck-state--failure .ck-state__icon {
+  color: var(--ck-danger);
+}
+
+.ck-state__heading {
+  margin: 0;
+  font-size: var(--ck-font-size-xl);
+  font-weight: var(--ck-weight-medium);
+  line-height: var(--ck-line-tight);
+  text-wrap: balance;
+}
+
+.ck-state__body {
+  margin: 0;
+  max-inline-size: 40ch;
+  color: var(--ck-text-muted);
+  line-height: var(--ck-line-normal);
+  text-wrap: pretty;
+}
+
+.ck-state__details {
+  inline-size: 100%;
+}
+
+.ck-state__actions {
+  display: flex;
+  inline-size: 100%;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+}
+
+/* ────────────────────────────────────────────────────────── action host ── */
+
+/*
+ * Where a provider draws: its own frame, its bank page, or a code it wants shown. Sized by
+ * variant rather than by a fixed height, which is what made the QR flow look broken.
+ */
+.ck-action-frame {
+  inline-size: 100%;
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius);
+  background: var(--ck-surface-sunken);
+  overflow: hidden;
+}
+
+.ck-action-frame--inline {
+  block-size: clamp(18rem, 60svh, 32rem);
+}
+
+.ck-action-frame--challenge {
+  block-size: min(calc(100dvh - 12rem), 44rem);
+  min-block-size: 26rem;
+}
+
+/* Sizes itself: a QR code and its caption are already the right shape. */
+.ck-action-frame--content {
+  block-size: auto;
+}
+
 /* ────────────────────────────────────────────────────── displayed codes ── */
 
 /*

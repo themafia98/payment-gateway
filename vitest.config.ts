@@ -43,6 +43,23 @@ export default defineConfig({
       {
         resolve: workspaceSources,
         test: {
+          // The half a React Native bundle has to run: no DOM allowed near it.
+          name: 'bridge-host',
+          environment: 'node',
+          include: ['packages/webview-bridge/src/{protocol,host}/**/*.test.ts'],
+        },
+      },
+      {
+        resolve: workspaceSources,
+        test: {
+          name: 'bridge-web',
+          environment: 'happy-dom',
+          include: ['packages/webview-bridge/src/*.test.ts'],
+        },
+      },
+      {
+        resolve: workspaceSources,
+        test: {
           name: 'runtime-browser',
           environment: 'happy-dom',
           include: ['packages/runtime-browser/src/**/*.test.ts'],

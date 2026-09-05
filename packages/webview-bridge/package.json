@@ -1,0 +1,53 @@
+{
+  "name": "@checkout-kit/webview-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The contract between a checkout running in a WebView and the native app hosting it.",
+  "license": "Apache-2.0",
+  "author": "themafia98",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themafia98/payment-gateway.git",
+    "directory": "packages/webview-bridge"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "peerDependencies": {
+    "@checkout-kit/core": "*"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "@checkout-kit/source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./host": {
+      "@checkout-kit/source": "./src/host/index.ts",
+      "default": "./dist/host/index.mjs"
+    },
+    "./protocol": {
+      "@checkout-kit/source": "./src/protocol/index.ts",
+      "default": "./dist/protocol/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./host": "./dist/host/index.mjs",
+      "./protocol": "./dist/protocol/index.mjs",
+      "./package.json": "./package.json"
+    }
+  },
+  "devDependencies": {
+    "@checkout-kit/testing": "*"
+  }
+}

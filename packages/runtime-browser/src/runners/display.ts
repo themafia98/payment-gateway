@@ -71,6 +71,8 @@ export const createDisplayRunner = (
 
     const copy = el('button', `${prefix}__copy`, text.copy)
     copy.type = 'button'
+    // The label is the only feedback a copy gives, so it has to be announced too.
+    copy.setAttribute('aria-live', 'polite')
     copy.addEventListener('click', () => {
       void navigator.clipboard?.writeText(action.value).then(() => {
         copy.textContent = text.copied

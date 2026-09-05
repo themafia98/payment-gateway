@@ -4,8 +4,6 @@
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'
-import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
-import { PROCESSING_SETTLE_MS } from '../config'
 import {
   consumeToken,
   idempotencyKeys,
@@ -14,9 +12,9 @@ import {
   rememberIdempotencyKey,
   rememberToken,
   saveIntent,
-  scheduleSettlement,
 } from '../data'
 import { networkDelay } from '../lib/delay'
+import { settleByCard } from '../lib/settle-by-card'
 import { json, notFound } from '../lib/respond'
 import { invalidParam, normalizeCardNumber, readJson } from '../lib/validation'
 import type { PaymentIntent, PaymentIntentStatus } from '../types'
@@ -81,35 +79,7 @@ export const hostedFieldsHandlers: HttpHandler[] = [
     const cardNumber = consumeToken(body?.token ?? '')
     if (!cardNumber) return json(invalidParam('token', 'Unknown or used token.'), { status: 422 })
 
-    const outcome = TEST_CARDS[cardNumber] ?? DEFAULT_OUTCOME
-
-    switch (outcome.type) {
-      case 'succeed':
-      case 'requires_action':
-        return json(transitionTo(intent, 'succeeded'))
-
-      case 'processing':
-        scheduleSettlement(intent.id, Date.now() + PROCESSING_SETTLE_MS)
-        return json(transitionTo(intent, 'processing'))
-
-      case 'chaos':
-      case 'decline':
-        return json(
-          saveIntent({
-            ...intent,
-            status: 'declined',
-            nextAction: null,
-            error:
-              outcome.type === 'decline'
-                ? { type: 'card_error', code: outcome.code, message: outcome.message }
-                : {
-                    type: 'api_error',
-                    code: 'processing_error',
-                    message: 'The payment could not be processed.',
-                  },
-          }),
-        )
-    }
+    return json(settleByCard(intent, cardNumber))
   }),
 
   http.get('*/api/hosted-fields/charges/:id', async ({ params }) => {

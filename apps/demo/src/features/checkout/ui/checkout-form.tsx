@@ -2,6 +2,7 @@ import { CheckoutButton } from './checkout-button'
 import { CreditCardDetails } from './credit-card-details/credit-card-details'
 import { Billing } from './billing'
 import { PlanSelector } from './plan-selector'
+import { SimulateBankApp } from './simulate-bank-app'
 import { PaymentMethodSelector } from './payment-method-selector'
 import { Section, ErrorText } from '@/shared/ui'
 import { useNavigate } from '@tanstack/react-router'
@@ -14,7 +15,7 @@ import {
   type CheckoutFormSchema,
 } from '../model/schema'
 import { CheckoutDetails } from './checkout-details'
-import { PaymentActionHost, useCheckout } from '@pg/react'
+import { PaymentActionHost, useCheckout } from '@checkout-kit/react'
 import type { Plan } from '@/entities/plan'
 import type { PaymentResult } from '@/entities/payment'
 import {
@@ -137,6 +138,7 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
               onSettled={handleSettled}
               className="h-[220px] w-full overflow-hidden rounded-xl border border-[#2e303a] bg-[#1b1e27]"
             />
+            <SimulateBankApp />
           </Section>
         )}
         <Section>

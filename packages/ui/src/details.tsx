@@ -8,7 +8,7 @@ export interface DetailsProps {
 
 /** A list of name/value lines: an invoice, a receipt, a summary of a transaction. */
 export const Details = ({ children, className }: DetailsProps): ReactElement => (
-  <dl className={cx('pg-details', className)}>{children}</dl>
+  <dl className={cx('ck-details', className)}>{children}</dl>
 )
 
 export interface ItemProps {
@@ -20,8 +20,8 @@ export interface ItemProps {
 }
 
 export const Item = ({ name, value, total = false, className }: ItemProps): ReactElement => (
-  <div className={cx('pg-item', total && 'pg-item--total', className)}>
-    <dt className="pg-item__name">{name}</dt>
-    <dd className="pg-item__value">{value}</dd>
+  <div className={cx('ck-item', total && 'ck-item--total', className)}>
+    <dt className="ck-item__name">{name}</dt>
+    <dd className="ck-item__value">{value}</dd>
   </div>
 )

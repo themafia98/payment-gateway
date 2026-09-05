@@ -7,6 +7,7 @@ import { paymentMethodHandlers } from './payment-methods'
 import { paymentIntentHandlers } from './payment-intents'
 import { planHandlers } from './plans'
 import { threeDsHandlers } from './three-ds'
+import { transferHandlers } from './transfer'
 import { walletHandlers } from './wallet'
 import { receiptHandlers } from './receipts'
 
@@ -19,6 +20,7 @@ export const handlers: HttpHandler[] = [
   ...paymentIntentHandlers,
   ...planHandlers,
   ...threeDsHandlers,
+  ...transferHandlers,
   ...walletHandlers,
   ...receiptHandlers,
 ]

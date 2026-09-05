@@ -23,7 +23,7 @@ export interface ProviderRegistration<TConfig = unknown> {
  * gets its id and config checked without importing the plugin's code:
  *
  * ```ts
- * declare module '@pg/core' {
+ * declare module '@checkout-kit/core' {
  *   interface ProviderConfigRegistry {
  *     acquiring: AcquiringConfig
  *   }

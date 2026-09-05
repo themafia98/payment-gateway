@@ -5,11 +5,12 @@ import {
   type MountHandle,
   type RunnerRegistry,
   type StorageAdapter,
-} from '@pg/core'
+} from '@checkout-kit/core'
 import {
   createCollectFieldsRunner,
   type CollectFieldsRunnerOptions,
 } from './runners/collect-fields'
+import { createDisplayRunner, type DisplayRunnerOptions } from './runners/display'
 import { createRedirectRunner, type RedirectRunnerOptions } from './runners/redirect'
 import { createSdkHandoffRunner, type SdkHandoffRunnerOptions } from './runners/sdk-handoff'
 import { sessionStorageAdapter } from './storage/session-storage'
@@ -33,6 +34,7 @@ export interface BrowserRuntimeOptions {
   readonly redirect?: RedirectRunnerOptions
   readonly collectFields?: CollectFieldsRunnerOptions
   readonly sdk?: SdkHandoffRunnerOptions
+  readonly display?: DisplayRunnerOptions
   readonly storage?: StorageAdapter
 }
 
@@ -41,6 +43,7 @@ export const createBrowserRuntime = (options: BrowserRuntimeOptions): BrowserRun
   runners.register(createRedirectRunner(options.redirect))
   runners.register(createCollectFieldsRunner(options.collectFields))
   runners.register(createSdkHandoffRunner(options.sdk))
+  runners.register(createDisplayRunner(options.display))
 
   return {
     runners,

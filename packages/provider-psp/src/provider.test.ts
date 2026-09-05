@@ -1,7 +1,7 @@
-import { describeProviderContract } from '@pg/conformance'
-import { paymentIntentHandlers, threeDsHandlers } from '@pg/testing/backend'
-import { SCENARIO_CARDS, declineMessage } from '@pg/testing'
-import type { CardExpiration, CardNumber, CvcCode } from '@pg/core'
+import { describeProviderContract } from '@checkout-kit/conformance'
+import { paymentIntentHandlers, threeDsHandlers } from '@checkout-kit/testing/backend'
+import { SCENARIO_CARDS, declineMessage } from '@checkout-kit/testing'
+import type { CardExpiration, CardNumber, CvcCode } from '@checkout-kit/core'
 import { pspProvider, type PspConfig } from './provider'
 
 const config: PspConfig = {
@@ -26,10 +26,14 @@ describeProviderContract({
   instrumentFor: (testCase) => card(SCENARIO_CARDS[testCase]),
 
   // What the access control server posts back once the shopper has authenticated.
-  evidenceFor: (action, outcome) => ({
+  evidenceFor: (action, testCase) => ({
     via: 'post_message',
     actionId: action.id,
     origin: config.acsOrigin,
-    data: { type: '3ds-cres', challengeId: action.id, transStatus: outcome === 'pass' ? 'Y' : 'N' },
+    data: {
+      type: '3ds-cres',
+      challengeId: action.id,
+      transStatus: testCase === 'challengeFail' ? 'N' : 'Y',
+    },
   }),
 })

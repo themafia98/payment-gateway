@@ -1,6 +1,6 @@
 import { ErrorMessage as HookErrorMessage } from '@hookform/error-message'
 import { useFormContext } from 'react-hook-form'
-import { ErrorText } from '@pg/ui'
+import { ErrorText } from '@checkout-kit/ui'
 
 interface ErrorMessageProps {
   name: string

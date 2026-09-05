@@ -1,6 +1,6 @@
-import { SCENARIO_CARDS } from '@pg/testing'
+import { SCENARIO_CARDS } from '@checkout-kit/testing'
 
-// The card table lives in @pg/testing, next to the mock backend that interprets it, so a
+// The card table lives in @checkout-kit/testing, next to the mock backend that interprets it, so a
 // PAN and its meaning cannot drift apart. These aliases only give the specs shorter names.
 export const CARDS = {
   success: SCENARIO_CARDS.approve,

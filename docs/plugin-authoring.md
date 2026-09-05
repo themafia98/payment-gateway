@@ -12,8 +12,8 @@ means.
 ## The shape of a plugin
 
 ```ts
-import type { PaymentProvider, ProviderContext, PaymentProviderInstance } from '@pg/core'
-import { createHttpClient } from '@pg/core/http'
+import type { PaymentProvider, ProviderContext, PaymentProviderInstance } from '@checkout-kit/core'
+import { createHttpClient } from '@checkout-kit/core/http'
 
 export interface AcmeConfig {
   readonly baseUrl: string
@@ -22,7 +22,7 @@ export interface AcmeConfig {
 
 // Tell the host's type system about this config, so `defineProvider({ id: 'acme', ... })`
 // is type-checked without the host importing any of this plugin's code.
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     acme: AcmeConfig
   }
@@ -67,7 +67,7 @@ export default acmeProvider
 ```
 
 Export the provider as the default as well. A host registers it with
-`load: () => import('@pg/provider-acme')`, and the registry unwraps a default export.
+`load: () => import('@checkout-kit/provider-acme')`, and the registry unwraps a default export.
 
 ## The four methods
 
@@ -91,7 +91,7 @@ enough, which is most of the time.
 
 ## Actions: asking for the next step
 
-Return `requires_action` with a `PaymentAction`, and the engine finds a runner for it. Four
+Return `requires_action` with a `PaymentAction`, and the engine finds a runner for it. Five
 kinds cover every integration here:
 
 | Kind             | Use when                                             | Evidence you get back          |
@@ -99,6 +99,7 @@ kinds cover every integration here:
 | `redirect`       | the shopper must go somewhere: a frame or the window | `post_message` or `return_url` |
 | `collect_fields` | your own inputs render inside the checkout           | `post_message`                 |
 | `sdk_handoff`    | a script of yours drives the payment                 | `sdk_callback`                 |
+| `display`        | show a QR or a code; it is paid in another app       | `poll`                         |
 | `poll`           | nothing to show; the answer comes later              | `poll`                         |
 
 Two fields matter more than they look:
@@ -112,6 +113,22 @@ Two fields matter more than they look:
 Set `completion.correlationField` if your provider returns the transaction id under its own
 name (`challengeId`, `MD`). It stops an old message from a previous attempt from finishing
 the current payment.
+
+### `display`, and how a payment finishes with nobody watching
+
+PIX, UPI, BLIK, PromptPay, Konbini: the shopper is shown a code and pays it in another app.
+Nothing in the browser can see that happen, so `completion` is always
+`{ via: 'poll', intervalMs, timeoutMs }`.
+
+The engine then does two things at once: it runs the display runner, which shows the code
+and waits, and it asks your `getIntent` on the interval you gave. Whichever finishes first
+stops the other - so the shopper can still walk away, and an expired code stops polling
+instead of running forever. When polling wins you get `{ via: 'poll' }` evidence, and your
+`resume` reads the payment back and says what happened.
+
+Give `value` always: a shopper paying on the same phone they are reading on cannot scan
+their own screen. Add `imageUrl` if your provider renders the QR - the kit ships no QR
+encoder - and `deeplink` if it offers one.
 
 ## Rules that types cannot enforce
 
@@ -147,9 +164,9 @@ inside `detail` for logging.
 Every plugin runs the same suite:
 
 ```ts
-import { describeProviderContract } from '@pg/conformance'
+import { describeProviderContract } from '@checkout-kit/conformance'
 import { acmeHandlers } from './test-backend'
-import { SCENARIO_CARDS, declineMessage } from '@pg/testing'
+import { SCENARIO_CARDS, declineMessage } from '@checkout-kit/testing'
 import { acmeProvider } from './provider'
 
 describeProviderContract({
@@ -187,13 +204,13 @@ The regional guides go further: [Europe](./providers/europe.md),
 ## Registering it
 
 ```ts
-import { defineProvider } from '@pg/core'
-import type { AcmeConfig } from '@pg/provider-acme'
+import { defineProvider } from '@checkout-kit/core'
+import type { AcmeConfig } from '@checkout-kit/provider-acme'
 
 defineProvider({
   id: 'acme',
   config: { baseUrl: '/api/acme', apiKey } satisfies AcmeConfig,
-  load: () => import('@pg/provider-acme'),
+  load: () => import('@checkout-kit/provider-acme'),
 })
 ```
 

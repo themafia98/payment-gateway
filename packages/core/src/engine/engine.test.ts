@@ -4,10 +4,11 @@ import {
   createFakeProvider,
   createScriptedRunners,
   fakeAction,
+  waitsForAbort,
   fakeIntent,
   FAKE_PROVIDER_ID,
   type FakeProviderScript,
-} from '@pg/testing/engine'
+} from '@checkout-kit/testing/engine'
 import type { PaymentInstrument } from '../domain/instrument'
 import type { CardExpiration, CardNumber, CvcCode } from '../domain/brand'
 import { createCheckout, type CheckoutEngine, type CheckoutEngineConfig } from './engine'
@@ -300,5 +301,85 @@ describe('checkout engine', () => {
 
     await expect(engine.pay(PAY)).resolves.toMatchObject({ status: 'succeeded' })
     expect(settled).toHaveBeenCalled()
+  })
+})
+
+describe('an action the shopper completes elsewhere', () => {
+  // A QR code, a bank transfer slip, a six digit code typed into a banking app. The page
+  // shows it and nothing on the page can tell when it has been paid.
+  const displayed = fakeAction({
+    id: 'act_qr',
+    kind: 'display',
+    surface: 'inline',
+    purpose: 'authorize',
+    format: 'qr',
+    value: '00020126580014BR.GOV.BCB.PIX',
+    completion: { via: 'poll', intervalMs: 1000, timeoutMs: 5000 },
+  })
+
+  const displaySetup = (
+    script: FakeProviderScript,
+    overrides: Partial<CheckoutEngineConfig> = {},
+  ) =>
+    setup(
+      {
+        confirm: [{ status: 'requires_action', intent: fakeIntent(), action: displayed }],
+        ...script,
+      },
+      { runners: createScriptedRunners({ evidence: waitsForAbort }), ...overrides },
+    )
+
+  it('settles once the provider says the money arrived', async () => {
+    let reads = 0
+    const { engine, calls } = displaySetup({
+      getIntent: () =>
+        ++reads >= 3 ? fakeIntent({ status: 'succeeded' }) : fakeIntent({ status: 'processing' }),
+      resume: [{ status: 'succeeded', intent: fakeIntent({ status: 'succeeded' }) }],
+    })
+
+    await engine.pay(PAY)
+    const result = await engine.runPendingAction()
+
+    expect(result.status).toBe('succeeded')
+    // Polling won the race, so the plugin is told how the payment finished and confirms it.
+    expect(calls.resume[0]?.evidence).toMatchObject({ via: 'poll', actionId: 'act_qr' })
+    expect(reads).toBe(3)
+  })
+
+  it('stops asking the moment the shopper gives up', async () => {
+    const { engine, calls } = displaySetup(
+      { getIntent: () => fakeIntent({ status: 'processing' }) },
+      { runners: createScriptedRunners({ evidence: abortedEvidence }) },
+    )
+
+    await engine.pay(PAY)
+    await engine.runPendingAction()
+
+    // Walking away cancels the payment rather than asking the plugin to make sense of it.
+    expect(engine.getSnapshot().phase).toBe('canceled')
+    expect(calls.cancel).toHaveLength(1)
+    // One poll may already be in flight when the shopper closes it; a stream of them is
+    // a leak that outlives the payment.
+    expect(calls.getIntent.length).toBeLessThanOrEqual(1)
+  })
+
+  it('gives up when the code expires', async () => {
+    let clock = 0
+    const { engine, calls } = displaySetup(
+      { getIntent: () => fakeIntent({ status: 'processing' }) },
+      {
+        now: () => clock,
+        sleep: async (ms: number) => {
+          clock += ms
+        },
+      },
+    )
+
+    await engine.pay(PAY)
+    await engine.runPendingAction()
+
+    // Five seconds of timeout, one second apart.
+    expect(calls.getIntent).toHaveLength(5)
+    expect(calls.resume[0]?.evidence).toMatchObject({ via: 'aborted', reason: 'timeout' })
   })
 })

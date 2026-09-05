@@ -1,7 +1,7 @@
-import { describeProviderContract } from '@pg/conformance'
-import { acquiringHandlers } from '@pg/testing/backend'
-import { SCENARIO_CARDS, declineMessage } from '@pg/testing'
-import type { CardExpiration, CardNumber, CvcCode } from '@pg/core'
+import { describeProviderContract } from '@checkout-kit/conformance'
+import { acquiringHandlers } from '@checkout-kit/testing/backend'
+import { SCENARIO_CARDS, declineMessage } from '@checkout-kit/testing'
+import type { CardExpiration, CardNumber, CvcCode } from '@checkout-kit/core'
 import { acquiringProvider, type AcquiringConfig } from './provider'
 
 // The same suite the PSP plugin passes, against a protocol that shares nothing with it:
@@ -34,10 +34,14 @@ describeProviderContract({
   instrumentFor: (testCase) => card(SCENARIO_CARDS[testCase]),
 
   // 3-D Secure 1: the access control server posts back a PaRes rather than a CRes.
-  evidenceFor: (action, outcome) => ({
+  evidenceFor: (action, testCase) => ({
     via: 'post_message',
     actionId: action.id,
     origin: config.acsOrigin,
-    data: { type: '3ds-pares', MD: action.id, transStatus: outcome === 'pass' ? 'Y' : 'N' },
+    data: {
+      type: '3ds-pares',
+      MD: action.id,
+      transStatus: testCase === 'challengeFail' ? 'N' : 'Y',
+    },
   }),
 })

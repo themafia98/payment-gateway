@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Everyday builds resolve workspace packages through the `@pg/source` condition and
+      # Everyday builds resolve workspace packages through the `@checkout-kit/source` condition and
       # see TypeScript sources, so a broken `exports` map would only surface downstream.
       # This job builds the app the way a published consumer would; publint and attw run
       # as part of the package build.

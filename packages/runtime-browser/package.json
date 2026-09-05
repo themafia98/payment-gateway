@@ -1,9 +1,16 @@
 {
-  "name": "@pg/runtime-browser",
+  "name": "@checkout-kit/runtime-browser",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "description": "Browser half of the checkout: the runners that actually execute payment actions - iframes, top-level redirects, postMessage - plus session storage.",
+  "license": "Apache-2.0",
+  "author": "themafia98",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themafia98/payment-gateway.git",
+    "directory": "packages/runtime-browser"
+  },
   "sideEffects": false,
   "files": [
     "dist"
@@ -12,14 +19,14 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "@pg/core": "*"
+    "@checkout-kit/core": "*"
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "@pg/source": "./src/index.ts",
+      "@checkout-kit/source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"

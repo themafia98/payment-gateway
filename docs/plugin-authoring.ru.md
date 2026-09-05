@@ -12,8 +12,8 @@
 ## Форма плагина
 
 ```ts
-import type { PaymentProvider, ProviderContext, PaymentProviderInstance } from '@pg/core'
-import { createHttpClient } from '@pg/core/http'
+import type { PaymentProvider, ProviderContext, PaymentProviderInstance } from '@checkout-kit/core'
+import { createHttpClient } from '@checkout-kit/core/http'
 
 export interface AcmeConfig {
   readonly baseUrl: string
@@ -22,7 +22,7 @@ export interface AcmeConfig {
 
 // Объявляем конфиг системе типов хоста, чтобы `defineProvider({ id: 'acme', ... })`
 // проверялся, хотя код плагина хост не импортирует.
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     acme: AcmeConfig
   }
@@ -67,7 +67,7 @@ export default acmeProvider
 ```
 
 Экспортируйте провайдер ещё и дефолтом: хост регистрирует его как
-`load: () => import('@pg/provider-acme')`, и реестр разворачивает дефолтный экспорт.
+`load: () => import('@checkout-kit/provider-acme')`, и реестр разворачивает дефолтный экспорт.
 
 ## Четыре глагола
 
@@ -91,7 +91,7 @@ export default acmeProvider
 
 ## Действия: как попросить следующий шаг
 
-Верните `requires_action` с `PaymentAction`, и движок найдёт для него раннер. Четырёх видов
+Верните `requires_action` с `PaymentAction`, и движок найдёт для него раннер. Пяти видов
 хватает на все интеграции в этом репозитории:
 
 | Вид              | Когда использовать                               | Какое evidence вернётся         |
@@ -99,6 +99,7 @@ export default acmeProvider
 | `redirect`       | покупателю нужно уйти — во фрейм или во всё окно | `post_message` или `return_url` |
 | `collect_fields` | ваши поля рендерятся внутри чекаута              | `post_message`                  |
 | `sdk_handoff`    | платёж ведёт ваш скрипт                          | `sdk_callback`                  |
+| `display`        | показать QR или код — платят в другом приложении | `poll`                          |
 | `poll`           | показывать нечего, ответ придёт позже            | `poll`                          |
 
 Два поля делают больше, чем кажется:
@@ -112,6 +113,22 @@ export default acmeProvider
 Ставьте `completion.correlationField`, если провайдер возвращает идентификатор транзакции
 под своим именем (`challengeId`, `MD`). Это то, что не даёт устаревшему сообщению от
 прошлой попытки завершить текущий платёж.
+
+### `display` — платёж завершается там, где мы не видим
+
+PIX, UPI, BLIK, PromptPay, Konbini: покупателю показывают код, а платит он в другом
+приложении. Из браузера этого не увидеть, поэтому `completion` здесь всегда
+`{ via: 'poll', intervalMs, timeoutMs }`.
+
+Движок делает два дела сразу: запускает раннер, который показывает код и ждёт, и с вашим
+интервалом спрашивает `getIntent`. Кто закончил первым — останавливает другого: покупатель
+может уйти, а истёкший код перестаёт опрашиваться, а не опрашивается вечно. Если выиграл
+опрос, приходит evidence `{ via: 'poll' }`, и ваш `resume` перечитывает платёж и говорит,
+чем всё кончилось.
+
+`value` заполняйте всегда: покупатель, который читает страницу с того же телефона, не может
+отсканировать собственный экран. `imageUrl` — если провайдер сам рисует QR (своего
+кодировщика QR в наборе нет), `deeplink` — если провайдер его даёт.
 
 ## Правила, которые типами не выразить
 
@@ -147,9 +164,9 @@ hosted page игнорирует `status=success` в URL возврата и п�
 Каждый плагин проходит один и тот же набор:
 
 ```ts
-import { describeProviderContract } from '@pg/conformance'
+import { describeProviderContract } from '@checkout-kit/conformance'
 import { acmeHandlers } from './test-backend'
-import { SCENARIO_CARDS, declineMessage } from '@pg/testing'
+import { SCENARIO_CARDS, declineMessage } from '@checkout-kit/testing'
 import { acmeProvider } from './provider'
 
 describeProviderContract({
@@ -186,13 +203,13 @@ describeProviderContract({
 ## Регистрация
 
 ```ts
-import { defineProvider } from '@pg/core'
-import type { AcmeConfig } from '@pg/provider-acme'
+import { defineProvider } from '@checkout-kit/core'
+import type { AcmeConfig } from '@checkout-kit/provider-acme'
 
 defineProvider({
   id: 'acme',
   config: { baseUrl: '/api/acme', apiKey } satisfies AcmeConfig,
-  load: () => import('@pg/provider-acme'),
+  load: () => import('@checkout-kit/provider-acme'),
 })
 ```
 

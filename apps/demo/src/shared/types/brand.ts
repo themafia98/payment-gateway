@@ -1,1 +1,1 @@
-export type { Branded } from '@pg/core'
+export type { Branded } from '@checkout-kit/core'

@@ -3,20 +3,20 @@
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'
-import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
-import { PROCESSING_SETTLE_MS } from '../config'
 import {
   idempotencyKeys,
   paymentIntents,
   plansById,
   rememberIdempotencyKey,
   saveIntent,
-  scheduleSettlement,
 } from '../data'
 import { networkDelay } from '../lib/delay'
-import { json, notFound } from '../lib/respond'
+import { settleByCard } from '../lib/settle-by-card'
+import { alreadySettled, json, notFound } from '../lib/respond'
 import { invalidParam, normalizeCardNumber, readJson } from '../lib/validation'
 import type { PaymentIntent, PaymentIntentStatus } from '../types'
+
+const SETTLED: readonly PaymentIntentStatus[] = ['succeeded', 'declined', 'canceled']
 
 const transitionTo = (intent: PaymentIntent, status: PaymentIntentStatus): PaymentIntent =>
   saveIntent({ ...intent, status, nextAction: null, error: null })
@@ -75,43 +75,14 @@ export const walletHandlers: HttpHandler[] = [
 
     const intent = paymentIntents.get(String(params.id))
     if (!intent) return notFound('charge')
+    if (SETTLED.includes(intent.status)) return alreadySettled('charge')
 
     const body = await readJson<{ walletToken?: string }>(request)
     if (!body?.walletToken) {
       return json(invalidParam('walletToken', 'A wallet token is required.'), { status: 422 })
     }
 
-    const outcome = TEST_CARDS[cardBehind(body.walletToken)] ?? DEFAULT_OUTCOME
-
-    switch (outcome.type) {
-      case 'succeed':
-      // A wallet has already authenticated the shopper on the device; the bank does not
-      // ask again.
-      case 'requires_action':
-        return json(transitionTo(intent, 'succeeded'))
-
-      case 'processing':
-        scheduleSettlement(intent.id, Date.now() + PROCESSING_SETTLE_MS)
-        return json(transitionTo(intent, 'processing'))
-
-      case 'chaos':
-      case 'decline':
-        return json(
-          saveIntent({
-            ...intent,
-            status: 'declined',
-            nextAction: null,
-            error:
-              outcome.type === 'decline'
-                ? { type: 'card_error', code: outcome.code, message: outcome.message }
-                : {
-                    type: 'api_error',
-                    code: 'processing_error',
-                    message: 'The payment could not be processed.',
-                  },
-          }),
-        )
-    }
+    return json(settleByCard(intent, cardBehind(body.walletToken)))
   }),
 
   http.post('*/api/wallet/charges/:id/cancel', async ({ params }) => {

@@ -1,7 +1,7 @@
 // The provider's own card fields, in its own frame. What crosses back is a token; the card
 // number never enters our page.
 
-import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@pg/core'
+import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@checkout-kit/core'
 import { awaitPostMessage } from '../watchers/post-message'
 
 type CollectFieldsAction = Extract<PaymentAction, { kind: 'collect_fields' }>
@@ -58,7 +58,7 @@ export const createCollectFieldsRunner = (
     const evidence = awaitPostMessage({
       actionId: action.id,
       origin: action.origin,
-      type: action.completion.via === 'post_message' ? action.completion.type : 'pg-fields-token',
+      type: action.completion.via === 'post_message' ? action.completion.type : 'ck-fields-token',
       correlationField:
         action.completion.via === 'post_message' ? action.completion.correlationField : undefined,
       signal: ctx.signal,

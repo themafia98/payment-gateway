@@ -38,7 +38,7 @@ export const plansById: Map<string, PlanRecord> = new Map(plans.map((plan) => [p
 // A full-page redirect throws the page away, and with it everything in memory. A real
 // backend does not forget while the shopper is at the bank, so this one keeps its state in
 // sessionStorage. Without that, no redirect flow could be tested at all.
-const STORAGE_KEY = 'pg:mock-backend'
+const STORAGE_KEY = 'checkout-kit:mock-backend'
 
 interface Persisted {
   paymentIntents: [string, PaymentIntent][]

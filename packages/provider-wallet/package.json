@@ -1,9 +1,16 @@
 {
-  "name": "@pg/provider-wallet",
+  "name": "@checkout-kit/provider-wallet",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "description": "Payment plugin for a wallet: a third-party SDK draws its own sheet and hands back a payment token.",
+  "license": "Apache-2.0",
+  "author": "themafia98",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themafia98/payment-gateway.git",
+    "directory": "packages/provider-wallet"
+  },
   "sideEffects": false,
   "files": [
     "dist"
@@ -12,14 +19,14 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "@pg/core": "*"
+    "@checkout-kit/core": "*"
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "@pg/source": "./src/index.ts",
+      "@checkout-kit/source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"
@@ -31,8 +38,8 @@
     }
   },
   "devDependencies": {
-    "@pg/conformance": "*",
-    "@pg/testing": "*",
+    "@checkout-kit/conformance": "*",
+    "@checkout-kit/testing": "*",
     "msw": "^2.15.0"
   }
 }

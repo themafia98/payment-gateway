@@ -1,9 +1,16 @@
 {
-  "name": "@pg/ui",
+  "name": "@checkout-kit/ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "description": "The checkout's visual kit: a handful of themable components and one small stylesheet, with no framework asked of the consumer.",
+  "license": "Apache-2.0",
+  "author": "themafia98",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themafia98/payment-gateway.git",
+    "directory": "packages/ui"
+  },
   "sideEffects": [
     "**/*.css"
   ],
@@ -25,7 +32,7 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "@pg/source": "./src/index.ts",
+      "@checkout-kit/source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./styles.css": "./styles.css",

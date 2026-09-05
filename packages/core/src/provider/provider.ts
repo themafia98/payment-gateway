@@ -11,7 +11,7 @@ import type { ProviderCapabilities } from './capabilities'
 export interface ProviderContext<TConfig> {
   readonly config: TConfig
   /**
-   * The plugin builds its own HTTP client from this (see `@pg/core/http`). Passing `fetch`
+   * The plugin builds its own HTTP client from this (see `@checkout-kit/core/http`). Passing `fetch`
    * rather than a ready-made client is what lets plugins speak different wire formats.
    */
   readonly fetch: typeof fetch

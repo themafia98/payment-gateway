@@ -1,15 +1,21 @@
 // Composition root for payments: where the engine meets the plugins, the browser runtime
 // and this app's own URLs.
 
-import { createCheckout, defineProvider, type CheckoutEngine, type Logger } from '@pg/core'
-import { createBrowserRuntime } from '@pg/runtime-browser'
-// Type imports only: they register the plugin's config with @pg/core and are erased at
+import {
+  createCheckout,
+  defineProvider,
+  type CheckoutEngine,
+  type Logger,
+} from '@checkout-kit/core'
+import { createBrowserRuntime } from '@checkout-kit/runtime-browser'
+// Type imports only: they register the plugin's config with @checkout-kit/core and are erased at
 // build time, so the code still arrives through the dynamic import below.
-import type { PspConfig } from '@pg/provider-psp'
-import type { AcquiringConfig } from '@pg/provider-acquiring'
-import type { HostedPageConfig } from '@pg/provider-hpp'
-import type { HostedFieldsConfig } from '@pg/provider-hosted-fields'
-import type { WalletConfig } from '@pg/provider-wallet'
+import type { PspConfig } from '@checkout-kit/provider-psp'
+import type { AcquiringConfig } from '@checkout-kit/provider-acquiring'
+import type { HostedPageConfig } from '@checkout-kit/provider-hpp'
+import type { HostedFieldsConfig } from '@checkout-kit/provider-hosted-fields'
+import type { WalletConfig } from '@checkout-kit/provider-wallet'
+import type { BankTransferConfig } from '@checkout-kit/provider-bank-transfer'
 
 interface WalletSheetParams {
   merchantName: string
@@ -65,6 +71,15 @@ const walletConfig: WalletConfig = {
   merchantName: 'Demo Store',
 }
 
+// No card, no redirect, no frame: a code on the screen and a shopper paying it in their
+// banking app. The checkout finds out by asking, which is what `poll` means below.
+const transferConfig: BankTransferConfig = {
+  baseUrl: `${BASE_URL}api`,
+  format: 'qr',
+  instructions: 'Scan this with your banking app, or copy the code into it.',
+  poll: { intervalMs: 1500, timeoutMs: 10 * 60 * 1000 },
+}
+
 // Built from BASE_URL, so it stays right when the app is served from a sub-path.
 const runtime = createBrowserRuntime({
   returnPath: `${BASE_URL}payment/return`,
@@ -93,29 +108,34 @@ export const checkout: CheckoutEngine = createCheckout({
       config: pspConfig,
       // A dynamic import, so each plugin is its own chunk. Eager because this one is the
       // default: loading it at boot turns a missing runner into a startup error.
-      load: () => import('@pg/provider-psp'),
+      load: () => import('@checkout-kit/provider-psp'),
       eager: true,
     }),
     defineProvider({
       id: 'acquiring',
       config: acquiringConfig,
       // Lazy: a shopper who never switches never downloads it.
-      load: () => import('@pg/provider-acquiring'),
+      load: () => import('@checkout-kit/provider-acquiring'),
     }),
     defineProvider({
       id: 'hpp',
       config: hostedPageConfig,
-      load: () => import('@pg/provider-hpp'),
+      load: () => import('@checkout-kit/provider-hpp'),
     }),
     defineProvider({
       id: 'hostedfields',
       config: hostedFieldsConfig,
-      load: () => import('@pg/provider-hosted-fields'),
+      load: () => import('@checkout-kit/provider-hosted-fields'),
     }),
     defineProvider({
       id: 'wallet',
       config: walletConfig,
-      load: () => import('@pg/provider-wallet'),
+      load: () => import('@checkout-kit/provider-wallet'),
+    }),
+    defineProvider({
+      id: 'transfer',
+      config: transferConfig,
+      load: () => import('@checkout-kit/provider-bank-transfer'),
     }),
   ],
   defaultProviderId: 'psp',

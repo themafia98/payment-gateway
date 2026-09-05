@@ -4,7 +4,7 @@ An embeddable checkout. Every payment integration behind it is a plugin.
 
 The core is a headless engine. It creates a payment, presents an instrument, runs whatever
 step the provider asks for next, and reports the outcome. It does not know what 3-D Secure
-is, what a hosted payment page is, or what a wallet is. Five plugins do, and adding a sixth
+is, what a hosted payment page is, or what a wallet is. Six plugins do, and adding a seventh
 changes nothing in the core.
 
 Everything runs in the browser. A mock backend answers the APIs and a small https server
@@ -42,10 +42,10 @@ Every integration is the same loop:
 createIntent → confirm(instrument) → [ action → run → evidence → resume ]* → terminal
 ```
 
-Between a card processor, a bank, a hosted page, hosted fields and a wallet, only two things
-differ: **which action the provider returned** and **which runner executes it**. That is
-checked, not just claimed: one Playwright spec file, which names no provider anywhere, runs
-against all five.
+Between a card processor, a bank, a hosted page, hosted fields, a wallet and a QR code, only
+two things differ: **which action the provider returned** and **which runner executes it**.
+That is checked, not just claimed: one Playwright spec file, which names no provider
+anywhere, runs against all six.
 
 | Integration        | instrument | first action                    | completes via  |
 | ------------------ | ---------- | ------------------------------- | -------------- |
@@ -54,30 +54,32 @@ against all five.
 | Bank payment page  | `none`     | `redirect` taking the window    | `return_url`   |
 | Hosted card fields | `none`     | `collect_fields` in a frame     | `post_message` |
 | Wallet             | `none`     | `sdk_handoff` to another script | `sdk_callback` |
+| Instant transfer   | `none`     | `display` a QR or a code        | `poll`         |
 
 ## Packages
 
-| Package                      | What it is                                                              |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| `@pg/core`                   | domain, plugin contract, checkout engine, HTTP client. No React, no DOM |
-| `@pg/runtime-browser`        | the runners that execute actions: frames, redirects, scripts, storage   |
-| `@pg/react`                  | hooks over the engine, and a mount point for actions                    |
-| `@pg/ui`                     | the visual kit: a few components and one themable stylesheet            |
-| `@pg/provider-psp`           | a Stripe-shaped API: JSON, idempotency header, 3-D Secure 2             |
-| `@pg/provider-acquiring`     | direct bank acquiring: form-urlencoded, numeric statuses, 3-D Secure 1  |
-| `@pg/provider-hpp`           | a hosted payment page: the shopper pays on the bank's own site          |
-| `@pg/provider-hosted-fields` | the provider renders the card inputs and hands back a token             |
-| `@pg/provider-wallet`        | a third-party SDK draws its own sheet                                   |
-| `@pg/testing`                | the mock backend, the card table, and test doubles for the engine       |
-| `@pg/conformance`            | the contract every plugin has to pass                                   |
+| Package                                | What it is                                                              |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `@checkout-kit/core`                   | domain, plugin contract, checkout engine, HTTP client. No React, no DOM |
+| `@checkout-kit/runtime-browser`        | the runners that execute actions: frames, redirects, scripts, storage   |
+| `@checkout-kit/react`                  | hooks over the engine, and a mount point for actions                    |
+| `@checkout-kit/ui`                     | the visual kit: a few components and one themable stylesheet            |
+| `@checkout-kit/provider-psp`           | a Stripe-shaped API: JSON, idempotency header, 3-D Secure 2             |
+| `@checkout-kit/provider-acquiring`     | direct bank acquiring: form-urlencoded, numeric statuses, 3-D Secure 1  |
+| `@checkout-kit/provider-hpp`           | a hosted payment page: the shopper pays on the bank's own site          |
+| `@checkout-kit/provider-hosted-fields` | the provider renders the card inputs and hands back a token             |
+| `@checkout-kit/provider-wallet`        | a third-party SDK draws its own sheet                                   |
+| `@checkout-kit/provider-bank-transfer` | a QR or a code, paid in the shopper's banking app                       |
+| `@checkout-kit/testing`                | the mock backend, the card table, and test doubles for the engine       |
+| `@checkout-kit/conformance`            | the contract every plugin has to pass                                   |
 
 ## Using it in an app
 
 ```tsx
-import { createCheckout, defineProvider } from '@pg/core'
-import { createBrowserRuntime } from '@pg/runtime-browser'
-import { CheckoutProvider, useCheckout, PaymentActionHost } from '@pg/react'
-import '@pg/ui/styles.css'
+import { createCheckout, defineProvider } from '@checkout-kit/core'
+import { createBrowserRuntime } from '@checkout-kit/runtime-browser'
+import { CheckoutProvider, useCheckout, PaymentActionHost } from '@checkout-kit/react'
+import '@checkout-kit/ui/styles.css'
 
 const runtime = createBrowserRuntime({ returnPath: '/payment/return' })
 
@@ -86,7 +88,7 @@ export const checkout = createCheckout({
     defineProvider({
       id: 'psp',
       config: { baseUrl: '/api', acsOrigin: 'https://acs.example' },
-      load: () => import('@pg/provider-psp'),
+      load: () => import('@checkout-kit/provider-psp'),
       eager: true,
     }),
   ],
@@ -105,6 +107,16 @@ exactly this and nothing more.
 To add an integration of your own, see
 **[Writing a payment plugin](./docs/plugin-authoring.md)**.
 
+## Status and licence
+
+Apache-2.0. See [LICENSE](./LICENSE) and [NOTICE](./NOTICE).
+
+Nothing here is published to npm yet, and every package is still marked private. The
+release plumbing exists so that publishing is a decision rather than a project, but one
+thing has to be true first: **all six plugins are written against a mock backend.** They
+demonstrate the contract; none of them has taken a real payment. Read them as a reference
+implementation, not as an integration you can install and charge a card with.
+
 ## Repository layout
 
 An npm workspaces monorepo.
@@ -116,7 +128,7 @@ apps/bank-sim/   the 3-D Secure bank simulator, on its own https origin
 docs/            architecture and security notes
 ```
 
-Inside the repo the apps resolve packages through a `@pg/source` condition, so they build
+Inside the repo the apps resolve packages through a `@checkout-kit/source` condition, so they build
 against TypeScript sources. `npm run verify:dist` builds them the way a published consumer
 would. CI runs both.
 
@@ -129,6 +141,9 @@ Every doc exists in English and Russian, except the bank simulator's notes.
   are.
 - **Writing a payment plugin** ([English](./docs/plugin-authoring.md) / [Русский](./docs/plugin-authoring.ru.md)) —
   the contract, the rules that types cannot enforce, and the suite a plugin must pass.
+- **The backend a plugin talks to** ([English](./docs/backend.md) / [Русский](./docs/backend.ru.md)) —
+  the half this repository does not have: what your API must expose, why the plugin cannot
+  call a provider directly, and a worked example.
 - **Real providers, mapped onto the contract** ([English](./docs/real-world-providers.md) / [Русский](./docs/real-world-providers.ru.md)) —
   what Stripe, Adyen, PayPal, Apple Pay and a bank acquirer return, and which action a
   plugin produces for each.

@@ -86,14 +86,15 @@ notes:
 
 **PIX (Brazil)** is an instant bank transfer identified by a QR code or a copy-paste string.
 The shopper opens their banking app, pays, and your backend learns about it seconds later.
-There is nothing to redirect to and nothing to collect: you show a code and wait. The
-contract has no action for that yet — see
-[the gap note](./asia.md#the-gap-qr-codes-and-deep-links), which applies identically here.
+There is nothing to redirect to and nothing to collect: you show a code and wait. That is
+the `display` action — see
+[Showing a code and waiting](./asia.md#showing-a-code-and-waiting), which applies identically
+here, and `@checkout-kit/provider-bank-transfer` for a plugin of exactly this shape.
 
 **OXXO and Boleto** are vouchers. The shopper gets a printable slip or a barcode and pays in
-cash at a shop, sometimes days later. Same gap, plus a much longer wait: model the payment
-as `processing` and let your backend notify the shopper by email rather than making them sit
-on the page.
+cash at a shop, sometimes days later. The same `display` action fits - `format: 'instructions'` -
+but the wait is far too long to sit on the page for. Show the slip, then let your backend
+notify the shopper by email.
 
 **Instalments** are expected on LATAM cards. The number of instalments is chosen _before_
 the payment is created, so it belongs in `CreateIntentInput.metadata`, not in an action.

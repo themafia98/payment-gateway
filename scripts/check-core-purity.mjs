@@ -1,7 +1,7 @@
 // The core has to run in a browser, in a Node test and in a worker. TypeScript cannot
 // check that for us: the DOM lib is needed for `fetch`, and it brings `window` along with
 // it. So the rule is checked here - no browser-only globals, no bundler env - and anything
-// that genuinely needs the DOM lives in @pg/runtime-browser.
+// that genuinely needs the DOM lives in @checkout-kit/runtime-browser.
 
 import { readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
@@ -46,10 +46,12 @@ for (const file of await walk(ROOT)) {
 }
 
 if (violations.length > 0) {
-  console.error('@pg/core must stay platform-neutral, but found:\n')
+  console.error('@checkout-kit/core must stay platform-neutral, but found:\n')
   for (const violation of violations) console.error(`  ${violation}`)
-  console.error('\nMove the code that needs a browser into @pg/runtime-browser.')
+  console.error('\nMove the code that needs a browser into @checkout-kit/runtime-browser.')
   process.exit(1)
 }
 
-console.log('@pg/core is platform-neutral: no browser-only globals, no bundler env access.')
+console.log(
+  '@checkout-kit/core is platform-neutral: no browser-only globals, no bundler env access.',
+)

@@ -1,4 +1,4 @@
-import { useCheckout } from '@pg/react'
+import { useCheckout } from '@checkout-kit/react'
 import { Tabs, Tab } from '@/shared/ui'
 
 // Which acquirer takes the money. Normally a merchant setting nobody sees; here it is a
@@ -13,6 +13,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   hpp: 'Bank page',
   hostedfields: 'Hosted fields',
   wallet: 'Wallet',
+  transfer: 'Instant transfer',
 }
 
 export const ProviderSelector = () => {

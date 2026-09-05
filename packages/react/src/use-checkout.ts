@@ -2,7 +2,12 @@
 // object until something changes - see the store.
 
 import { useCallback, useSyncExternalStore } from 'react'
-import { isBusyPhase, isSettledPhase, type CheckoutEngine, type CheckoutSnapshot } from '@pg/core'
+import {
+  isBusyPhase,
+  isSettledPhase,
+  type CheckoutEngine,
+  type CheckoutSnapshot,
+} from '@checkout-kit/core'
 import { useCheckoutEngine } from './context'
 
 export { useCheckoutEngine }

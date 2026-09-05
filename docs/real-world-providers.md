@@ -2,7 +2,7 @@
 
 > Русская версия: [real-world-providers.ru.md](./real-world-providers.ru.md)
 
-The five plugins in this repository are modelled on real integrations. This page shows the
+The six plugins in this repository are modelled on real integrations. This page shows the
 real ones: what Stripe, Adyen, PayPal, Apple Pay, Google Pay and a bank acquirer return, and
 which `PaymentAction` a plugin would produce for each.
 
@@ -26,7 +26,8 @@ shapes are the real ones, because your backend usually passes them through with 
 stripped out.
 
 The demo in this repository has no backend at all, so the mock answers in the provider's
-shape directly. That is the one place where it is not like production.
+shape directly. That is the one place where it is not like production - see
+[The backend a plugin talks to](./backend.md) for what to build there.
 
 ## The map
 
@@ -150,7 +151,7 @@ action: {
 }
 ```
 
-This is the same shape as `@pg/provider-hpp` in this repository.
+This is the same shape as `@checkout-kit/provider-hpp` in this repository.
 
 ### Status mapping
 
@@ -278,7 +279,7 @@ Without the SDK, use the `approve` link from the order and a `redirect` action w
 
 Both are wallets: a script draws a sheet, the shopper approves with a fingerprint or a face,
 and you get an encrypted token that your PSP charges. This is `sdk_handoff`, and it is what
-`@pg/provider-wallet` is modelled on.
+`@checkout-kit/provider-wallet` is modelled on.
 
 ```ts
 action: {
@@ -308,7 +309,7 @@ For both, `resume` sends the token to your backend, which charges it through you
 
 ## Bank acquiring, host to host
 
-This is the shape `@pg/provider-acquiring` follows: an older API, form-urlencoded, with
+This is the shape `@checkout-kit/provider-acquiring` follows: an older API, form-urlencoded, with
 credentials in the body of every call. Several bank platforms in Europe and the CIS still
 work this way.
 
@@ -334,7 +335,7 @@ Three details to expect from this family of APIs:
 ## Provider-hosted card fields
 
 Some providers give you a URL to render in an iframe, and post a token back with
-`postMessage`. That is what `collect_fields` is for, and what `@pg/provider-hosted-fields`
+`postMessage`. That is what `collect_fields` is for, and what `@checkout-kit/provider-hosted-fields`
 does.
 
 Note the difference from Stripe Elements: Elements is a _script_ that creates its own
@@ -348,7 +349,8 @@ a handoff; if it gives you a URL, it is fields.
    (`surface: 'top'` if it must own the window, `'iframe'` if it may be framed)
 2. Does it give you a URL that renders form fields inside your page? → `collect_fields`
 3. Does it give you a script that does the work? → `sdk_handoff`
-4. Does it need nothing from the shopper, just time? → `poll`
+4. Does it give you a code the shopper pays somewhere else? → `display`
+5. Does it need nothing from the shopper, just time? → `poll`
 
-If none of these fits, that is worth a conversation before adding a fifth kind. Every real
-integration listed here fits one of the four.
+If none of these fits, that is worth a conversation before adding a sixth kind. Every real
+integration listed here fits one of the five.

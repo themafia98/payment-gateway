@@ -3,7 +3,7 @@
 > Русская версия: [europe.ru.md](./europe.ru.md)
 
 Read [Real providers, mapped onto the contract](../real-world-providers.md) first. It
-explains the four action kinds and the rule that a plugin never holds a secret key.
+explains the five action kinds and the rule that a plugin never holds a secret key.
 
 Field names change. Check the provider's current documentation before you ship; what does
 not change is the shape a plugin has to produce.
@@ -131,7 +131,7 @@ These are the platforms banks resell, and they usually offer both:
 - a **hosted payment page**: create a session server-side, redirect the shopper, come back
   and read the status. `redirect` + `surface: 'top'`.
 - **host-to-host**: you post the card yourself and get back an ACS URL for 3-D Secure. This
-  is the shape `@pg/provider-acquiring` follows.
+  is the shape `@checkout-kit/provider-acquiring` follows.
 
 Expect older conventions here: form-encoded bodies, signatures over concatenated fields
 (`SHA-256` of a fixed field order and a shared secret), and numeric status codes. Compute
@@ -158,9 +158,9 @@ action: {
 Two of them have a twist worth knowing:
 
 - **BLIK** in Poland can also work with a six-digit code the shopper types on your page. The
-  shopper then confirms in their banking app, and you wait. Today the contract has no action
-  for "collect a short code, then poll" — see the gap note in the
-  [Asia guide](./asia.md#the-gap-qr-codes-and-deep-links).
+  shopper then confirms in their banking app, and you wait. That is a `display` action with
+  `format: 'code'` — see
+  [Showing a code and waiting](./asia.md#showing-a-code-and-waiting).
 - **SEPA direct debit** is not a redirect at all: the shopper signs a mandate, and the money
   arrives days later. Model it as `processing` and let the engine poll, or treat the mandate
   step as its own action.
@@ -173,7 +173,7 @@ If you integrate a bank directly rather than through a PSP, expect one of three 
 See above.
 
 **2. Host-to-host acquiring.** The bank's own API, usually form-encoded, with credentials
-in every request and numeric statuses. `@pg/provider-acquiring` is written against this
+in every request and numeric statuses. `@checkout-kit/provider-acquiring` is written against this
 shape:
 
 ```text

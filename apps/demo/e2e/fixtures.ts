@@ -75,4 +75,7 @@ export const hostedFieldsTest = onlyFor('hosted-fields')
 /** Specs about a wallet, whose sheet is drawn by someone else's script. */
 export const walletTest = onlyFor('wallet')
 
+/** Specs about a code the shopper pays in their banking app. */
+export const transferTest = onlyFor('transfer')
+
 export { expect } from '@playwright/test'

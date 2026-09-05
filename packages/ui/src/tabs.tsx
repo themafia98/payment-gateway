@@ -8,7 +8,7 @@ export interface TabsProps {
 }
 
 export const Tabs = ({ children, className, ...aria }: TabsProps): ReactElement => (
-  <div role="tablist" className={cx('pg-tabs', className)} {...aria}>
+  <div role="tablist" className={cx('ck-tabs', className)} {...aria}>
     {children}
   </div>
 )
@@ -34,7 +34,7 @@ export const Tab = ({
     aria-selected={isActive}
     aria-disabled={disabled}
     onClick={disabled ? undefined : onClick}
-    className={cx('pg-tab', className)}
+    className={cx('ck-tab', className)}
   >
     {children}
   </button>

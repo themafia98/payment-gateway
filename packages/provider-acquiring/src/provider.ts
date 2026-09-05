@@ -9,7 +9,7 @@
 //
 // None of that reaches the checkout. This file is the whole difference between the two.
 
-import { createHttpClient, type HttpClient } from '@pg/core/http'
+import { createHttpClient, type HttpClient } from '@checkout-kit/core/http'
 import type {
   ActionEvidence,
   CallOptions,
@@ -24,7 +24,7 @@ import type {
   PaymentStatus,
   ProviderCapabilities,
   ProviderContext,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export interface AcquiringConfig {
   /** Root of the acquirer's REST endpoint. */
@@ -36,7 +36,7 @@ export interface AcquiringConfig {
   readonly acsOrigin: string
 }
 
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     acquiring: AcquiringConfig
   }

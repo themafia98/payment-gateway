@@ -4,7 +4,7 @@
 // The card behind the wallet still decides the outcome. A wallet is a way of presenting a
 // card, not of avoiding one.
 
-import { createHttpClient, type HttpClient } from '@pg/core/http'
+import { createHttpClient, type HttpClient } from '@checkout-kit/core/http'
 import type {
   CallOptions,
   CreateIntentInput,
@@ -16,7 +16,7 @@ import type {
   PaymentStatus,
   ProviderCapabilities,
   ProviderContext,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export interface WalletConfig {
   readonly baseUrl: string
@@ -29,7 +29,7 @@ export interface WalletConfig {
   readonly merchantName: string
 }
 
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     wallet: WalletConfig
   }
@@ -153,6 +153,19 @@ export const createWalletProvider = (
     },
 
     resume: async (intentId, evidence, opts) => {
+      // These plugins issue one action per payment and name it after the payment, so a
+      // mismatch means the evidence belongs somewhere else. Nothing good follows from
+      // acting on it.
+      if (evidence.actionId !== intentId) {
+        return {
+          status: 'error',
+          error: {
+            code: 'evidence_mismatch',
+            message: 'That result belongs to a different payment.',
+          },
+        }
+      }
+
       if (evidence.via !== 'sdk_callback') {
         return {
           status: 'error',

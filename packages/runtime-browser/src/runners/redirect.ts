@@ -4,7 +4,7 @@
 //   iframe  the provider reports back with postMessage, and the shopper stays here
 //   top     the page is destroyed, and the answer is read from the return URL afterwards
 
-import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@pg/core'
+import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@checkout-kit/core'
 import { awaitPostMessage } from '../watchers/post-message'
 
 type RedirectAction = Extract<PaymentAction, { kind: 'redirect' }>
@@ -73,7 +73,7 @@ const runInIframe = async (
     }
   }
 
-  const name = `pg-action-${action.id}`
+  const name = `ck-action-${action.id}`
   const frame = document.createElement('iframe')
   frame.name = name
   frame.title = (options.frameTitle ?? defaultFrameTitle)(action)

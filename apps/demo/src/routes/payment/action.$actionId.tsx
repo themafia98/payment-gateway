@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { PaymentActionHost } from '@pg/react'
+import { PaymentActionHost } from '@checkout-kit/react'
 import type { PaymentResult } from '@/entities/payment'
 
 // Where an action that needs a screen is shown - a 3-D Secure challenge today, hosted card

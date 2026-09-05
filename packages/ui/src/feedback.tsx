@@ -12,7 +12,7 @@ export interface ErrorTextProps {
  * until there is something to say.
  */
 export const ErrorText = ({ children, className }: ErrorTextProps): ReactElement => (
-  <p role="alert" className={cx('pg-error', className)}>
+  <p role="alert" className={cx('ck-error', className)}>
     {children}
   </p>
 )
@@ -24,7 +24,7 @@ export interface StatusProps {
 }
 
 export const Status = ({ children, tone = 'neutral', className }: StatusProps): ReactElement => (
-  <p className={cx('pg-status', tone !== 'neutral' && `pg-status--${tone}`, className)}>
+  <p className={cx('ck-status', tone !== 'neutral' && `ck-status--${tone}`, className)}>
     {children}
   </p>
 )

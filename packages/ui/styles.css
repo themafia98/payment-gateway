@@ -2,165 +2,216 @@
  * The checkout kit's styles.
  *
  * Plain CSS, so a consumer needs no particular framework. Everything is themed through
- * `--pg-*` variables with defaults, so restyling is a few declarations:
+ * `--ck-*` variables with defaults, so restyling is a few declarations:
  *
- *   .pg-root { --pg-accent: #0a7; --pg-radius: 8px; }
+ *   .ck-root { --ck-accent: #0a7; --ck-radius: 8px; }
  *
- * Every rule is one class under `.pg-root`, so nothing here is hard to override.
+ * Every rule is one class under `.ck-root`, so nothing here is hard to override.
  */
 
-.pg-root {
-  --pg-font: system-ui, 'Segoe UI', Roboto, sans-serif;
+.ck-root {
+  --ck-font: system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  --pg-accent: #aa3bff;
-  --pg-accent-contrast: #ffffff;
-  --pg-surface: #3d3d3d;
-  --pg-surface-raised: #4f4f4f;
-  --pg-text: #e9e9e9;
-  --pg-text-muted: #9aa0ac;
-  --pg-danger: #f87171;
-  --pg-success: #4ade80;
+  --ck-accent: #aa3bff;
+  --ck-accent-contrast: #ffffff;
+  --ck-surface: #3d3d3d;
+  --ck-surface-raised: #4f4f4f;
+  --ck-text: #e9e9e9;
+  --ck-text-muted: #9aa0ac;
+  --ck-danger: #f87171;
+  --ck-success: #4ade80;
 
-  --pg-radius: 14px;
-  --pg-radius-small: 10px;
-  --pg-gap: 16px;
-  --pg-control-height: 66px;
+  --ck-radius: 14px;
+  --ck-radius-small: 10px;
+  --ck-gap: 16px;
+  --ck-control-height: 66px;
 
-  font-family: var(--pg-font);
-  color: var(--pg-text);
+  font-family: var(--ck-font);
+  color: var(--ck-text);
 }
 
-.pg-section {
+.ck-section {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--pg-gap);
+  gap: var(--ck-gap);
 }
 
-.pg-button {
+.ck-button {
   display: flex;
   width: 100%;
-  height: var(--pg-control-height);
+  height: var(--ck-control-height);
   align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 0 32px;
   border: 0;
-  border-radius: var(--pg-radius);
-  background: var(--pg-accent);
-  color: var(--pg-accent-contrast);
+  border-radius: var(--ck-radius);
+  background: var(--ck-accent);
+  color: var(--ck-accent-contrast);
   font: inherit;
   font-size: 20px;
   font-weight: 500;
   cursor: pointer;
 }
 
-.pg-button--secondary {
-  background: color-mix(in srgb, var(--pg-accent) 50%, transparent);
+.ck-button--secondary {
+  background: color-mix(in srgb, var(--ck-accent) 50%, transparent);
 }
 
-.pg-button:disabled {
+.ck-button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.pg-input {
+.ck-input {
   display: flex;
-  height: var(--pg-control-height);
+  height: var(--ck-control-height);
   width: 100%;
   box-sizing: border-box;
   align-items: center;
   border: 0;
-  border-radius: var(--pg-radius-small);
-  background: var(--pg-surface);
+  border-radius: var(--ck-radius-small);
+  background: var(--ck-surface);
   padding: 0 16px;
-  color: var(--pg-text);
+  color: var(--ck-text);
   font: inherit;
 }
 
-.pg-input::placeholder {
-  color: var(--pg-text-muted);
+.ck-input::placeholder {
+  color: var(--ck-text-muted);
 }
 
-.pg-input:focus-visible {
-  outline: 2px solid var(--pg-accent);
+.ck-input:focus-visible {
+  outline: 2px solid var(--ck-accent);
   outline-offset: 2px;
 }
 
-.pg-tabs {
+.ck-tabs {
   display: flex;
   align-items: stretch;
   gap: 6px;
-  border-radius: var(--pg-radius-small);
-  background: var(--pg-surface);
+  border-radius: var(--ck-radius-small);
+  background: var(--ck-surface);
   padding: 6px;
 }
 
-.pg-tab {
+.ck-tab {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: var(--pg-radius-small);
+  border-radius: var(--ck-radius-small);
   background: transparent;
   padding: 14px 12px;
-  color: var(--pg-text);
+  color: var(--ck-text);
   font: inherit;
   cursor: pointer;
 }
 
-.pg-tab[aria-selected='true'] {
-  background: var(--pg-surface-raised);
+.ck-tab[aria-selected='true'] {
+  background: var(--ck-surface-raised);
 }
 
-.pg-tab[aria-disabled='true'] {
+.ck-tab[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-.pg-details {
+.ck-details {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.pg-item {
+.ck-item {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
 }
 
-.pg-item__name {
-  color: var(--pg-text-muted);
+.ck-item__name {
+  color: var(--ck-text-muted);
 }
 
-.pg-item--total .pg-item__name,
-.pg-item--total .pg-item__value {
-  color: var(--pg-text);
+.ck-item--total .ck-item__name,
+.ck-item--total .ck-item__value {
+  color: var(--ck-text);
   font-weight: 600;
 }
 
-.pg-error {
+.ck-error {
   margin: 0;
-  color: var(--pg-danger);
+  color: var(--ck-danger);
   font-size: 14px;
 }
 
-.pg-error:empty {
+.ck-error:empty {
   display: none;
 }
 
-.pg-status {
+.ck-status {
   margin: 0;
   font-size: 15px;
 }
 
-.pg-status--success {
-  color: var(--pg-success);
+.ck-status--success {
+  color: var(--ck-success);
 }
 
-.pg-status--failure {
-  color: var(--pg-danger);
+.ck-status--failure {
+  color: var(--ck-danger);
+}
+
+/*
+ * A payment shown on screen and paid somewhere else: a QR code, a transfer code, a slip
+ * number. Rendered by the display runner in @checkout-kit/runtime-browser, styled here so
+ * it does not arrive unstyled.
+ */
+.ck-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.ck-display__qr {
+  width: 160px;
+  height: 160px;
+  border-radius: var(--ck-radius-small);
+  background: #ffffff;
+  padding: 8px;
+}
+
+.ck-display__instructions {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: 14px;
+}
+
+.ck-display__value {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: var(--ck-text);
+}
+
+.ck-display__copy {
+  border: 1px solid var(--ck-surface-raised);
+  border-radius: var(--ck-radius-small);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.ck-display__app {
+  color: var(--ck-accent);
+  font-size: 14px;
 }

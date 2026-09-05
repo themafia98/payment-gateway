@@ -1,5 +1,5 @@
 // How an action gets executed. The contract is here; the implementations are in
-// @pg/runtime-browser, so the engine itself needs no DOM.
+// @checkout-kit/runtime-browser, so the engine itself needs no DOM.
 
 import type { ActionSurface, PaymentAction, PaymentActionKind } from '../domain/action'
 import type { ActionEvidence } from '../domain/evidence'
@@ -77,7 +77,7 @@ export const createRunnerRegistry = (): RunnerRegistry => {
         throw new Error(
           `Provider "${providerId}" can return ${missing.join(', ')} actions, but this host ` +
             `registered no runner able to execute them. Add the runners (see ` +
-            `@pg/runtime-browser) or drop the capability.`,
+            `@checkout-kit/runtime-browser) or drop the capability.`,
         )
       }
     },

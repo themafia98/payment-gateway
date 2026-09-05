@@ -6,7 +6,7 @@
     "types": ["react"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "customConditions": ["@pg/source"],
+    "customConditions": ["@checkout-kit/source"],
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "declaration": true,

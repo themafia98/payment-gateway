@@ -1,5 +1,6 @@
 export * from './action'
 export * from './brand'
+export * from './card'
 export * from './evidence'
 export * from './instrument'
 export * from './intent'

@@ -1,13 +1,5 @@
-// Card fields rendered by the provider, inside its own frame.
-//
-// The difference from a redirect is not the iframe - it is what crosses back. Here the
-// frame is a form the shopper types into, and what it sends out is a token: a reference
-// the provider can charge and this page can do nothing with. The card number is never in
-// our document, never in our memory, and never in a request we make.
-//
-// The frame gets a `theme` of CSS custom properties so it can look like it belongs to the
-// page it is embedded in. That is styling, not access - the parent still cannot read a
-// single character of what is typed inside it.
+// The provider's own card fields, in its own frame. What crosses back is a token; the card
+// number never enters our page.
 
 import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@pg/core'
 import { awaitPostMessage } from '../watchers/post-message'

@@ -1,14 +1,5 @@
-// Handing the payment to someone else's JavaScript.
-//
-// Wallets work this way: a script from the wallet's own domain puts up its own sheet, the
-// shopper approves with a fingerprint or a face, and what comes back is a payload the
-// provider can charge. Our page never sees a card, never draws the sheet, and cannot
-// influence what happens inside it.
-//
-// Two things this runner takes seriously. Scripts are loaded once per URL, because loading
-// a wallet SDK twice is how you end up with two conflicting globals. And an `integrity`
-// hash is passed through when the provider supplies one - the whole arrangement rests on
-// executing a third party's code, and that is worth pinning.
+// Hands the payment to a third-party script, such as a wallet. Scripts are loaded once per
+// URL, and an integrity hash is passed through when the provider publishes one.
 
 import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@pg/core'
 

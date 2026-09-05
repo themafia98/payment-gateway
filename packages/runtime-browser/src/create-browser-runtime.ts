@@ -1,8 +1,4 @@
-// Everything the engine needs that only exists in a browser, assembled in one place.
-//
-// The engine itself has no DOM, no storage and no idea what a URL bar is; this module
-// supplies those as plain values, which is also why the same engine runs untouched inside
-// a Node test with scripted runners.
+// Everything the engine needs that only a browser has, assembled in one place.
 
 import {
   createRunnerRegistry,

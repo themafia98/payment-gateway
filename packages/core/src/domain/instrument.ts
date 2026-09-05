@@ -1,6 +1,5 @@
-// What the shopper is paying with. This union is the reason one contract covers raw-card
-// host-to-host, tokenized hosted fields, wallets and hosted payment pages alike: a
-// provider that never sees card data simply accepts `{ kind: 'none' }`.
+// What the shopper pays with. `none` is a normal case: some providers collect the card
+// themselves, so there is nothing to hand over.
 
 import type { CardExpiration, CardNumber, CvcCode } from './brand'
 

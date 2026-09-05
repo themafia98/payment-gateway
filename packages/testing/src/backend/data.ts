@@ -35,12 +35,9 @@ export const plans: PlanRecord[] = [
 
 export const plansById: Map<string, PlanRecord> = new Map(plans.map((plan) => [plan.id, plan]))
 
-// Payments live in memory, and a full-page redirect to a bank throws that memory away.
-// A real backend does not forget while the shopper is off authenticating, so this one
-// keeps its state in sessionStorage: same lifetime as the tab, restored on reload.
-//
-// Without it, no redirect-based integration could be exercised at all - the payment would
-// come back to a backend that had never heard of it.
+// A full-page redirect throws the page away, and with it everything in memory. A real
+// backend does not forget while the shopper is at the bank, so this one keeps its state in
+// sessionStorage. Without that, no redirect flow could be tested at all.
 const STORAGE_KEY = 'pg:mock-backend'
 
 interface Persisted {
@@ -77,10 +74,9 @@ export const threeDSChallenges: Map<string, ThreeDSChallenge> = new Map(
 export const processingSettlesAt: Map<string, number> = new Map(restored.processingSettlesAt ?? [])
 
 /**
- * token -> card, for the hosted-fields integration. It lives with the rest of the backend
- * state and not in that handler, because a field frame is a *separate browsing context*:
- * it tokenizes from its own copy of this module, and the checkout charges from another.
- * Two stores would mean the token issued in the frame was unknown to the shop.
+ * token -> card, for hosted fields. It lives here rather than in that handler because the
+ * field frame is a separate browsing context: it tokenizes from its own copy of this
+ * module, and the checkout charges from another.
  */
 export const tokenizedCards: Map<string, string> = new Map(restored.tokenizedCards ?? [])
 
@@ -98,15 +94,11 @@ export const persistBackend = (): void => {
       } satisfies Persisted),
     )
   } catch {
-    // Storage is unavailable or full; the mock still works for anything that stays on one
-    // page, which is every flow except a redirect.
+    // Storage unavailable or full. Everything except redirect flows still works.
   }
 }
 
-/**
- * The one place an intent is written. Every facade goes through it, which is what keeps
- * them describing the same payment rather than three of their own.
- */
+/** The one place an intent is written, so every facade describes the same payment. */
 export const saveIntent = (intent: PaymentIntent): PaymentIntent => {
   paymentIntents.set(intent.id, intent)
   persistBackend()

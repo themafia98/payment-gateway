@@ -1,13 +1,8 @@
-// A wallet: the shopper approves with a card they already keep somewhere else.
+// A wallet: a third-party script draws its own sheet, the shopper approves, and a payload
+// comes back.
 //
-// Nothing about this integration resembles a form. There are no fields, no validation and
-// no submit; there is a script from someone else's domain, a sheet it draws, and a payload
-// it hands back. The contract carries it with one action kind and no special cases -
-// `confirm` is given `{ kind: 'none' }` and asks for a handoff, exactly as the hosted-page
-// plugin asks for a redirect and the hosted-fields plugin asks for a frame.
-//
-// The card behind the wallet decides the outcome, the same as everywhere else. A wallet is
-// a way of presenting a card, not a way of avoiding one.
+// The card behind the wallet still decides the outcome. A wallet is a way of presenting a
+// card, not of avoiding one.
 
 import { createHttpClient, type HttpClient } from '@pg/core/http'
 import type {

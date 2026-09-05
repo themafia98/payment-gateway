@@ -1,13 +1,6 @@
-// A fourth facade, for the integration where the card is tokenized before anyone but the
-// provider has seen it.
-//
-// Two endpoints matter. One turns a card into a token - in production it is called by the
-// provider's own field frame, from the provider's own origin, and the merchant's server
-// could not call it if it wanted to. The other charges that token, which is the only thing
-// the merchant ever holds.
-//
-// The token deliberately reveals nothing: it is a random id, and the card behind it is
-// kept here, in the store the frame's request wrote it to.
+// A fourth facade, for tokenized card fields. One endpoint turns a card into a token - in
+// production it is called by the provider's frame, never by the merchant - and another
+// charges that token.
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'

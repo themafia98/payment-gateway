@@ -1,6 +1,5 @@
-// Events are for things that happen *once* - analytics, logging, a toast, mirroring into
-// a host's own store. State that describes "where are we now" belongs in the snapshot, not
-// here, so that a subscriber which misses an event can still render correctly.
+// One-off notifications: analytics, logging, mirroring into a host's store. State that
+// says "where are we now" belongs in the snapshot instead.
 
 import type { ActionSurface, PaymentAction } from '../domain/action'
 import type { ActionEvidence } from '../domain/evidence'

@@ -1,15 +1,8 @@
-// A hosted payment page: the shopper leaves for the bank's own form, types the card
-// there, and comes back with a few query parameters.
+// A hosted payment page: the shopper leaves for the bank's own form and comes back with a
+// query string. Our code never sees a card.
 //
-// This is the integration where the merchant's code sees no card data at all, and the
-// contract absorbs it without a special case: `confirm` is handed
-// `{ kind: 'none' }` and answers "I need an action first". The action happens to take over
-// the whole window rather than render in a frame, and the engine already knows how to run
-// that, because a 3-D Secure redirect works the same way.
-//
-// The interesting part is `resume`. The browser comes back carrying `status=success` on a
-// URL the shopper could have typed themselves, and this plugin ignores it entirely: the
-// only thing it believes is the order read back from the bank.
+// The interesting part is `resume`: the browser returns saying `status=success` on a URL
+// the shopper could have typed, so the plugin ignores it and re-reads the order.
 
 import { createHttpClient, type HttpClient } from '@pg/core/http'
 import type {

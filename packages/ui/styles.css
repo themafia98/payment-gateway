@@ -1,17 +1,12 @@
 /**
  * The checkout kit's styles.
  *
- * Plain CSS on purpose. A distributable UI package that needs the consumer to run a
- * particular version of a particular utility framework is not distributable; this ships one
- * small stylesheet and asks for nothing.
- *
- * Everything is themed through `--pg-*` custom properties with defaults, so a host restyles
- * the checkout by setting a handful of variables rather than by fighting specificity:
+ * Plain CSS, so a consumer needs no particular framework. Everything is themed through
+ * `--pg-*` variables with defaults, so restyling is a few declarations:
  *
  *   .pg-root { --pg-accent: #0a7; --pg-radius: 8px; }
  *
- * Every selector is scoped under `.pg-root` and kept to a single class, so nothing here
- * reaches into a host's markup and nothing here is hard to override.
+ * Every rule is one class under `.pg-root`, so nothing here is hard to override.
  */
 
 .pg-root {

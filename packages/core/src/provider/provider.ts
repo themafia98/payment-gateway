@@ -1,6 +1,5 @@
-// The plugin contract. Everything a payment integration must implement, and nothing about
-// how it talks to its backend - JSON, form-urlencoded, two round trips, an error code
-// hidden inside HTTP 200: all of that is the plugin's private business.
+// What a payment plugin implements. Nothing here describes how it talks to its backend -
+// that is the plugin's own business.
 
 import type { ActionEvidence } from '../domain/evidence'
 import type { CreateIntentInput, PaymentIntent } from '../domain/intent'
@@ -12,9 +11,8 @@ import type { ProviderCapabilities } from './capabilities'
 export interface ProviderContext<TConfig> {
   readonly config: TConfig
   /**
-   * The plugin builds its own HTTP client from this (see `@pg/core/http`). Handing over
-   * `fetch` rather than a ready-made client is what lets one plugin speak JSON and the
-   * next form-urlencoded with a business error code inside HTTP 200.
+   * The plugin builds its own HTTP client from this (see `@pg/core/http`). Passing `fetch`
+   * rather than a ready-made client is what lets plugins speak different wire formats.
    */
   readonly fetch: typeof fetch
   /** Injected, so tests get deterministic ids and the core stays free of `crypto`. */
@@ -31,14 +29,12 @@ export interface CallOptions {
 /**
  * The live half of a plugin, created once per configured provider.
  *
- * Contract, verified by the conformance suite: **`confirm` and `resume` never throw**. A
- * network failure, a malformed reply, an unknown status - all of it comes back as
- * `{ status: 'error' }`, because those two carry the payment's outcome and a thrown error
- * would leave the caller unable to say what happened to the money.
+ * Rule, checked by the conformance suite: **`confirm` and `resume` never throw**. Network
+ * failures, bad replies and unknown statuses all come back as `{ status: 'error' }`,
+ * because these two report what happened to the money and an exception cannot.
  *
- * `createIntent`, `getIntent` and `cancel` may reject: they have no result type to put a
- * failure in, and there is no payment yet (or none in flight) to misreport. The engine
- * converts those rejections into an error result on their behalf.
+ * `createIntent`, `getIntent` and `cancel` may reject - the engine turns that into an
+ * error result.
  */
 export interface PaymentProviderInstance {
   createIntent(input: CreateIntentInput, opts: CallOptions): Promise<PaymentIntent>
@@ -51,10 +47,9 @@ export interface PaymentProviderInstance {
   ): Promise<PaymentResult>
 
   /**
-   * Continue after an action finished. Replaces the old, 3-D Secure shaped
-   * `authenticate(challengeId, outcome)`: the plugin - not the UI - decides what the
-   * evidence means, which is why the same method serves a 3-D Secure verdict, a hosted
-   * payment page return and a wallet token alike.
+   * Continue once an action has finished. The plugin, not the UI, decides what the evidence
+   * means - which is why one method serves a 3-D Secure verdict, a return URL and a wallet
+   * token alike.
    */
   resume(intentId: string, evidence: ActionEvidence, opts: CallOptions): Promise<PaymentResult>
 

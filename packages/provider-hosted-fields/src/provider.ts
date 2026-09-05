@@ -1,11 +1,5 @@
-// Hosted card fields: the provider renders the inputs, we render everything around them.
-//
-// This is the integration that exists to keep card data out of the merchant's hands. The
-// shopper types into a frame served by the provider; what comes out is a token, which is
-// worth nothing to anyone but the provider, and that is what this plugin charges.
-//
-// Notice what the plugin does *not* have: any way to read the card. `confirm` is handed
-// `{ kind: 'none' }`, because there is nothing to hand it.
+// Hosted card fields: the provider renders the inputs in its own frame and hands back a
+// token. This plugin has no way to read a card, which is the point.
 
 import { createHttpClient, type HttpClient } from '@pg/core/http'
 import type {

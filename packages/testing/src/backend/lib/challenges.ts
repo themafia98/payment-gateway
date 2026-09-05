@@ -1,10 +1,5 @@
-// Authentication challenges, shared by every facade in front of this backend.
-//
-// The PSP API and the acquiring API present 3-D Secure completely differently - one as a
-// challenge resource with a JSON verdict, the other as a `PaReq` posted to an access
-// control server - but there is only ever one bank behind them, one store of challenges
-// and one rule about what a passing code means. Keeping that here is what makes a payment
-// started through one facade visible through the other.
+// Authentication challenges, shared by every facade. The two APIs present 3-D Secure very
+// differently, but there is one bank behind them and one rule about a passing code.
 
 import { paymentIntents, persistBackend, saveIntent, threeDSChallenges } from '../data'
 import type { PaymentIntent, ThreeDSChallenge } from '../types'

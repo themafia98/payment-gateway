@@ -1,8 +1,5 @@
-// Where a payment action is allowed to render, and the thing that starts it.
-//
-// The host component owns no protocol knowledge at all: it hands the engine a DOM node to
-// render into and reports the result back. Whether that node ends up holding a 3-D Secure
-// challenge, a bank's payment page or the provider's card fields is decided by the plugin.
+// Where an action is allowed to render. The component knows no protocol: it hands the
+// engine a DOM node and reports the result back.
 
 import { useEffect, useRef, type ReactElement } from 'react'
 import { createMount } from '@pg/runtime-browser'

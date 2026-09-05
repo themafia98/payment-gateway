@@ -1,8 +1,5 @@
-// A plugin with no network behind it, scripted per test.
-//
-// Useful for testing the engine itself: what it does when a provider asks for two actions
-// in a row, throws where it promised not to, or reports `processing` forever. Real plugins
-// are exercised against the mock backend instead, through the conformance suite.
+// A plugin with no network behind it, scripted per test. Useful for testing the engine;
+// real plugins are exercised against the mock backend through the conformance suite.
 
 import type {
   CallOptions,

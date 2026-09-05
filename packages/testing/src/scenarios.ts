@@ -1,8 +1,5 @@
-// Named cases, so a test can say what it is exercising instead of quoting a PAN.
-//
-// This is the seam that lets one spec run against every provider: each integration maps
-// these same scenarios onto its own wire format, and the expected outcome is stated once,
-// here, rather than mirrored into each test file.
+// Named cases, so a test can say what it exercises instead of quoting a card number. Each
+// integration maps these onto its own wire format.
 
 import { TEST_CARDS, type CardOutcome } from './test-cards'
 

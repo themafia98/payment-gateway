@@ -1,17 +1,8 @@
-// The checkout engine: one loop, every integration.
+// The payment loop: create an intent, confirm it, run whatever the provider asks for next,
+// and repeat until the payment is settled.
 //
-//   createIntent -> confirm(instrument) -> [ action -> run -> evidence -> resume ]* -> terminal
-//
-// Nothing in this file knows what 3-D Secure is, what a hosted payment page is, or what a
-// wallet is. It knows that a provider may answer "I need an action first", that some
-// runner can execute actions, and that whatever the runner brings back goes straight to
-// the provider for interpretation.
-//
-// One deliberate design point: the loop does not run actions by itself. `pay` stops at
-// `action_pending` and hands control back, because the host usually wants to navigate,
-// render a challenge screen or mount an iframe first. The host then calls
-// `runPendingAction`, which executes it and resumes. That is what keeps a redirect and an
-// inline iframe on the same code path.
+// `pay` stops when a provider asks for an action instead of running it, so the host can
+// navigate or mount a frame first and then call `runPendingAction`.
 
 import type { ActionSurface, PaymentAction } from '../domain/action'
 import type { ActionEvidence } from '../domain/evidence'
@@ -44,8 +35,8 @@ export interface CheckoutSnapshot {
   /**
    * What the current provider can do, once it has loaded. `null` until then.
    *
-   * Meant for rendering and validation - whether to ask for a card at all - never for
-   * deciding what a payment needs. That is what the returned action is for.
+   * For rendering and validation only - whether to ask for a card at all. What a payment
+   * needs is decided by the action the provider returns.
    */
   readonly capabilities: ProviderCapabilities | null
   readonly intent: PaymentIntent | null
@@ -200,8 +191,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
   })
 
   /**
-   * Providers are contractually forbidden from throwing, but a plugin is third-party code:
-   * the engine holds the line so the UI never has to.
+   * Plugins must not throw, but a plugin is third-party code - so the engine catches
+   * anyway and the UI never has to.
    */
   const safely = async (
     operation: () => Promise<PaymentResult>,
@@ -284,8 +275,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
   }
 
   /**
-   * `processing` means the provider accepted the payment but has not settled it. The only
-   * honest way to learn the outcome is to keep asking it - evidence never decides money.
+   * `processing` means accepted but not settled. The only way to learn the outcome is to
+   * keep asking the provider.
    */
   const pollUntilSettled = async (initial: PaymentResult & { status: 'processing' }) => {
     const providerId = providerIdOrThrow()
@@ -458,9 +449,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
 
       emit({ type: 'action_finished', action, evidence })
 
-      // A payment canceled while its action was running is already settled. The runner
-      // still reports back - that is how it stops - and that late report must not drag the
-      // payment back into the flow.
+      // Cancelled while the action was running: the runner still reports back, and that
+      // late report must not restart the payment.
       if (store.getSnapshot().phase === 'canceled') {
         return {
           status: 'error',
@@ -559,10 +549,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
 
       abortController?.abort(reason)
 
-      // The phase moves before the network call, and synchronously. The runner that was
-      // just interrupted reports back with `aborted` evidence within the same tick, which
-      // re-enters here; without the phase already set, that second pass would send a
-      // second cancellation.
+      // Move the phase first, synchronously: the interrupted runner re-enters here in the
+      // same tick, and without it we would send a second cancellation.
       clearPendingCheckout(storage)
       transition('canceled')
       store.set({ action: null })
@@ -570,12 +558,8 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
       if (intent && providerId) {
         const loaded = registry.peek(providerId)
         if (loaded?.provider.capabilities.cancel && loaded.instance.cancel) {
-          // Deliberately without the abort signal: the controller was just aborted to stop
-          // the runner, and reusing it here would kill this request before it is sent -
-          // leaving the shopper with an authorization nobody released.
-          //
-          // Best effort otherwise: they have already walked away, so a failure to cancel
-          // is ours to log, not theirs to see.
+          // No abort signal here: it was just fired to stop the runner, and reusing it
+          // would kill this request before it left. Best effort - the shopper has gone.
           await loaded.instance
             .cancel(intent.id, { idempotencyKey: idempotencyKey ?? uuid() })
             .catch((cause: unknown) => {

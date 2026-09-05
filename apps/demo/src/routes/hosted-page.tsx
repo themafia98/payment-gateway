@@ -4,13 +4,8 @@ import { Button, Input, Section } from '@/shared/ui'
 
 // The bank's payment page, standing in for a different site.
 //
-// In production this is not our code, not our origin and not our problem: the shopper
-// types the card into the bank's form and comes back with a query string. Here it is a
-// route in the same app, because a front-end-only mock cannot answer a request made from
-// somewhere else - and the point being demonstrated is the *flow*, not who serves it.
-//
-// What is faithful is the shape: our checkout never sees this card, and what the browser
-// carries back is a claim the plugin refuses to take at face value.
+// In production this is not our code and not our origin. What is faithful is the shape: the
+// checkout never sees this card, and what comes back is only a claim.
 
 interface HostedPageSearch {
   orderId?: string

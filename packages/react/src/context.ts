@@ -1,6 +1,5 @@
-// Context and hook live apart from the provider component on purpose: a module that
-// exports both a component and other values trips fast-refresh heuristics (and the
-// `react/only-export-components` lint rule that encodes them).
+// Context and hook live apart from the provider component: a module that exports both a
+// component and other values breaks fast refresh.
 
 import { createContext, useContext, type Context } from 'react'
 import type { CheckoutEngine } from '@pg/core'

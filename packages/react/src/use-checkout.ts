@@ -1,8 +1,5 @@
-// React binding for the engine, built on `useSyncExternalStore`.
-//
-// This works only because the engine returns the same snapshot object until something
-// actually changes. A store that allocated on every read would re-render forever here -
-// which is why `createStore` compares field by field before replacing the snapshot.
+// React binding over the engine. It works because the engine returns the same snapshot
+// object until something changes - see the store.
 
 import { useCallback, useSyncExternalStore } from 'react'
 import { isBusyPhase, isSettledPhase, type CheckoutEngine, type CheckoutSnapshot } from '@pg/core'

@@ -1,8 +1,5 @@
-// The checkout as a state machine, as a plain lookup table.
-//
-// It is kept separate from the engine on purpose: this file has no promises, no provider,
-// no storage and no clock, so every legal and illegal transition can be asserted in a
-// plain unit test. The engine is then just "call the provider, feed the machine".
+// The checkout as a table of allowed transitions. No promises, no provider, no clock, so
+// every transition is easy to test.
 
 export type CheckoutPhase =
   | 'idle'

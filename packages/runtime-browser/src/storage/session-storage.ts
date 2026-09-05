@@ -1,11 +1,5 @@
-// `sessionStorage`, and not `localStorage`, on purpose: a payment left in flight belongs
-// to this tab and this visit. It also has to survive a full-page redirect to the bank and
-// back, which rules out memory.
-//
-// Every call is guarded. Storage throws outright in a few real situations - Safari private
-// mode, a browser configured to block site data, a page embedded where storage is
-// partitioned - and a payment must not fail because a note could not be written. Losing
-// the note only costs redirect recovery.
+// sessionStorage, not localStorage: a payment in flight belongs to this tab and this
+// visit. Every call is guarded, because storage throws outright in some private modes.
 
 import type { StorageAdapter } from '@pg/core'
 

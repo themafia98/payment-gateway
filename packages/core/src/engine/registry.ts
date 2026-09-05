@@ -1,9 +1,5 @@
-// Which plugins this checkout can use, and how they get loaded.
-//
-// A registration is a config plus a loader, and the loader may be synchronous (`() =>
-// pspProvider`) or a dynamic import (`() => import('@pg/provider-acquiring')`). Both go
-// through the same code path, so making a provider lazy is a one-line change in the host
-// and invisible to everything else.
+// Which plugins this checkout can use. A registration is a config plus a loader, and the
+// loader can be a direct reference or a dynamic import - both take the same path.
 
 import type {
   PaymentProvider,
@@ -23,10 +19,8 @@ export interface ProviderRegistration<TConfig = unknown> {
 }
 
 /**
- * Where plugins announce the config they need.
- *
- * A plugin package augments this interface, so the host gets its id and its config
- * checked without importing any of its code:
+ * Where plugins announce the config they need. A plugin augments this interface, so a host
+ * gets its id and config checked without importing the plugin's code:
  *
  * ```ts
  * declare module '@pg/core' {
@@ -35,10 +29,6 @@ export interface ProviderRegistration<TConfig = unknown> {
  *   }
  * }
  * ```
- *
- * The same trick the router uses for its own type registration. It is what lets a
- * provider be a `() => import(...)` - loaded only when it is used, and still fully typed
- * at the point where it is configured.
  */
 export interface ProviderConfigRegistry {}
 
@@ -47,11 +37,8 @@ export type KnownProviderId = keyof ProviderConfigRegistry & string
 export type ConfigOf<Id extends KnownProviderId> = ProviderConfigRegistry[Id]
 
 /**
- * Declares one provider for `createCheckout`.
- *
- * Written as a function rather than a type on the array so the id and the config are
- * checked against each other: a typo in the id, a missing field or one that belongs to a
- * different provider all fail here, at the composition root, rather than at the till.
+ * Declares one provider for `createCheckout`. A function rather than a type on the array,
+ * so the id and the config are checked against each other right here.
  */
 export const defineProvider = <Id extends KnownProviderId>(registration: {
   readonly id: Id

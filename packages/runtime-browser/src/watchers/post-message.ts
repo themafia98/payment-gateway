@@ -1,16 +1,6 @@
-// The single place in the whole checkout that listens to `window.message`.
-//
-// Three checks, all of them required:
-//   1. `event.origin` is exactly the origin the provider declared - not a prefix, not a
-//      substring, and never `'*'`.
-//   2. the message type matches, so an unrelated widget on the same origin cannot answer
-//      for the bank.
-//   3. the action id matches, so a stale message from a previous attempt cannot settle
-//      the current one. (This is the check that is easiest to forget and the reason a
-//      correlation id exists on every action.)
-//
-// Even after all three pass, what comes back is *evidence*, not a verdict: the plugin
-// decides what it means, and money is only ever confirmed by re-reading the intent.
+// The only `message` listener in the checkout. Three checks: the origin the provider
+// declared, the message type, and the action id. The last one stops a stale message from
+// an earlier attempt settling the current payment.
 
 import type { ActionEvidence } from '@pg/core'
 

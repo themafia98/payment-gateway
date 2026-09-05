@@ -1,14 +1,9 @@
-// A second facade over the same bank, in the shape acquirers actually ship.
+// A second facade over the same backend, shaped the way acquirers actually ship: form
+// bodies, numeric statuses, two calls to start a payment, and business errors inside an
+// HTTP 200.
 //
-// Everything about the wire is different from the PSP API next door: form-urlencoded
-// bodies, credentials repeated in every call, numeric statuses, ISO-4217 numeric currency
-// codes, two round trips to start a payment, and - the part that catches everyone out -
-// business failures returned as HTTP 200 with a non-zero `errorCode`.
-//
-// What is *not* different is the money. `register.do` writes into the same intent store
-// the PSP facade uses, and `getOrderStatusExtended.do` projects the same status rather
-// than keeping its own. A payment made through one facade is visible through the other,
-// which is what makes this a second protocol rather than a second system.
+// The money is not separate. `register.do` writes into the same intent store as the PSP
+// facade, and order status is projected from it rather than kept twice.
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'
@@ -38,11 +33,7 @@ const PASSWORD = 'demo'
 /** ISO-4217 numeric codes, because this API has never heard of "USD". */
 const CURRENCY_NUMBERS: Record<string, string> = { USD: '840', EUR: '978', GBP: '826' }
 
-/**
- * The bank's order statuses. Two of them collapse on the way into the domain - there is no
- * `authorized` and no `refunded` in a checkout that shows neither - and losing them here
- * is the right outcome: the port speaks the domain's vocabulary, not the bank's.
- */
+/** The bank's order statuses. Two collapse into one on the way into the domain. */
 const ORDER_STATUS: Record<PaymentIntentStatus, number> = {
   requires_payment_method: 0,
   processing: 1,
@@ -95,8 +86,7 @@ export const acquiringHandlers: HttpHandler[] = [
     const plan = plansById.get(planId)
     if (!plan) return bankError('1', 'Unknown plan.')
 
-    // `orderNumber` is this API's idempotency key: it travels in the body, not a header,
-    // and re-registering the same one returns the original order.
+    // This API's idempotency key lives in the body, not a header.
     const orderNumber = field(form, 'orderNumber')
     const existingId = orderNumber ? idempotencyKeys.get(orderNumber) : undefined
     const existing = existingId ? paymentIntents.get(existingId) : undefined

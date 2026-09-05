@@ -1,8 +1,5 @@
-// The wallet facade. Short, because a wallet is mostly someone else's screen.
-//
-// The token the wallet hands over stands for a card it already holds. Which card decides
-// the outcome, exactly as it does in every other facade here - a wallet is a way of
-// presenting a card, not a way of avoiding one.
+// The wallet facade. Short, because a wallet is mostly someone else's screen. The token
+// stands for a card, and that card decides the outcome.
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'

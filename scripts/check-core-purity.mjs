@@ -1,12 +1,7 @@
-// The core is meant to run in a browser, in a Node test and in a worker. TypeScript
-// cannot enforce that on its own: the DOM lib is needed for `fetch` and `Response`, and it
-// drags in `window` and friends along with them. So the rule is checked here instead.
-//
-// Two rules, both mechanical:
-//   1. no browser-only globals inside packages/core
-//   2. no bundler-specific environment access (`import.meta.env`)
-//
-// Runners that legitimately touch the DOM live in @pg/runtime-browser, which is exempt.
+// The core has to run in a browser, in a Node test and in a worker. TypeScript cannot
+// check that for us: the DOM lib is needed for `fetch`, and it brings `window` along with
+// it. So the rule is checked here - no browser-only globals, no bundler env - and anything
+// that genuinely needs the DOM lives in @pg/runtime-browser.
 
 import { readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'

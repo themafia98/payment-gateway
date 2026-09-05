@@ -1,14 +1,10 @@
-// Composition root for payments: the single place where the engine meets concrete
-// plugins, a browser runtime and this app's own URLs.
-//
-// Everything the core deliberately refuses to guess is decided here - where the API lives,
-// which origin the bank runs on, and what the absolute return URL is under this
-// deployment's base path.
+// Composition root for payments: where the engine meets the plugins, the browser runtime
+// and this app's own URLs.
 
 import { createCheckout, defineProvider, type CheckoutEngine, type Logger } from '@pg/core'
 import { createBrowserRuntime } from '@pg/runtime-browser'
-// Types only: importing them registers the provider's config with @pg/core's type system
-// and is erased at build time, so the plugin's code still arrives through the import below.
+// Type imports only: they register the plugin's config with @pg/core and are erased at
+// build time, so the code still arrives through the dynamic import below.
 import type { PspConfig } from '@pg/provider-psp'
 import type { AcquiringConfig } from '@pg/provider-acquiring'
 import type { HostedPageConfig } from '@pg/provider-hpp'
@@ -39,8 +35,7 @@ const pspConfig: PspConfig = {
   acsOrigin: ACS_ORIGIN,
 }
 
-// A different bank, a different protocol, and credentials that belong in a body rather
-// than a header. None of that is visible past this object.
+// A different bank, a different protocol. None of it is visible past this object.
 const acquiringConfig: AcquiringConfig = {
   baseUrl: `${BASE_URL}acquiring`,
   userName: 'demo-api',
@@ -54,8 +49,8 @@ const hostedPageConfig: HostedPageConfig = {
   pageUrl: `${BASE_URL}hosted-page`,
 }
 
-// The card is typed inside the provider's frame. In production its origin is not ours;
-// here it is, because a front-end-only mock cannot serve a second one.
+// The card is typed inside the provider's frame. In production that frame is on another
+// origin; here it is not, because a front-end-only mock cannot serve a second one.
 const hostedFieldsConfig: HostedFieldsConfig = {
   baseUrl: `${BASE_URL}api`,
   fieldsUrl: `${BASE_URL}hosted-fields`,
@@ -70,14 +65,13 @@ const walletConfig: WalletConfig = {
   merchantName: 'Demo Store',
 }
 
-// The return URL is built from BASE_URL, so it stays correct when the app is served from
-// a sub-path. Hand-assembling it from `window.location.origin` is how that breaks.
+// Built from BASE_URL, so it stays right when the app is served from a sub-path.
 const runtime = createBrowserRuntime({
   returnPath: `${BASE_URL}payment/return`,
   redirect: { frameTitle: () => '3-D Secure authentication' },
   collectFields: { frameTitle: () => 'Card details' },
-  // How to drive the wallet once its script has loaded. The runner knows nothing about
-  // this SDK; this adapter is the whole of the coupling, and it lives in the app.
+  // How to drive the wallet once its script loads. The runner knows nothing about this
+  // SDK - this adapter is the whole coupling, and it lives in the app.
   sdk: {
     adapters: [
       {
@@ -97,10 +91,8 @@ export const checkout: CheckoutEngine = createCheckout({
     defineProvider({
       id: 'psp',
       config: pspConfig,
-      // A dynamic import, so the plugin is a chunk of its own and a second provider costs
-      // this app nothing until someone picks it. Eager because this one is the default:
-      // loading it at boot is what makes a missing runner a startup error rather than a
-      // surprise halfway through a payment.
+      // A dynamic import, so each plugin is its own chunk. Eager because this one is the
+      // default: loading it at boot turns a missing runner into a startup error.
       load: () => import('@pg/provider-psp'),
       eager: true,
     }),

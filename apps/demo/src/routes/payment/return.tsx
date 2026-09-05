@@ -1,19 +1,11 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Center } from '@/shared/ui'
 
-// Where a provider sends the browser back after taking over the whole window.
+// Where a provider sends the browser back after taking over the window. Not a 3-D Secure
+// route: a hosted payment page returns here too.
 //
-// Not a 3-D Secure route, despite where it started: a hosted payment page returns here
-// too, and so would anything else that needs the browser to leave. Which is the point -
-// the route has no idea what the shopper was just doing.
-//
-// The reload wiped every bit of React state, so the payment is picked up from what the
-// engine wrote down before it left: which provider, which intent, which action. The query
-// string is handed over as-is - the plugin decides what `transStatus=Y` means, and the
-// engine re-reads the intent rather than believing it.
-//
-// This runs in the loader, not an effect: the plugin may still need to be fetched, and
-// resuming before it has loaded would be a race.
+// This runs in the loader rather than an effect - a lazily loaded plugin may still be on
+// its way, and resuming before it arrives would be a race.
 
 interface ReturnSearch {
   intentId?: string

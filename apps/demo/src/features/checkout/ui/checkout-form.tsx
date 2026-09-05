@@ -31,9 +31,8 @@ interface CheckoutFormProps {
 export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
   const { engine, capabilities, action } = useCheckout()
 
-  // Whether this provider wants a card at all. A hosted payment page collects it on the
-  // bank's own site; asking for it here would be pointless, and the fields would go
-  // nowhere. Until the plugin has loaded, assume the common case.
+  // Whether this provider wants a card at all - a hosted page collects it elsewhere.
+  // Until the plugin has loaded, assume the common case.
   const collectsCard = capabilities?.instruments.includes('card') ?? true
 
   const methods = useForm<CheckoutFormInput, unknown, CheckoutFormSchema>({
@@ -65,14 +64,12 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
 
     setMethod(form.paymentMethod)
 
-    // The form hands over card details and a plan; which provider takes them, whether the
-    // card is even sent to us, and what authentication follows are all decided behind the
-    // engine. Nothing here changes when the integration does.
+    // The form hands over a plan and whatever it collected. Which provider takes it, and
+    // what happens next, is decided behind the engine.
     engine
       .pay({
         input: { planId: form.planId },
-        // No card is a perfectly good instrument: it is what a provider that collects one
-        // elsewhere expects to be handed.
+        // No card is a normal instrument: it is what a hosted provider expects.
         instrument: form.card ? { kind: 'card', ...form.card } : { kind: 'none' },
       })
       .then((result) => {
@@ -82,13 +79,11 @@ export const CheckoutForm = ({ plans }: CheckoutFormProps) => {
         }
 
         if (result.status === 'requires_action') {
-          // Where the action happens decides where the shopper goes, and that is the only
-          // thing this form needs to know about it.
+          // Where the action renders is all this form needs to know about it.
           const { surface } = result.action
 
-          // Nothing of ours to render: a redirect leaves by itself, and a wallet draws its
-          // own sheet over the page. Either way, staying here is right - a screen in
-          // between would only flash, and a decline should land on the form.
+          // Nothing of ours to render: a redirect leaves by itself, a wallet draws its own
+          // sheet. Staying here also means a decline lands back on the form.
           if (surface === 'top' || surface === 'none') {
             void engine.runPendingAction().then(handleSettled)
             return

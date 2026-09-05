@@ -1,6 +1,5 @@
-// The payment as the domain sees it. Providers speak wildly different dialects - JSON
-// intents, numeric order statuses, form-encoded acquirer replies - and every one of them
-// is mapped down to this vocabulary by its own plugin.
+// The payment as the domain sees it. Each plugin maps its provider's own status names
+// onto this.
 
 import type { PaymentAction } from './action'
 

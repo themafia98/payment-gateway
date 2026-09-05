@@ -1,13 +1,6 @@
-// A third facade: the merchant never sees a card at all.
-//
-// The shopper is sent to the bank's own payment page, types the card there, and comes
-// back with a handful of query parameters. Those parameters are the least trustworthy
-// thing in the whole checkout - they arrive through the shopper's browser, on a URL
-// anybody can edit - so the only endpoint that matters here is the one that reads the
-// order back from the bank.
-//
-// Same intent store as the other two facades. The card, when it is typed, is judged by
-// the same table of test cards.
+// A third facade: the merchant never sees a card. The shopper pays on the bank's page and
+// returns with query parameters, which is why the only endpoint that matters is the one
+// that reads the order back.
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'

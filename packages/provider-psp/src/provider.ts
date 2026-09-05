@@ -1,15 +1,8 @@
-// A Stripe-shaped PSP: JSON over HTTPS, string statuses, an idempotency header, and
-// 3-D Secure 2 run as a challenge inside an iframe.
+// A Stripe-shaped provider: JSON, an idempotency header, and 3-D Secure 2 as a challenge
+// in a frame.
 //
-// Everything specific to that dialect is in this file. Two pieces used to live elsewhere
-// and are worth pointing out, because moving them here is the whole point of the plugin
-// contract:
-//
-//   * building the `CReq` and posting it to the ACS used to be a React component
-//   * the rule "transStatus Y means approved" used to be a line in that component
-//
-// Both are protocol details of *this* integration. A bank doing 3-D Secure 1 with a
-// `PaReq` reaches the identical checkout UI without a single branch in it.
+// Two things used to live in a React component and belong here: building the `CReq`, and
+// the rule that `transStatus === 'Y'` means approved. Both are this protocol's details.
 
 import { createHttpClient, HttpError, type ApiErrorPayload, type HttpClient } from '@pg/core/http'
 import type {

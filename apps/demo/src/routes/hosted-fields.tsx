@@ -1,16 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-// The provider's card fields, standing in for a frame served from the provider's own
-// origin.
+// The provider's card fields, standing in for a frame served from the provider's origin.
 //
-// In production this document is not ours: different origin, different deploy, and the
-// checkout could not read it if it tried. Here it is a route in the same app, because a
-// front-end-only mock cannot serve a second origin - so what is demonstrated is the
-// mechanism rather than the isolation.
-//
-// The mechanism is the point either way. The card is typed here, exchanged for a token
-// here, and only the token is posted out. Nothing upstream ever holds a card number.
+// In production this page is not ours and not on our origin; here it is a route in the same
+// app, because a front-end-only mock cannot serve a second origin. The mechanism is the
+// same either way: the card is typed here, swapped for a token here, and only the token
+// leaves.
 
 interface HostedFieldsSearch {
   actionId?: string

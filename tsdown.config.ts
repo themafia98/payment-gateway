@@ -2,11 +2,10 @@ import { defineConfig } from 'tsdown'
 
 // One build for every package under packages/*.
 //
-// `unbundle` keeps the output 1:1 with the sources, so stack traces stay readable and
-// tree-shaking is honest. `devExports` writes an extra `@pg/source` condition into each
-// exports map: inside this repo the apps resolve through it and see TypeScript sources,
-// while a published consumer falls through to `dist`. That way dev and prod take the same
-// exports map instead of a path alias that hides mistakes in it.
+// `unbundle` keeps the output 1:1 with the sources, so stack traces stay readable.
+// `devExports` adds a `@pg/source` condition to each exports map: inside this repo the apps
+// resolve through it to TypeScript sources, and a published consumer falls through to
+// `dist`. Both take the same exports map, so mistakes in it show up here.
 export default defineConfig({
   workspace: 'packages/*',
   entry: ['src/index.ts', 'src/*/index.ts'],

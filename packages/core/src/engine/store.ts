@@ -1,10 +1,7 @@
-// A minimal observable container. Deliberately not zustand, not immer, not signals: the
-// core has no framework, and this is the whole surface a framework binding needs.
+// A tiny observable store.
 //
-// One rule matters above all: `getSnapshot()` must return the *same object* until a real
-// transition happens. React's `useSyncExternalStore` compares snapshots by identity, so a
-// container that allocates on read spins forever. `set` therefore compares field by field
-// and returns early when nothing actually changed.
+// `getSnapshot()` returns the same object until something really changes. React compares
+// snapshots by identity, so a new object on every read would re-render forever.
 
 import type { Logger } from '../support/logger'
 

@@ -1,13 +1,8 @@
 // The contract every payment plugin must satisfy, as a runnable test suite.
 //
-// A plugin author writes six lines - here is my provider, its config, its backend, and the
-// data that produces each outcome - and gets back a description of everything the engine,
-// the UI and the shopper are entitled to assume. The point is that the assumptions live in
-// one place instead of being rediscovered, differently, by each integration.
-//
-// The cases are named after outcomes rather than card numbers, because a bank plugin has
-// no card numbers to speak of: what "decline" means is the plugin's business, and the
-// suite only insists that it be reachable and reported honestly.
+// A plugin author says what their provider is, what backend it talks to and what data
+// produces each outcome, and gets back everything the engine and the UI are allowed to
+// assume. Cases are named after outcomes, not card numbers: a bank plugin has none.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { setupServer } from 'msw/node'
@@ -94,8 +89,7 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       expect(capabilities.instruments.length).toBeGreaterThan(0)
       expect(capabilities.actions.length).toBeGreaterThan(0)
 
-      // A capability the implementation cannot honour is worse than one it never claimed:
-      // the engine trusts this to decide whether cancelling is even offered.
+      // The engine trusts this to decide whether cancelling is even offered.
       if (capabilities.cancel) expect(provider.cancel).toBeTypeOf('function')
     })
 
@@ -126,8 +120,7 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       const { result } = await startPayment('decline')
 
       expect(result.status).toBe('declined')
-      // Not "Unexpected status declined", and not a message this plugin made up: whatever
-      // the shopper is told here is what they will read to their bank on the phone.
+      // Whatever the shopper is told here is what they will read out to their bank.
       expect(result.status === 'declined' && result.error.message).toBe(suite.declineMessage)
     })
 
@@ -176,8 +169,7 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       const forged = suite.evidenceFor({ ...result.action, id: 'not-a-real-action' }, 'pass')
       const settled = await provider.resume(intent.id, forged, options(nextKey()))
 
-      // Anything but success. A plugin that approves on unrecognised evidence is a plugin
-      // that can be talked into approving anything.
+      // Anything but success: a plugin that approves unknown evidence approves anything.
       expect(settled.status).not.toBe('succeeded')
     })
 
@@ -197,8 +189,7 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
 
       const { result } = await startPayment('processing')
 
-      // Not succeeded, and not declined either: saying either one here would be a lie the
-      // shopper acts on. The engine polls from this state.
+      // Neither succeeded nor declined - the engine polls from this state.
       expect(result.status).toBe('processing')
     })
 

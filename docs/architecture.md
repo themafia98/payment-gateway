@@ -2,22 +2,22 @@
 
 > Русская версия: [architecture.ru.md](./architecture.ru.md)
 
-## The one idea
+## The idea
 
-A checkout has two kinds of knowledge in it, and they age at completely different rates.
+A checkout holds two kinds of knowledge, and they change at very different speeds.
 
-One kind is what a payment _is_: it gets created, an instrument is presented, sometimes
-something else has to happen before it settles, and in the end it either succeeded, was
-declined, or broke. That has not changed in decades.
+The first is what a payment is. It is created. An instrument is presented. Sometimes another
+step is needed before it can settle. In the end it succeeded, was declined, or failed. This
+has been true for decades.
 
-The other kind is how one particular provider says all that. JSON or form-encoded. A string
-status or a number. An error in the HTTP status or inside a successful response. A challenge
-in a frame, a redirect to a bank's own page, fields the provider renders itself, a wallet on
-the shopper's phone. That changes constantly, differs between providers, and is the reason
-"add a second payment provider" so often means rewriting a checkout.
+The second is how one provider describes all of that. JSON or form-encoded. A status as a
+word or as a number. An error in the HTTP status code, or inside a successful response. A
+challenge in a frame, a redirect to the bank's page, fields the provider renders itself, a
+wallet on the phone. This part changes often and differs between providers. It is why
+"add a second payment provider" usually means rewriting a checkout.
 
-Everything here follows from keeping those apart. The first kind lives in `@pg/core` and is
-written once. The second lives in plugins, one per provider, and the core cannot see it.
+So the two are kept apart. The first lives in `@pg/core` and is written once. The second
+lives in plugins, one per provider, and the core cannot see it.
 
 ## One loop, five integrations
 
@@ -25,8 +25,8 @@ written once. The second lives in plugins, one per provider, and the core cannot
 createIntent → confirm(instrument) → [ action → run → evidence → resume ]* → terminal
 ```
 
-That is the whole engine. What differs between integrations is only **which action a
-provider returned** and **which runner executes it**:
+That is the whole engine. Between integrations, only two things differ: **which action the
+provider returned** and **which runner executes it**.
 
 | Integration        | instrument | first action                    | completes via  |
 | ------------------ | ---------- | ------------------------------- | -------------- |
@@ -36,9 +36,9 @@ provider returned** and **which runner executes it**:
 | Hosted card fields | `none`     | `collect_fields` in a frame     | `post_message` |
 | Wallet             | `none`     | `sdk_handoff` to another script | `sdk_callback` |
 
-Note the last three rows: nothing is collected on our side at all. That is not a special
-case in the engine — `{ kind: 'none' }` is a perfectly ordinary instrument, and a provider
-that needs the card elsewhere simply asks for an action first.
+In the last three rows we collect nothing at all. The engine has no special case for that:
+`{ kind: 'none' }` is a normal instrument, and a provider that needs the card somewhere else
+just asks for an action first.
 
 ```mermaid
 flowchart LR
@@ -50,66 +50,56 @@ flowchart LR
     RN -->|"frame / redirect / script"| BANK["provider's pages"]
 ```
 
-## The packages, and why the seams are there
+## The packages
 
 **`@pg/core`** — the domain, the plugin contract, the engine. No React, no DOM, no bundler
-environment. It compiles for a browser, a Node test and a worker alike, and `npm run purity`
-fails the build if a browser-only global appears in it. That is not fastidiousness: it is
-what lets the entire payment loop, plugins included, run in a plain unit test with scripted
-runners standing in for a browser.
+environment. It compiles for a browser, a Node test and a worker, and `npm run purity` fails
+the build if a browser-only global gets in. That is what lets the whole payment loop run in
+a unit test, with scripted runners in place of a browser.
 
-**`@pg/runtime-browser`** — everything the engine needs that only a browser has. The runners
-that submit forms into sandboxed frames, take over the window, load a third-party script,
-and the single `message` listener in the whole checkout. Replace this package and the engine
-runs somewhere else entirely.
+**`@pg/runtime-browser`** — the parts that need a browser: runners that post forms into
+sandboxed frames, take over the window or load a third-party script, plus the single
+`message` listener in the checkout.
 
-**`@pg/react`** — hooks over the engine's snapshot, and `<PaymentActionHost/>`: a mount
-point that hands the engine a DOM node and reports the result back. It knows no protocol.
-Whether that node ends up holding a 3-D Secure challenge or a provider's card fields is the
-plugin's decision.
+**`@pg/react`** — hooks over the engine's snapshot, and `<PaymentActionHost/>`, a mount point
+that gives the engine a DOM node and reports the result back. It knows no protocol.
 
-**`@pg/ui`** — the visual kit. Plain CSS, themed through `--pg-*` variables, no framework
-asked of the consumer.
+**`@pg/ui`** — the visual kit. Plain CSS, themed with `--pg-*` variables.
 
-**`@pg/provider-*`** — one per integration. This is where a protocol lives, and the only
-place it may.
+**`@pg/provider-*`** — one per integration. A protocol lives here and only here.
 
-**`@pg/testing`** and **`@pg/conformance`** — the mock backend and the contract suite every
-plugin has to pass.
+**`@pg/testing`** and **`@pg/conformance`** — the mock backend, and the contract suite every
+plugin must pass.
 
-## What the engine actually does
+## What the engine does
 
-Beyond the loop, the engine is responsible for a handful of things that are easy to get
-wrong once and then get wrong forever.
+Besides the loop, the engine handles a few things that are easy to get wrong.
 
-**It stops at the action.** `pay` returns as soon as a provider asks for something, without
-running it, because the host usually wants to navigate, mount a frame or show a screen
-first. The host then calls `runPendingAction`. That single decision is what puts a full-page
-redirect and an inline frame on one code path.
+**It stops at the action.** `pay` returns as soon as a provider asks for something, and does
+not run it. The host usually wants to navigate or mount a frame first, and then calls
+`runPendingAction`. This is what puts a redirect and an inline frame on the same code path.
 
-**It writes down what a redirect would destroy.** Before an action runs — not after — the
-provider id, intent id and action id go into session storage, because a top-level redirect
-ends the page the instant the form submits. `hydrate()` picks the payment back up
-afterwards, and awaits the plugin's lazy import before resuming, since the plugin may not be
-loaded yet on a freshly restored page.
+**It saves what a redirect would destroy.** Before the action runs, the provider id, intent
+id and action id go into session storage, because a full-page redirect ends the page as soon
+as the form is submitted. `hydrate()` picks the payment up afterwards. It waits for the
+plugin's lazy import first, because on a fresh page the plugin may not be loaded yet.
 
-**It does not believe evidence.** What a runner brings back proves where the browser has
-been, not what happened to the money. Anything short of a terminal answer is re-read from
-the provider before the shopper is told anything.
+**It does not trust evidence.** What a runner brings back shows where the browser has been,
+not what happened to the money. If the answer is not final, the intent is read again from the
+provider before the shopper is told anything.
 
-**It refuses to loop.** A provider that answers every resume with another action is stopped
-after four.
+**It stops endless loops.** A provider that answers every resume with another action is cut
+off after four.
 
-**It never lets a plugin throw at the UI.** Plugins are contractually forbidden from
-throwing out of `confirm` and `resume`, and the engine holds that line anyway, because a
-plugin is third-party code.
+**It catches plugin errors.** Plugins must not throw out of `confirm` and `resume`, but a
+plugin is third-party code, so the engine catches anyway.
 
-The state machine is a lookup table in its own file with no promises, no provider and no
-clock in it, so every legal and illegal transition is a unit test.
+The state machine is a table of transitions in its own file. It has no promises, no provider
+and no clock, so every allowed and forbidden transition is a small unit test.
 
 ## How a payment flows
 
-Card, with an authentication step in a frame:
+A card, with an authentication step in a frame:
 
 ```mermaid
 sequenceDiagram
@@ -119,14 +109,14 @@ sequenceDiagram
     participant P as Plugin
     participant B as Bank
 
-    S->>F: submit card
+    S->>F: submits the card
     F->>E: pay({ input, instrument })
     E->>P: createIntent / confirm
     P->>B: HTTP
-    B-->>P: needs authentication
+    B-->>P: authentication needed
     P-->>E: requires_action + action
     E-->>F: requires_action
-    F->>F: navigate to the action screen
+    F->>F: goes to the action screen
     F->>E: runPendingAction({ mount })
     E->>B: form posted into a sandboxed frame
     S->>B: one-time code
@@ -138,7 +128,7 @@ sequenceDiagram
     E-->>F: succeeded
 ```
 
-Hosted payment page, where the shopper leaves entirely:
+A hosted payment page, where the shopper leaves the site:
 
 ```mermaid
 sequenceDiagram
@@ -149,19 +139,19 @@ sequenceDiagram
 
     E->>P: confirm({ kind: 'none' })
     P-->>E: requires_action (redirect, whole window)
-    E->>E: persist { providerId, intentId, actionId }
-    E->>B: browser leaves
-    S->>B: pays on the bank's own page
+    E->>E: saves { providerId, intentId, actionId }
+    E->>B: the browser leaves
+    S->>B: pays on the bank's page
     B-->>E: returns to /payment/return?status=success
-    E->>E: hydrate() - reads what was persisted
+    E->>E: hydrate() reads what was saved
     E->>P: resume({ via: 'return_url', params })
     P->>P: ignores params.status
-    P->>B: reads the order back
-    B-->>P: the actual outcome
+    P->>B: reads the order again
+    B-->>P: the real outcome
 ```
 
-The second diagram is the one worth remembering. `status=success` arrived on a URL the
-shopper could have typed by hand, and it decides nothing.
+The second diagram is the one to remember. `status=success` came back on a URL the shopper
+could have typed by hand, so it decides nothing.
 
 ## Where things live
 
@@ -170,7 +160,7 @@ packages/
   core/                  domain, contract, engine, http. No React, no DOM
     src/domain/          intent, instrument, action, evidence, result
     src/provider/        the plugin contract and capabilities
-    src/engine/          machine, store, runners registry, provider registry
+    src/engine/          machine, store, runner registry, provider registry
   runtime-browser/       runners, watchers, session storage
   react/                 hooks and <PaymentActionHost/>
   ui/                    components and one themable stylesheet
@@ -180,33 +170,30 @@ packages/
 
 apps/
   demo/                  a checkout that uses all of the above
-    src/app/providers/   the composition root: engine, plugins, runtime
+    src/app/providers/   composition root: engine, plugins, runtime
     src/features/        the checkout form, the provider switch, receipts
     src/routes/          pages, including the action screen and the return route
     e2e/                 one spec file, run against every integration
   bank-sim/              the https bank: both 3-D Secure protocols
 ```
 
-The demo keeps Feature-Sliced Design and its own zustand store. The store is a
-_projection_ now: it subscribes to the engine and nothing writes back, because two stores
-that can both change a payment will eventually disagree about whether the shopper has been
-charged.
+The demo keeps Feature-Sliced Design and its own zustand store. The store is now a copy of
+engine state: it subscribes, and never writes back. Two stores that can both change a payment
+would sooner or later disagree about whether the shopper was charged.
 
-## What is deliberately absent
+## What is left out on purpose
 
 **No `capture` or `refund`.** The contract has no verb for them and no screen shows them.
-Adding them to mirror a provider's API would be exactly the leak the contract exists to
-prevent.
 
-**No `authorized` or `refunded` status.** The acquiring bank reports both; they collapse
-into `processing` and `canceled` on the way in. Lossy on purpose — the port speaks the
-domain's vocabulary, not the bank's.
+**No `authorized` or `refunded` status.** The acquiring bank reports both. They are mapped to
+`processing` and `canceled`. That loses information on purpose: the domain speaks its own
+vocabulary, not the bank's.
 
-**No sandbox around plugin code.** A plugin runs with the page's full privileges. Trusting
-a plugin means trusting its code, and the README says so rather than implying otherwise.
+**No sandbox around plugin code.** A plugin runs with the page's full rights. Trusting a
+plugin means trusting its code.
 
-**No webhooks or server.** There is no backend to receive them; `poll` covers asynchronous
-settlement instead.
+**No webhooks and no server.** There is no backend to receive them. `poll` covers payments
+that settle later.
 
 ## Further reading
 

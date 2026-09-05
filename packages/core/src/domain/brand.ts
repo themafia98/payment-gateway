@@ -1,6 +1,5 @@
-// Nominal typing on top of `string`. A `CardNumber` is a string at runtime, but the
-// compiler refuses to accept a raw string where one is expected, so validation cannot be
-// skipped by accident. Brands are minted once, at the edge that validates the value.
+// Nominal types over `string`: a `CardNumber` is a string at runtime, but the compiler
+// will not accept a raw one, so validation cannot be skipped by accident.
 
 declare const __brand: unique symbol
 

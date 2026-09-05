@@ -4,16 +4,11 @@ import { create } from 'zustand/react'
 import type { StateCreator } from 'zustand'
 import type { CheckoutState, CheckoutStore } from './checkout.types'
 
-// The app's own view of the payment, kept in the state manager the rest of this app uses.
+// The app's own view of the payment.
 //
-// It is a *projection*: the engine is the source of truth, `connectCheckoutStore` copies
-// its snapshot in, and nothing here writes back. That direction is the whole point -
-// two stores that can both change the payment would eventually disagree about whether the
-// shopper has been charged.
-//
-// Mirroring engine state into a host store like this is what a real integration does: the
-// checkout keeps its own state machine, and the surrounding app keeps whatever it already
-// had, subscribing to stay in step.
+// It is a projection: the engine is the source of truth, `connectCheckoutStore` copies its
+// snapshot in, and nothing here writes back. Two stores that can both change a payment
+// would eventually disagree about whether the shopper was charged.
 
 const initialState: CheckoutState = {
   status: 'idle',

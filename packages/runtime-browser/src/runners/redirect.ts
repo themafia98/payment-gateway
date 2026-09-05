@@ -1,15 +1,8 @@
-// Sends the browser to the provider, on whichever surface the host chose.
+// Sends the browser to the provider: into a sandboxed frame, or in the whole window. The
+// form post is the same either way; only where it lands and how the answer returns differ.
 //
-// One runner covers both surfaces because they are the same operation - build a form, post
-// it - differing only in where the result lands and how it comes back:
-//
-//   iframe  the form targets a sandboxed frame inside our page; the provider reports back
-//           with postMessage, and the shopper never leaves the checkout
-//   top     the form targets the whole window; the page is destroyed, the provider sends
-//           the browser to `returnUrl`, and the evidence is read from the query string
-//           after reload (see `hydrate` on the engine)
-//
-// A GET action skips the form entirely and just navigates.
+//   iframe  the provider reports back with postMessage, and the shopper stays here
+//   top     the page is destroyed, and the answer is read from the return URL afterwards
 
 import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@pg/core'
 import { awaitPostMessage } from '../watchers/post-message'
@@ -20,9 +13,8 @@ export interface RedirectRunnerOptions {
   /** Accessible name for the frame the provider is rendered in. */
   readonly frameTitle?: (action: RedirectAction) => string
   /**
-   * Sandbox tokens for that frame. `allow-same-origin` is present because the provider's
-   * page needs its own cookies and storage to work at all; it is safe here only because
-   * the frame is cross-origin. Top navigation and popups stay denied deliberately.
+   * Sandbox tokens for that frame. `allow-same-origin` is needed because the bank's page
+   * uses its own cookies; top navigation and popups stay denied.
    */
   readonly sandbox?: string
 }
@@ -40,8 +32,7 @@ const buildForm = (action: RedirectAction, target: string, returnUrl: string): H
   form.hidden = true
 
   const fields = { ...action.fields }
-  // Only the host knows its own base path, so the absolute return URL is filled in here
-  // rather than by the provider.
+  // Only the host knows its own base path, so it fills in the return URL.
   if (action.returnUrlField) fields[action.returnUrlField] = returnUrl
 
   for (const [name, value] of Object.entries(fields)) {
@@ -124,8 +115,7 @@ const runInTopWindow = (action: RedirectAction, ctx: RunnerContext): Promise<Act
   ctx.report({ stage: 'leaving', detail: action.url })
 
   if (action.method === 'GET') {
-    // Resolved against the current page: a provider is entitled to hand back a relative
-    // URL, and `new URL` alone would throw on one.
+    // Resolved against the current page - a provider may hand back a relative URL.
     const url = new URL(action.url, window.location.href)
     for (const [name, value] of Object.entries(action.fields ?? {})) {
       url.searchParams.set(name, value)

@@ -1,16 +1,16 @@
 # Payment Gateway
 
-An embeddable checkout, and the payment integrations behind it as plugins.
+An embeddable checkout. Every payment integration behind it is a plugin.
 
-The core is a headless engine: it creates a payment, presents an instrument, runs whatever
-step the provider asks for next, and reports what happened. It does not know what 3-D
-Secure is, what a hosted payment page is, or what a wallet is. Five plugins do, and adding
-a sixth changes nothing in the core.
+The core is a headless engine. It creates a payment, presents an instrument, runs whatever
+step the provider asks for next, and reports the outcome. It does not know what 3-D Secure
+is, what a hosted payment page is, or what a wallet is. Five plugins do, and adding a sixth
+changes nothing in the core.
 
-Everything runs on the front end: an in-browser mock backend answers the APIs, and a
-standalone https server plays the bank, so the whole flow — approval, decline,
-authentication in a frame and as a full-page redirect, asynchronous settlement, cancelling,
-receipts — can be exercised with no server at all.
+Everything runs in the browser. A mock backend answers the APIs and a small https server
+plays the bank, so the whole flow works with no real server: approval, decline,
+authentication in a frame and as a full-page redirect, payments that settle later,
+cancelling, receipts.
 
 ## Getting started
 
@@ -42,9 +42,9 @@ Every integration is the same loop:
 createIntent → confirm(instrument) → [ action → run → evidence → resume ]* → terminal
 ```
 
-What differs between a card processor, a bank, a hosted page, hosted fields and a wallet is
-only **which action the provider returned** and **which runner executes it**. That claim is
-checked rather than asserted: one Playwright spec file, naming no provider anywhere, runs
+Between a card processor, a bank, a hosted page, hosted fields and a wallet, only two things
+differ: **which action the provider returned** and **which runner executes it**. That is
+checked, not just claimed: one Playwright spec file, which names no provider anywhere, runs
 against all five.
 
 | Integration        | instrument | first action                    | completes via  |
@@ -97,8 +97,8 @@ export const checkout = createCheckout({
 })
 ```
 
-Wrap the app in `<CheckoutProvider engine={checkout}>`, call `engine.pay(...)` from your
-form, render `<PaymentActionHost/>` wherever an action is allowed to appear, and call
+Then: wrap the app in `<CheckoutProvider engine={checkout}>`, call `engine.pay(...)` from
+your form, render `<PaymentActionHost/>` where an action is allowed to appear, and call
 `engine.hydrate(params)` on the route a provider returns to. The demo in `apps/demo` does
 exactly this and nothing more.
 
@@ -117,8 +117,8 @@ docs/            architecture and security notes
 ```
 
 Inside the repo the apps resolve packages through a `@pg/source` condition, so they build
-against TypeScript sources; `npm run verify:dist` builds them the way a published consumer
-would, and CI runs both.
+against TypeScript sources. `npm run verify:dist` builds them the way a published consumer
+would. CI runs both.
 
 ## Architecture and docs
 
@@ -141,13 +141,13 @@ Every doc exists in English and Russian, except the bank simulator's notes.
 
 ## Tooling notes
 
-Packages are built with [tsdown](https://tsdown.dev) (rolldown + oxc) and validated with
-publint and are-the-types-wrong on every build. Declarations are emitted by oxc, which
-needs every exported binding to carry an explicit type — the reason `isolatedDeclarations`
-is on in every package.
+Packages are built with [tsdown](https://tsdown.dev) (rolldown + oxc). Every build is
+checked by publint and are-the-types-wrong. Type declarations are produced by oxc, which
+needs an explicit type on every export — that is why `isolatedDeclarations` is on in every
+package.
 
-ESM only, deliberately: a dual build ships two copies of every class, and `instanceof`
-starts lying the moment a consumer mixes them.
+ESM only, on purpose. A dual ESM/CJS build ships two copies of every class, and then
+`instanceof` gives the wrong answer as soon as a consumer mixes them.
 
 ### Expanding the Oxlint configuration
 

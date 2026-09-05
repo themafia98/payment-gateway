@@ -1,13 +1,7 @@
-// What a plugin can do, declared up front.
+// What a plugin can do.
 //
-// Read this carefully before using it: capabilities exist for *validation and copy*, not
-// for control flow. The engine checks at registration time that the host has a runner for
-// everything a plugin might return, and the UI may use `instruments` to decide which
-// fields to render. Nothing else may branch on this.
-//
-// In particular, never write `if (caps.authentication.includes('3ds2'))`. Whether a
-// payment needs authentication is decided by the issuer at transaction time, and the only
-// honest signal is the `PaymentAction` the provider actually returned.
+// Use it to check the host's setup and to decide what to render. Never use it to decide
+// what a payment needs: only the action a provider returned can say that.
 
 import type { ActionSurface, PaymentActionKind } from '../domain/action'
 import type { PaymentInstrumentKind } from '../domain/instrument'

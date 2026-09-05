@@ -1,18 +1,13 @@
-// How an action gets executed, declared without knowing what a browser is.
-//
-// The core owns the registry and the contract; the implementations - iframes, top-level
-// form posts, popups, script loading - live in @pg/runtime-browser. That split is what
-// lets the whole payment loop, including every plugin, run inside a plain Node test with
-// scripted runners standing in for a browser.
+// How an action gets executed. The contract is here; the implementations are in
+// @pg/runtime-browser, so the engine itself needs no DOM.
 
 import type { ActionSurface, PaymentAction, PaymentActionKind } from '../domain/action'
 import type { ActionEvidence } from '../domain/evidence'
 import type { ProviderCapabilities } from '../provider/capabilities'
 
 /**
- * Somewhere for a runner to put its DOM. Typed as `unknown` deliberately: threading a
- * generic element type through the engine, its snapshot and its events would infect half
- * the API to save one cast in the two runners that actually need it.
+ * Somewhere for a runner to put its DOM. `unknown` on purpose: a generic element type would
+ * spread through the engine, its snapshot and its events just to save one cast.
  */
 export interface MountHandle {
   readonly element: unknown
@@ -21,9 +16,8 @@ export interface MountHandle {
 
 export interface RunnerContext {
   /**
-   * The surface actually chosen. It is usually `action.surface`, but a host may escalate -
-   * an iframe challenge the shopper opens in the whole window, say - and the runner needs
-   * to know which one it is executing.
+   * The surface actually chosen. Usually `action.surface`, but a host may move a frame
+   * challenge into the whole window, and the runner needs to know which it is running.
    */
   readonly surface: ActionSurface
   readonly signal: AbortSignal
@@ -52,8 +46,8 @@ export interface RunnerRegistry {
   resolve(action: PaymentAction, surface?: ActionSurface): AnyActionRunner | null
   supports(kind: PaymentActionKind, surface: ActionSurface): boolean
   /**
-   * Fail fast at registration: a provider that can return `sdk_handoff` on a host with no
-   * SDK runner is a bug to catch on boot, not halfway through someone's payment.
+   * Fail at registration: a provider that can return an action this host cannot run is a
+   * bug to catch on boot, not halfway through a payment.
    */
   assertCovers(providerId: string, capabilities: ProviderCapabilities): void
 }

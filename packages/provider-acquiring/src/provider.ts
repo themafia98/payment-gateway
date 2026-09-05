@@ -1,16 +1,13 @@
-// Direct bank acquiring, host-to-host. The protocol is as different from the PSP plugin
-// next door as two card integrations can be:
+// Direct bank acquiring, host to host. As different from the PSP plugin as two card
+// integrations get:
 //
-//   * form-urlencoded bodies, with the credentials repeated in every single call
-//   * business failures inside HTTP 200 - a refused card is a *successful* request
-//   * numeric order statuses rather than strings
-//   * ISO-4217 numeric currency codes
-//   * two round trips to start a payment: register the order, then read it back
-//   * 3-D Secure version 1, posting a `PaReq` at an access control server
+//   * form-urlencoded bodies, with credentials repeated in every call
+//   * a refused card arrives as a *successful* request with a status field
+//   * numeric order statuses and numeric currency codes
+//   * two round trips to start a payment
+//   * 3-D Secure 1: a `PaReq` posted to the bank's access control server
 //
-// None of that reaches the checkout. The domain types, the engine and every screen are
-// the same ones the PSP plugin talks to, and this file is the entire difference between
-// the two integrations.
+// None of that reaches the checkout. This file is the whole difference between the two.
 
 import { createHttpClient, type HttpClient } from '@pg/core/http'
 import type {
@@ -86,11 +83,8 @@ const capabilities: ProviderCapabilities = {
 }
 
 /**
- * The bank's numeric statuses, mapped down to the domain's vocabulary.
- *
- * Two of them are lossy on purpose. There is no `authorized` and no `refunded` in this
- * domain, because no screen shows either, and inventing them to mirror the bank would be
- * exactly the leak this architecture exists to prevent.
+ * The bank's numeric statuses, mapped to the domain's names. Two are lossy on purpose:
+ * this domain has no `authorized` and no `refunded`, because no screen shows either.
  */
 const STATUS_BY_ORDER_STATUS: Record<number, PaymentStatus> = {
   0: 'requires_payment_method',
@@ -121,10 +115,9 @@ const isFailure = (response: BankResponse): boolean =>
   response.errorCode !== undefined && response.errorCode !== '0'
 
 /**
- * A non-zero code means the request itself failed - credentials, an unknown order, the
- * acquirer being down. It never means "the card was refused": that arrives as a perfectly
- * successful call with `orderStatus: 6`, and conflating the two is the classic way to get
- * this integration wrong.
+ * A non-zero code means the request failed - bad credentials, unknown order, acquirer
+ * down. It never means the card was refused: that comes back as a successful call with
+ * `orderStatus: 6`.
  */
 const toBankError = (response: BankResponse): PaymentError => ({
   code: `acquiring_${response.errorCode ?? 'unknown'}`,
@@ -141,8 +134,7 @@ export const createAcquiringProvider = (
   ctx: ProviderContext<AcquiringConfig>,
   http: HttpClient = createHttpClient({
     baseUrl: ctx.config.baseUrl,
-    // The whole protocol is form-encoded, so this is a property of the client, not of
-    // individual calls.
+    // The whole protocol is form-encoded, so it belongs on the client.
     encoding: 'form',
     fetch: ctx.fetch,
   }),
@@ -171,9 +163,8 @@ export const createAcquiringProvider = (
   })
 
   /**
-   * A 3-D Secure 1 challenge, expressed as the same action a version 2 challenge produces.
-   * Different fields, different names, one shape - which is why the challenge screen has
-   * no idea which version it is showing.
+   * A 3-D Secure 1 challenge, as the same action a version 2 challenge produces. Different
+   * fields, one shape - so the challenge screen cannot tell which version it is showing.
    */
   const toChallengeAction = (response: PaymentOrderResponse): PaymentAction => ({
     id: response.MD ?? '',
@@ -183,8 +174,8 @@ export const createAcquiringProvider = (
     url: `${ctx.config.acsOrigin}${response.acsUrl ?? '/acs/pareq'}`,
     method: 'POST',
     fields: { PaReq: response.paReq ?? '', MD: response.MD ?? '' },
-    // The bank names its return field `TermUrl`; the host fills it in, because only the
-    // host knows the absolute URL under its own base path.
+    // The bank calls its return field `TermUrl`. The host fills it in - only it knows the
+    // absolute URL under its own base path.
     returnUrlField: 'TermUrl',
     completion: {
       via: 'post_message',
@@ -240,8 +231,8 @@ export const createAcquiringProvider = (
 
   return {
     createIntent: async (input: CreateIntentInput, opts: CallOptions): Promise<PaymentIntent> => {
-      // Two round trips, which is simply how this API works: registering an order returns
-      // an id and nothing else, so the amount has to be read back.
+      // Two round trips: registering returns an id and nothing else, so the amount has to
+      // be read back.
       const registered = await call<RegisterResponse>(
         '/rest/register.do',
         {
@@ -318,9 +309,8 @@ export const createAcquiringProvider = (
       }
 
       try {
-        // `PaRes` is the access control server's signed verdict. Here it is synthesized
-        // from what the browser brought back; a real integration would forward the blob
-        // untouched, and either way the acquirer is what decides.
+        // `PaRes` is the bank's signed verdict. Synthesized here from what the browser
+        // brought back; a real integration forwards the blob untouched.
         const finished = await call<BankResponse>(
           '/rest/finish3ds.do',
           { MD: evidence.actionId, PaRes: JSON.stringify({ transStatus }) },

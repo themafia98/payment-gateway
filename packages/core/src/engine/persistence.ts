@@ -1,8 +1,5 @@
-// A full-page redirect destroys the tab's JavaScript. Everything needed to pick the
-// payment back up afterwards has to be written down *before* the browser leaves, and it
-// has to be small: an intent id, which plugin owns it, and which action is in flight.
-//
-// Card data is never part of this. The conformance suite checks that too.
+// A full-page redirect throws the page away, so the little that is needed to pick the
+// payment back up is written down first. Card data never goes in here.
 
 export interface StorageAdapter {
   read(key: string): string | null

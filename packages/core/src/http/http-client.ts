@@ -1,10 +1,7 @@
-// A thin fetch wrapper: base URL, body encoding, headers, status codes - nothing about
-// payments. Response-to-domain mapping belongs to the plugins.
+// A small fetch wrapper: base URL, body encoding, headers, errors. Nothing about payments.
 //
-// Two things are configurable because real integrations differ on exactly these points:
-// `encoding`, since bank host-to-host APIs speak form-urlencoded rather than JSON, and
-// `parseError`, since not everyone reports failures the same way (some put a business
-// error code inside an HTTP 200). Everything else is deliberately fixed.
+// `encoding` and `parseError` are configurable because bank APIs differ exactly there:
+// form-urlencoded bodies, and business errors returned inside an HTTP 200.
 
 export interface ApiErrorPayload {
   type: string
@@ -40,8 +37,7 @@ export interface HttpClient {
 
 export interface HttpClientConfig {
   /**
-   * Required on purpose. The core must not know how the host computes its API root, so
-   * there is no `import.meta.env` fallback hiding in here.
+   * Required: the core must not guess where the host keeps its API.
    */
   baseUrl: string
   /** Defaults sent with every request; a per-request header of the same name wins. */

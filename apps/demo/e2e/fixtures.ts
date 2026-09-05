@@ -43,14 +43,11 @@ export const test = base.extend<CheckoutOptions & Fixtures>({
 })
 
 /**
- * For specs that type a card into our own form.
+ * For specs that type a card into our own form. Providers that collect it elsewhere skip
+ * instead of failing, so no spec has to name a provider.
  *
- * Some integrations never show one - the shopper enters it on the bank's site - so those
- * runs skip rather than fail. The condition comes from a table of provider traits, so no
- * spec has to name a provider to know whether it applies.
- *
- * An automatic fixture rather than a `beforeEach`: a hook would attach to the whole file
- * and skip the provider-agnostic specs along with these.
+ * A fixture and not a `beforeEach`: a hook would attach to the whole file and skip the
+ * provider-agnostic specs too.
  */
 const onlyFor = (flow: PaymentFlow) =>
   test.extend<{ requiresFlow: void }>({

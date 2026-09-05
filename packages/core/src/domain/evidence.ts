@@ -1,9 +1,7 @@
-// What a runner brings back from an action. Deliberately raw: the runner proves *where*
-// the data came from (origin, action id), the plugin decides what it *means*. Keeping the
-// interpretation inside the plugin is what stops rules like `transStatus === 'Y'` from
-// leaking into UI components.
+// What a runner brings back from an action, unchanged. The runner proves where it came
+// from (origin, action id); the plugin decides what it means.
 //
-// Evidence is a hint, never the truth. Money is confirmed by re-reading the intent.
+// Evidence is a hint. Money is only confirmed by re-reading the intent.
 
 export type ActionEvidence =
   | {

@@ -1,5 +1,4 @@
-// The outcome of a provider call. A discriminated union rather than a status string plus
-// nullable fields, so every consumer is forced by the compiler to handle each case.
+// The outcome of a provider call, as a union, so every caller has to handle each case.
 
 import type { PaymentAction } from './action'
 import type { PaymentError, PaymentIntent } from './intent'

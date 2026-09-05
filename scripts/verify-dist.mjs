@@ -1,14 +1,11 @@
-// Inside this repo the apps resolve workspace packages through the `@pg/source`
-// condition, so they compile against TypeScript sources. That is convenient, and it hides
-// exactly one class of bug: a broken `exports` map, which only a real consumer would hit.
-//
-// This script builds the demo the way a published consumer would - no source condition, so
-// every import lands on the built `dist` entry points named in each package.json.
+// The apps normally resolve packages through the `@pg/source` condition and compile
+// against sources. That hides one kind of bug: a broken `exports` map. This builds the demo
+// the way a published consumer would, so every import has to land on `dist`.
 
 import { spawnSync } from 'node:child_process'
 
-// `npm_execpath` is set by npm for its own scripts; running it through the current node
-// binary keeps this shell-free, which matters on Windows where `npm` is a .cmd shim.
+// npm sets `npm_execpath` for its own scripts. Running it through node keeps this
+// shell-free, which matters on Windows where `npm` is a .cmd shim.
 const npmCli = process.env.npm_execpath
 
 const run = (args, env) => {

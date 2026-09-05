@@ -1,6 +1,5 @@
-// The next step a payment needs before it can settle. This union - not a boolean called
-// `requires3ds` - is what keeps the engine provider-agnostic: the engine knows how to run
-// actions, never why a particular provider asked for one.
+// The next step a payment needs. This union - rather than a `requires3ds` flag - is what
+// keeps the engine free of any particular protocol.
 
 export type PaymentActionKind = 'redirect' | 'collect_fields' | 'sdk_handoff' | 'poll'
 
@@ -14,9 +13,8 @@ export type CompletionSpec =
       origin: string
       type: string
       /**
-       * Field in the message that carries the action id. Defaults to `actionId`; a bank
-       * speaking its own protocol names it something else (`challengeId`, `MD`, ...), and
-       * the check must not be skipped just because the name differs.
+       * Field in the message that carries the action id. Defaults to `actionId`; banks name
+       * it `challengeId`, `MD` and so on, and the check still has to happen.
        */
       correlationField?: string
     }
@@ -41,8 +39,8 @@ export type PaymentAction =
       /** Form body: a 3-D Secure 2 `creq`, a 3-D Secure 1 `PaReq`/`MD`, HPP parameters. */
       fields?: Readonly<Record<string, string>>
       /**
-       * Name of the field the runner must fill with an absolute return URL (`TermUrl`,
-       * `returnUrl`, ...). Only the host knows its own base path, so only the host builds it.
+       * Field the runner fills with an absolute return URL (`TermUrl`, `returnUrl`, ...).
+       * Only the host knows its own base path, so only the host can build it.
        */
       returnUrlField?: string
     })

@@ -1,8 +1,5 @@
-// Runners that answer from a script instead of a browser.
-//
-// This is what lets the whole payment loop - engine, plugin, state machine, persistence -
-// be exercised in a plain Node test. Everything that needs a DOM lives behind the runner
-// contract, so replacing the runners replaces the entire browser.
+// Runners that answer from a script instead of a browser. Everything that needs a DOM sits
+// behind the runner contract, so replacing the runners replaces the whole browser.
 
 import {
   createRunnerRegistry,

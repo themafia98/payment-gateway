@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { CheckoutForm } from '@/features/checkout'
+import { PaymentForm } from '@/features/checkout'
 import { ProviderSelector } from '@/features/select-payment-provider'
 import { Section } from '@/shared/ui'
 
@@ -17,7 +17,7 @@ function Index() {
       <Section>
         <ProviderSelector />
       </Section>
-      <CheckoutForm plans={plans} />
+      <PaymentForm plans={plans} />
     </>
   )
 }

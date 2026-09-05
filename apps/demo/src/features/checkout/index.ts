@@ -1,4 +1,5 @@
-export { CheckoutForm } from './ui/checkout-form'
+export { PaymentForm } from './ui/payment-form'
 export { toTransaction } from './model/to-transaction'
+export { paymentMethodLabel } from './model/payment-method-label'
 export { useCheckoutStore } from './store/checkout.store'
 export { connectCheckoutStore } from './store/connect-engine'

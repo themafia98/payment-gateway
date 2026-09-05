@@ -1,8 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { PaymentResultHeader } from '@/widgets/payment-result-header'
+import { FailureState } from '@checkout-kit/ui'
+import { Failure } from '@/shared/ui'
 import { TransactionDetails } from '@/entities/transaction'
 import { RetryPayment } from '@/features/retry-payment'
-import { toTransaction, useCheckoutStore } from '@/features/checkout'
+import { paymentMethodLabel, toTransaction } from '@/features/checkout'
 import type { PaymentIntent } from '@/entities/payment'
 import { useMerchant } from '@/entities/merchant'
 import { useMemo } from 'react'
@@ -31,28 +32,29 @@ export const Route = createFileRoute('/summary/failure/')({
     // The decline message comes from the engine, which got it from the issuer. After a
     // full-page redirect there is nothing left in memory, so the page shows the status
     // alone rather than inventing a reason.
-    return { intent, method: useCheckoutStore.getState().method, error: snapshot.error }
+    return { intent, error: snapshot.error }
   },
   component: FailurePage,
 })
 
 function FailurePage() {
-  const { intent, method, error } = Route.useLoaderData()
+  const { intent, error } = Route.useLoaderData()
 
   const merchant = useMerchant()
 
   const transaction = useMemo(
-    () => toTransaction(intent, method, merchant.name),
-    [intent, method, merchant],
+    () => toTransaction(intent, paymentMethodLabel(intent.providerId), merchant.name),
+    [intent, merchant],
   )
 
   return (
-    <>
-      <PaymentResultHeader />
-
-      <TransactionDetails transaction={transaction} errorMessage={error?.message} />
-
-      <RetryPayment />
-    </>
+    <FailureState
+      tone={intent.status === 'canceled' ? 'cancelled' : 'declined'}
+      icon={<Failure />}
+      details={<TransactionDetails transaction={transaction} />}
+      actions={<RetryPayment />}
+    >
+      {error?.message ?? 'The payment was not completed. Nothing has been charged.'}
+    </FailureState>
   )
 }

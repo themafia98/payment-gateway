@@ -1,47 +1,33 @@
-import { useCallback, useMemo } from 'react'
-import { PlanCard, type Plan } from '@/entities/plan'
-import { Label } from '@/shared/ui'
-import type { CheckoutFormSchema } from '../model/schema'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { OptionCard, OptionCardGroup } from '@checkout-kit/ui'
+import type { Plan } from '@/entities/plan'
+import type { CheckoutFormInput } from '../model/schema'
 
-type PlanId = Plan['id']
-
-interface IProps {
+interface PlanSelectorProps {
   plans: Plan[]
 }
 
-export const PlanSelector = ({ plans }: IProps) => {
-  const { setValue, control } = useFormContext<CheckoutFormSchema>()
-
-  const activePlanId = useWatch({
-    control,
-    name: 'planId',
-  })
-
-  const handleSwitch = useCallback(
-    (id: PlanId) => () => {
-      setValue('planId', id)
-    },
-    [setValue],
-  )
-
-  const planList = useMemo(
-    () =>
-      plans.map((plan) => (
-        <PlanCard
-          key={plan.id}
-          plan={plan}
-          selected={plan.id === activePlanId}
-          onSelect={handleSwitch(plan.id)}
-        />
-      )),
-    [plans, activePlanId, handleSwitch],
-  )
+export const PlanSelector = ({ plans }: PlanSelectorProps) => {
+  const { control, setValue } = useFormContext<CheckoutFormInput>()
+  const planId = useWatch({ control, name: 'planId' })
 
   return (
-    <>
-      <Label>Choose your plan</Label>
-      <div className="flex flex-col gap-4">{planList}</div>
-    </>
+    <OptionCardGroup
+      label="Choose your plan"
+      value={planId}
+      onChange={(id) =>
+        setValue('planId', id, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      }
+    >
+      {plans.map((plan) => (
+        <OptionCard
+          key={plan.id}
+          value={plan.id}
+          label={plan.name}
+          badge={plan.discount}
+          aside={`${plan.currency}${plan.price}`}
+        />
+      ))}
+    </OptionCardGroup>
   )
 }

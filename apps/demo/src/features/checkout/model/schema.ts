@@ -1,82 +1,154 @@
 import * as z from 'zod'
 import {
-  isCardNumber,
-  normalizeCardNumber,
-  createBranded,
-  isCardExpiration,
-  isCVC,
-} from '@/shared/lib'
+  detectCardBrand,
+  parseExpiry,
+  validateCardNumber,
+  validateCardholder,
+  validateCvc,
+  type CardExpiration,
+  type CardNumber,
+  type CardholderIssue,
+  type CardNumberIssue,
+  type CvcIssue,
+  type CvcCode,
+  type ExpiryIssue,
+} from '@checkout-kit/core'
+import { isPostalCode } from './postal'
 
-const cardNumberSchema = z
-  .string()
-  .min(1, 'Card Number is required')
-  .transform(normalizeCardNumber)
-  .refine((value) => /^\d{16}$/.test(value), 'Card Number must contain 16 digits')
-  .refine(isCardNumber, 'Invalid card number')
-  .transform((value) => createBranded<string, 'CardNumber'>(value))
+// The rules live in the kit; only the wording is ours. That is what keeps the mask and the
+// validator from disagreeing, and what makes these messages translatable.
 
-const expirationSchema = z
-  .string()
-  .min(1, 'Expiration date is required')
-  .refine(isCardExpiration, 'Card is expired')
-  .transform((value) => createBranded<string, 'CardExpiration'>(value))
+const CARD_NUMBER: Record<CardNumberIssue, string> = {
+  required: 'Enter your card number',
+  incomplete: 'This card number is too short',
+  invalid_number: 'Check the card number and try again',
+  unsupported_brand: 'We cannot accept this card',
+}
 
-const cvcSchema = z
-  .string()
-  .refine(isCVC, 'CVC must contain 3 digits')
-  .transform((value) => createBranded<string, 'CvcCode'>(value))
+const EXPIRY: Record<ExpiryIssue, string> = {
+  required: 'Enter the expiry date',
+  invalid_format: 'Use the format shown on the card, MM / YY',
+  invalid_month: 'There is no such month',
+  expired: 'This card has expired',
+  too_far_future: 'Check the expiry year',
+}
 
-const cardSchema = z.object({
-  number: cardNumberSchema,
-  exp: expirationSchema,
-  cvc: cvcSchema,
+const CVC: Record<CvcIssue, string> = {
+  required: 'Enter the security code',
+  invalid_length: 'The security code is the wrong length',
+}
+
+const CARDHOLDER: Record<CardholderIssue, string> = {
+  required: 'Enter the name on the card',
+  too_short: 'Enter the full name on the card',
+  invalid_characters: 'A name cannot contain digits or symbols',
+}
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+const base = z.object({
+  planId: z.string().min(1, 'Choose a plan'),
+
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Enter your email address')
+    .refine((value) => EMAIL.test(value), 'Check the email address'),
+
+  // Always present so the inputs stay bound the same way; validated only when the chosen
+  // provider actually collects a card.
+  card: z.object({
+    number: z.string(),
+    exp: z.string(),
+    cvc: z.string(),
+    holder: z.string(),
+  }),
+
+  billing: z.object({
+    country: z.string().min(2, 'Choose a country'),
+    postalCode: z.string().trim().min(1, 'Enter your postal code'),
+  }),
 })
 
-/**
- * The checkout form, shaped by what the chosen provider actually collects.
- *
- * Some integrations take the card here; a hosted payment page takes it on the bank's own
- * site and a wallet takes it from the device, and asking for one in those cases would be
- * both pointless and, for the fields that never get sent anywhere, faintly dishonest.
- *
- * The output type is the same either way - `card` is simply absent - so nothing
- * downstream branches on which variant produced it.
- */
-export const createCheckoutFormSchema = (collectsCard: boolean) =>
-  z
-    .object({
-      planId: z.string().min(1, 'Plan is required'),
+type Base = z.output<typeof base>
 
-      paymentMethod: z.enum(['Card', 'Bank Transfer']),
+export interface CheckoutCard {
+  readonly number: CardNumber
+  readonly exp: CardExpiration
+  readonly cvc: CvcCode
+  readonly holder: string
+}
 
-      // The fields always exist in the form's state, so the inputs stay bound the same way
-      // either way; whether they are validated - and whether they are rendered at all -
-      // depends on the provider.
-      card: z.object({ number: z.string(), exp: z.string(), cvc: z.string() }),
+const toCard = (card: Base['card']): CheckoutCard => {
+  const number = validateCardNumber(card.number)
+  const expiry = parseExpiry(card.exp)
+  const cvc = validateCvc(card.cvc, number.ok ? number.brand : undefined)
+  const holder = validateCardholder(card.holder)
 
-      billing: z.object({
-        country: z.string().min(2, 'Country is required'),
+  if (!number.ok || !expiry.ok || !cvc.ok || !holder.ok) {
+    throw new Error('The card did not validate.')
+  }
 
-        postalCode: z.string().min(3, 'Postal Code is required'),
-      }),
-    })
+  return { number: number.digits, exp: expiry.value, cvc: cvc.cvc, holder: holder.value }
+}
+
+const createSchema = (collectsCard: boolean) =>
+  base
     .superRefine((value, ctx) => {
+      if (!isPostalCode(value.billing.country, value.billing.postalCode)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['billing', 'postalCode'],
+          message: 'Check the postal code for this country',
+        })
+      }
+
       if (!collectsCard) return
 
-      const parsed = cardSchema.safeParse(value.card)
-      if (parsed.success) return
+      const number = validateCardNumber(value.card.number)
+      if (!number.ok) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['card', 'number'],
+          message: CARD_NUMBER[number.issue],
+        })
+      }
 
-      for (const issue of parsed.error.issues) {
-        ctx.addIssue({ ...issue, path: ['card', ...issue.path] })
+      const expiry = parseExpiry(value.card.exp)
+      if (!expiry.ok) {
+        ctx.addIssue({ code: 'custom', path: ['card', 'exp'], message: EXPIRY[expiry.issue] })
+      }
+
+      // The brand decides how long the code is, so it is checked here where the number is
+      // also in scope rather than on the field alone.
+      const brand = number.ok ? number.brand : detectCardBrand(value.card.number).brand
+      const cvc = validateCvc(value.card.cvc, brand)
+      if (!cvc.ok) {
+        ctx.addIssue({ code: 'custom', path: ['card', 'cvc'], message: CVC[cvc.issue] })
+      }
+
+      const holder = validateCardholder(value.card.holder)
+      if (!holder.ok) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['card', 'holder'],
+          message: CARDHOLDER[holder.issue],
+        })
       }
     })
     .transform((value) => ({
       ...value,
-      card: collectsCard ? cardSchema.parse(value.card) : undefined,
+      card: collectsCard ? toCard(value.card) : undefined,
     }))
 
-export const checkoutFormSchema = createCheckoutFormSchema(true)
+// Both built once, at module scope: a schema rebuilt on every render hands the form a new
+// resolver each time and throws its validation state away with it.
+export const CARD_CHECKOUT_SCHEMA = createSchema(true)
+export const CARDLESS_CHECKOUT_SCHEMA = createSchema(false)
 
-export type CheckoutFormInput = z.input<typeof checkoutFormSchema>
+export const checkoutSchemaFor = (collectsCard: boolean): typeof CARD_CHECKOUT_SCHEMA =>
+  collectsCard ? CARD_CHECKOUT_SCHEMA : CARDLESS_CHECKOUT_SCHEMA
 
-export type CheckoutFormSchema = z.output<typeof checkoutFormSchema>
+export type CheckoutFormInput = z.input<typeof CARD_CHECKOUT_SCHEMA>
+
+export type CheckoutFormSchema = z.output<typeof CARD_CHECKOUT_SCHEMA>

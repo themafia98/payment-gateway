@@ -628,6 +628,23 @@
     background-color var(--ck-duration-fast) var(--ck-ease-standard);
 }
 
+/* A select styled as an input, so a country picker does not look like a foreign object. */
+select.ck-input {
+  appearance: none;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-position:
+    right calc(var(--ck-space-4) + 4px) center,
+    right var(--ck-space-4) center;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+  padding-inline-end: var(--ck-space-10);
+}
+
 .ck-input::placeholder {
   color: var(--ck-text-subtle);
 }
@@ -978,6 +995,24 @@
 /* Sizes itself: a QR code and its caption are already the right shape. */
 .ck-action-frame--content {
   block-size: auto;
+}
+
+/* The mount point a runner draws into: it fills whatever frame it was put in. */
+.ck-action-host {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.ck-receipt {
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius);
+  background: var(--ck-surface-sunken);
+  padding: var(--ck-space-4);
+  text-align: start;
 }
 
 /* ────────────────────────────────────────────────────── displayed codes ── */

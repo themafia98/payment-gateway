@@ -4,7 +4,7 @@ An embeddable checkout. Every payment integration behind it is a plugin.
 
 The core is a headless engine. It creates a payment, presents an instrument, runs whatever
 step the provider asks for next, and reports the outcome. It does not know what 3-D Secure
-is, what a hosted payment page is, or what a wallet is. Five plugins do, and adding a sixth
+is, what a hosted payment page is, or what a wallet is. Six plugins do, and adding a seventh
 changes nothing in the core.
 
 Everything runs in the browser. A mock backend answers the APIs and a small https server
@@ -42,10 +42,10 @@ Every integration is the same loop:
 createIntent → confirm(instrument) → [ action → run → evidence → resume ]* → terminal
 ```
 
-Between a card processor, a bank, a hosted page, hosted fields and a wallet, only two things
-differ: **which action the provider returned** and **which runner executes it**. That is
-checked, not just claimed: one Playwright spec file, which names no provider anywhere, runs
-against all five.
+Between a card processor, a bank, a hosted page, hosted fields, a wallet and a QR code, only
+two things differ: **which action the provider returned** and **which runner executes it**.
+That is checked, not just claimed: one Playwright spec file, which names no provider
+anywhere, runs against all six.
 
 | Integration        | instrument | first action                    | completes via  |
 | ------------------ | ---------- | ------------------------------- | -------------- |
@@ -54,6 +54,7 @@ against all five.
 | Bank payment page  | `none`     | `redirect` taking the window    | `return_url`   |
 | Hosted card fields | `none`     | `collect_fields` in a frame     | `post_message` |
 | Wallet             | `none`     | `sdk_handoff` to another script | `sdk_callback` |
+| Instant transfer   | `none`     | `display` a QR or a code        | `poll`         |
 
 ## Packages
 
@@ -68,6 +69,7 @@ against all five.
 | `@checkout-kit/provider-hpp`           | a hosted payment page: the shopper pays on the bank's own site          |
 | `@checkout-kit/provider-hosted-fields` | the provider renders the card inputs and hands back a token             |
 | `@checkout-kit/provider-wallet`        | a third-party SDK draws its own sheet                                   |
+| `@checkout-kit/provider-bank-transfer` | a QR or a code, paid in the shopper's banking app                       |
 | `@checkout-kit/testing`                | the mock backend, the card table, and test doubles for the engine       |
 | `@checkout-kit/conformance`            | the contract every plugin has to pass                                   |
 
@@ -111,7 +113,7 @@ Apache-2.0. See [LICENSE](./LICENSE) and [NOTICE](./NOTICE).
 
 Nothing here is published to npm yet, and every package is still marked private. The
 release plumbing exists so that publishing is a decision rather than a project, but one
-thing has to be true first: **all five plugins are written against a mock backend.** They
+thing has to be true first: **all six plugins are written against a mock backend.** They
 demonstrate the contract; none of them has taken a real payment. Read them as a reference
 implementation, not as an integration you can install and charge a card with.
 

@@ -8,7 +8,7 @@ place for when that changes.
 
 Two things are still true and both have to stop being true first:
 
-1. **All five plugins are written against a mock backend.** None has taken a real payment.
+1. **All six plugins are written against a mock backend.** None has taken a real payment.
    Publishing them as integrations would promise something that does not exist. At least one
    plugin should run against a provider's sandbox first.
 2. **The `@checkout-kit` scope is not claimed on npm.** Check it, and create the

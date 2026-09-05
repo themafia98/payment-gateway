@@ -18,15 +18,15 @@ Most of these follow one of two shapes:
 - **Show a code and wait.** On a desktop, show a QR the shopper scans with their phone. There
   is nothing to redirect to, and nothing to collect from them.
 
-The first fits our `redirect` action. The second does not fit anything yet, and that gap is
-described at the end of this page.
+The first fits our `redirect` action, the second our `display` action. Both are described
+further down this page.
 
 ## The map
 
 | Provider            | Where               | Pattern                        | Action                     |
 | ------------------- | ------------------- | ------------------------------ | -------------------------- |
-| Alipay / Alipay+    | CN and cross-border | order code, then poll          | display + poll _(see gap)_ |
-| WeChat Pay          | CN                  | prepay id, QR or JSAPI         | display + poll _(see gap)_ |
+| Alipay / Alipay+    | CN and cross-border | order code, then poll          | `display` + poll           |
+| WeChat Pay          | CN                  | prepay id, QR or JSAPI         | `display` + poll           |
 | Razorpay            | IN                  | order + checkout SDK           | `sdk_handoff`              |
 | PayU India, Paytm   | IN                  | hosted page or SDK             | `redirect` / `sdk_handoff` |
 | UPI                 | IN                  | deep link or QR                | `redirect` / display       |
@@ -131,43 +131,47 @@ action: {
 }
 ```
 
-For the QR case, see the gap below.
+For the QR case, see [Showing a code and waiting](#showing-a-code-and-waiting) below.
 
 Note also that the shopper may never come back to your page at all: they pay in the app and
 switch away. The payment is still complete. That is one more reason the outcome must come
 from your API and not from the browser returning.
 
-## The gap: QR codes and deep links
+## Showing a code and waiting
 
-The contract has four action kinds, and none of them says _"show this to the shopper and
-wait"_. That covers a lot of Asia — Alipay, WeChat, PromptPay, UPI QR, Indonesian virtual
-accounts — and also PIX in Brazil and BLIK codes in Poland.
-
-What you can do today, in order of preference:
-
-1. **Deep link instead of QR on mobile.** `redirect` with `surface: 'top'` works, and on a
-   phone it is the better experience anyway.
-2. **Render the QR yourself, outside the plugin.** Return `{ status: 'processing' }` from
-   `confirm` with the code in `intent`, let the engine poll, and show the QR from your own
-   UI. This works, but it puts a piece of the payment flow in the host application, which is
-   exactly what this architecture is meant to avoid.
-
-What is actually missing is a fifth action kind:
+Most of Asia pays this way - Alipay, WeChat, PromptPay, UPI QR, Indonesian virtual accounts -
+and so do PIX in Brazil and BLIK in Poland. The contract has an action kind for it:
 
 ```ts
-| (ActionBase & {
-    kind: 'display'
-    surface: 'inline'
-    content: { type: 'qr' | 'code' | 'instructions'; value: string; label?: string }
-    deepLink?: string
-    completion: { via: 'poll'; intervalMs: number; timeoutMs: number }
-  })
+{
+  id: intentId,
+  kind: 'display',
+  surface: 'inline',
+  format: 'qr',            // or 'code', or 'instructions'
+  value: '00020126...',    // the payload, always - see below
+  imageUrl: qrFromProvider, // optional: the kit ships no QR encoder
+  deeplink: 'upi://pay?...',// optional: opens the app on a phone
+  completion: { via: 'poll', intervalMs: 2000, timeoutMs: 15 * 60 * 1000 },
+}
 ```
 
-with a runner that renders it and an engine that polls the provider at the same time,
-stopping the display when the payment settles. Adding it is a change to `@checkout-kit/core`,
-`@checkout-kit/runtime-browser` and the conformance suite — the honest cost of covering the region
-properly, and it is on the list of known gaps rather than quietly missing.
+The engine shows it and polls your `getIntent` at the same time. Whichever finishes first
+stops the other: the shopper can walk away, and an expired code stops the polling. When
+polling wins, `resume` is called with `{ via: 'poll' }` and reads the outcome back from you.
+
+Two things to get right:
+
+- **Always fill `value`.** A shopper reading this page on their phone cannot scan their own
+  screen, so the copyable code matters more than the QR does.
+- **Set your own timeouts.** A QR or a virtual account can stay open for hours, and the
+  `timeoutMs` on the action is what the engine obeys - not its own default.
+
+`@checkout-kit/provider-bank-transfer` is a working plugin of this shape, and the same
+Playwright specs run against it.
+
+On a phone, a deep link is often the better experience than a QR: `redirect` with
+`surface: 'top'` is still the right action for that, and providers that offer both usually
+give you a URL for one and a payload for the other.
 
 ## Banks in Asia
 

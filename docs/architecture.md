@@ -19,7 +19,7 @@ wallet on the phone. This part changes often and differs between providers. It i
 So the two are kept apart. The first lives in `@checkout-kit/core` and is written once. The second
 lives in plugins, one per provider, and the core cannot see it.
 
-## One loop, five integrations
+## One loop, six integrations
 
 ```text
 createIntent → confirm(instrument) → [ action → run → evidence → resume ]* → terminal
@@ -35,8 +35,9 @@ provider returned** and **which runner executes it**.
 | Bank payment page  | `none`     | `redirect` taking the window    | `return_url`   |
 | Hosted card fields | `none`     | `collect_fields` in a frame     | `post_message` |
 | Wallet             | `none`     | `sdk_handoff` to another script | `sdk_callback` |
+| Instant transfer   | `none`     | `display` a QR or a code        | `poll`         |
 
-In the last three rows we collect nothing at all. The engine has no special case for that:
+In the last four rows we collect nothing at all. The engine has no special case for that:
 `{ kind: 'none' }` is a normal instrument, and a provider that needs the card somewhere else
 just asks for an action first.
 
@@ -87,6 +88,11 @@ plugin's lazy import first, because on a fresh page the plugin may not be loaded
 **It does not trust evidence.** What a runner brings back shows where the browser has been,
 not what happened to the money. If the answer is not final, the intent is read again from the
 provider before the shopper is told anything.
+
+**It waits for money it cannot see.** When an action says it completes by polling - a QR
+code, a transfer slip - the engine runs the runner and asks the provider at the same time.
+The first to answer stops the other, so the shopper can still walk away and an expired code
+stops the polling instead of running until the tab closes.
 
 **It stops endless loops.** A provider that answers every resume with another action is cut
 off after four.

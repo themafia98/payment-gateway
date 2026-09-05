@@ -91,7 +91,7 @@ enough, which is most of the time.
 
 ## Actions: asking for the next step
 
-Return `requires_action` with a `PaymentAction`, and the engine finds a runner for it. Four
+Return `requires_action` with a `PaymentAction`, and the engine finds a runner for it. Five
 kinds cover every integration here:
 
 | Kind             | Use when                                             | Evidence you get back          |
@@ -99,6 +99,7 @@ kinds cover every integration here:
 | `redirect`       | the shopper must go somewhere: a frame or the window | `post_message` or `return_url` |
 | `collect_fields` | your own inputs render inside the checkout           | `post_message`                 |
 | `sdk_handoff`    | a script of yours drives the payment                 | `sdk_callback`                 |
+| `display`        | show a QR or a code; it is paid in another app       | `poll`                         |
 | `poll`           | nothing to show; the answer comes later              | `poll`                         |
 
 Two fields matter more than they look:
@@ -112,6 +113,22 @@ Two fields matter more than they look:
 Set `completion.correlationField` if your provider returns the transaction id under its own
 name (`challengeId`, `MD`). It stops an old message from a previous attempt from finishing
 the current payment.
+
+### `display`, and how a payment finishes with nobody watching
+
+PIX, UPI, BLIK, PromptPay, Konbini: the shopper is shown a code and pays it in another app.
+Nothing in the browser can see that happen, so `completion` is always
+`{ via: 'poll', intervalMs, timeoutMs }`.
+
+The engine then does two things at once: it runs the display runner, which shows the code
+and waits, and it asks your `getIntent` on the interval you gave. Whichever finishes first
+stops the other - so the shopper can still walk away, and an expired code stops polling
+instead of running forever. When polling wins you get `{ via: 'poll' }` evidence, and your
+`resume` reads the payment back and says what happened.
+
+Give `value` always: a shopper paying on the same phone they are reading on cannot scan
+their own screen. Add `imageUrl` if your provider renders the QR - the kit ships no QR
+encoder - and `deeplink` if it offers one.
 
 ## Rules that types cannot enforce
 

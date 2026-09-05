@@ -2,7 +2,7 @@
 
 > Русская версия: [real-world-providers.ru.md](./real-world-providers.ru.md)
 
-The five plugins in this repository are modelled on real integrations. This page shows the
+The six plugins in this repository are modelled on real integrations. This page shows the
 real ones: what Stripe, Adyen, PayPal, Apple Pay, Google Pay and a bank acquirer return, and
 which `PaymentAction` a plugin would produce for each.
 
@@ -348,7 +348,8 @@ a handoff; if it gives you a URL, it is fields.
    (`surface: 'top'` if it must own the window, `'iframe'` if it may be framed)
 2. Does it give you a URL that renders form fields inside your page? → `collect_fields`
 3. Does it give you a script that does the work? → `sdk_handoff`
-4. Does it need nothing from the shopper, just time? → `poll`
+4. Does it give you a code the shopper pays somewhere else? → `display`
+5. Does it need nothing from the shopper, just time? → `poll`
 
-If none of these fits, that is worth a conversation before adding a fifth kind. Every real
-integration listed here fits one of the four.
+If none of these fits, that is worth a conversation before adding a sixth kind. Every real
+integration listed here fits one of the five.

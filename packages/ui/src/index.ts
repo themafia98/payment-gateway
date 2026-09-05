@@ -1,5 +1,6 @@
 export * from './badge'
 export * from './button'
+export * from './card'
 export * from './cx'
 export * from './details'
 export * from './feedback'

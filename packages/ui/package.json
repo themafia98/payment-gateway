@@ -22,6 +22,7 @@
     "build": "tsdown"
   },
   "peerDependencies": {
+    "@checkout-kit/core": "*",
     "react": "^19.0.0"
   },
   "devDependencies": {
@@ -35,12 +36,17 @@
       "@checkout-kit/source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
+    "./card": {
+      "@checkout-kit/source": "./src/card/index.ts",
+      "default": "./dist/card/index.mjs"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
+      "./card": "./dist/card/index.mjs",
       "./styles.css": "./styles.css",
       "./package.json": "./package.json"
     }

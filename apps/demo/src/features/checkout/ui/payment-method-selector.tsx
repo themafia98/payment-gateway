@@ -11,19 +11,15 @@ export const PaymentMethodSelector = () => {
     name: 'paymentMethod',
   })
 
-  const handleSwitch = (type: PaymentMethod) => () => {
-    setValue('paymentMethod', type)
-  }
-
   return (
     <>
-      <Tabs>
-        <Tab onClick={handleSwitch('Card')} isActive={paymentMethod === 'Card'}>
-          Card
-        </Tab>
-        <Tab onClick={handleSwitch('Bank Transfer')} isActive={paymentMethod === 'Bank Transfer'}>
-          Bank Transfer
-        </Tab>
+      <Tabs
+        aria-label="Payment method"
+        value={paymentMethod}
+        onValueChange={(method) => setValue('paymentMethod', method as PaymentMethod)}
+      >
+        <Tab value="Card">Card</Tab>
+        <Tab value="Bank Transfer">Bank Transfer</Tab>
       </Tabs>
       <ErrorMessage name="paymentMethod" />
     </>

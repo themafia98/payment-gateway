@@ -647,6 +647,44 @@
   background: var(--ck-danger-surface);
 }
 
+/* ─────────────────────────────────────────────────────────── card entry ── */
+
+.ck-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-4);
+}
+
+.ck-card-fields__row {
+  display: grid;
+  gap: var(--ck-space-4);
+}
+
+/* Expiry and security code share a row as soon as two of them fit. */
+@container ck (min-width: 22rem) {
+  .ck-card-fields__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ck-card-number {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ck-card-number .ck-input {
+  padding-inline-end: calc(var(--ck-space-12) + var(--ck-space-4));
+}
+
+.ck-card-number__brand {
+  position: absolute;
+  inset-inline-end: var(--ck-space-3);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
 /* ───────────────────────────────────────────────────────────────── tabs ── */
 
 .ck-tabs {

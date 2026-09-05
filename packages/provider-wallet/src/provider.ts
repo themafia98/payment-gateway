@@ -46,7 +46,9 @@ interface WalletChargeDto {
 }
 
 const capabilities: ProviderCapabilities = {
-  instruments: ['none', 'wallet'],
+  // The wallet payload arrives as evidence from the SDK, not as an instrument from the
+  // host, so `none` is the only thing this plugin can be confirmed with.
+  instruments: ['none'],
   actions: ['sdk_handoff'],
   // Nothing of ours is rendered: the wallet draws its own sheet.
   surfaces: ['none'],

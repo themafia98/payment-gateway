@@ -79,7 +79,10 @@ export type PlanRecord = {
 }
 
 export type ConfirmPaymentIntentRequest = {
-  cardNumber: string
+  /** A card typed into the checkout. */
+  cardNumber?: string
+  /** Or one the shopper saved earlier, which is only ever an id in the browser. */
+  paymentMethodId?: string
 }
 
 export type CompleteChallengeRequest = {

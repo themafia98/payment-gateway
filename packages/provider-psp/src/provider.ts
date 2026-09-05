@@ -57,7 +57,9 @@ interface PaymentIntentDto {
 export const PROVIDER_ID = 'psp'
 
 const capabilities: ProviderCapabilities = {
-  instruments: ['card'],
+  // A card typed now, or one the shopper saved before. Never the number of a saved one:
+  // the browser holds an id.
+  instruments: ['card', 'token'],
   actions: ['redirect'],
   surfaces: ['iframe', 'top'],
   authentication: ['none', '3ds2'],
@@ -195,20 +197,27 @@ export const createPspProvider = (
     },
 
     confirm: async (intentId, instrument: PaymentInstrument, opts) => {
-      if (instrument.kind !== 'card') {
+      if (instrument.kind !== 'card' && instrument.kind !== 'token') {
         return {
           status: 'error',
           error: {
             code: 'unsupported_instrument',
-            message: `This provider takes card details, not "${instrument.kind}".`,
+            message: `This provider takes a card or a saved card, not "${instrument.kind}".`,
           },
         }
       }
 
+      // The rest of the payment does not care which it was: a saved card can still be
+      // declined, and the bank can still ask the shopper to authenticate.
+      const body =
+        instrument.kind === 'card'
+          ? { cardNumber: normalizeCardNumber(instrument.number) }
+          : { paymentMethodId: instrument.token }
+
       try {
         const dto = await http.post<PaymentIntentDto>(
           `/payment-intents/${intentId}/confirm`,
-          { cardNumber: normalizeCardNumber(instrument.number) },
+          body,
           { signal: opts.signal },
         )
         return toResult(dto)

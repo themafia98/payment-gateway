@@ -14,6 +14,7 @@ import type {
   CallOptions,
   PaymentAction,
   PaymentInstrument,
+  PaymentInstrumentKind,
   PaymentProvider,
   PaymentProviderInstance,
   PaymentResult,
@@ -50,6 +51,15 @@ export interface ConformanceSuite<TConfig> {
 }
 
 const options = (key: string): CallOptions => ({ idempotencyKey: key })
+
+/** One of each, to offer a plugin something it says it does not take. */
+const ANY_INSTRUMENT = {
+  card: { kind: 'card', number: '4242424242424242', exp: '12/30', cvc: '123' },
+  token: { kind: 'token', token: 'tok_never_issued' },
+  hosted_session: { kind: 'hosted_session', sessionId: 'sess_never_started' },
+  wallet: { kind: 'wallet', walletId: 'nobody', payload: {} },
+  none: { kind: 'none' },
+} as unknown as Record<PaymentInstrumentKind, PaymentInstrument>
 
 /** Every string anywhere in a value - used to prove card data does not escape. */
 const stringsIn = (value: unknown, found: string[] = []): string[] => {
@@ -124,6 +134,43 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       // The engine trusts this to decide whether cancelling is even offered.
       if (capabilities.cancel) expect(provider.cancel).toBeTypeOf('function')
     })
+
+    /**
+     * `capabilities.instruments` is what the checkout builds its form from, so it has to
+     * be exactly what `confirm` takes. Both halves are checked: a kind that is listed must
+     * not be turned away as unsupported, and a kind that is not listed must be.
+     */
+    it('takes exactly the instruments it says it takes', async () => {
+      const { instruments } = suite.provider.capabilities
+      const kinds = Object.keys(ANY_INSTRUMENT) as PaymentInstrumentKind[]
+
+      // Refusals leave a payment untouched, so they can share one; anything that might go
+      // through gets its own.
+      const shared = await provider.createIntent(
+        { planId: suite.planId ?? '1id' },
+        options(nextKey()),
+      )
+
+      for (const kind of kinds) {
+        const declared = instruments.includes(kind)
+        const intentId = declared
+          ? (await provider.createIntent({ planId: suite.planId ?? '1id' }, options(nextKey()))).id
+          : shared.id
+
+        const result = await provider.confirm(intentId, ANY_INSTRUMENT[kind], options(nextKey()))
+        const refusedTheKind =
+          result.status === 'error' && result.error.code === 'unsupported_instrument'
+
+        if (declared) {
+          // The instrument itself is made up, so it may well fail - but not for this
+          // reason, which would mean the capability is a fiction.
+          expect(refusedTheKind, `"${kind}" is declared but confirm refuses the kind`).toBe(false)
+        } else {
+          expect(result.status, `confirm accepted an undeclared "${kind}" instrument`).toBe('error')
+        }
+      }
+      // Several round trips against a deliberately slow mock backend.
+    }, 20_000)
 
     it('stamps every intent with the id it was registered under', async () => {
       const { intent } = await startPayment('approve')

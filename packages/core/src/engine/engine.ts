@@ -16,6 +16,7 @@ import type {
 import type { PaymentResult } from '../domain/result'
 import type { ProviderCapabilities } from '../provider/capabilities'
 import type { CallOptions, PaymentProviderInstance } from '../provider/provider'
+import { anySignal } from '../support/abort'
 import { silentLogger, type Logger } from '../support/logger'
 import type { EngineEvent, EngineEventOf, EngineEventType } from './events'
 import { isBusyPhase, nextPhase, type CheckoutPhase } from './machine'
@@ -487,7 +488,7 @@ export const createCheckout = (config: CheckoutEngineConfig): CheckoutEngine => 
       const fromRunner = runner
         .run(action, {
           surface,
-          signal: AbortSignal.any([abortController.signal, stopRunner.signal]),
+          signal: anySignal([abortController.signal, stopRunner.signal]),
           returnUrl: config.returnUrl,
           mount: options.mount ?? null,
           deadline: now() + actionTimeoutMs,

@@ -19,8 +19,10 @@ Built, minified and gzipped, as of this commit:
 | `@checkout-kit/ui/styles.css`   | 1.4 kB     |
 | a plugin                        | 1.3–2.6 kB |
 
-So a checkout with one provider is roughly 14 kB of JavaScript plus 1.4 kB of CSS, and every
-further provider adds about 1.5 kB. There are no runtime dependencies anywhere: every package
+So a checkout with one provider is roughly 22 kB of JavaScript plus 6 kB of CSS, and every
+further provider adds about 1.5 kB. The kit grew when it gained the accessible fields, the
+card inputs and the state screens; that is most of a checkout, and it is still less than a
+single icon font. There are no runtime dependencies anywhere: every package
 declares an empty `dependencies`, and what they need from each other and from React is a peer
 dependency.
 
@@ -59,6 +61,9 @@ What the kit renders itself:
   screen reader announces when focus enters the bank's page.
 - The displayed-payment runner marks the copy button as a polite live region, so "Copied"
   is announced, and the QR image has alt text you can set.
+- Every field the kit renders goes through `Field`, which gives it a label, an id, and its
+  hint and error named in `aria-describedby`. Errors are polite; the payment gets the one
+  alert. See [The UI kit](./ui.md).
 - Everything is real HTML: a `<button>` is a button and a link is an `<a>`. The one place
   `@checkout-kit/ui` uses ARIA is the provider tabs (`tablist`/`tab`/`aria-selected`) and the
   error text (`role="alert"`).

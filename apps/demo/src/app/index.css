@@ -25,6 +25,22 @@
   }
 }
 
+/* Tailwind utilities, resolved from the kit tokens: `text-muted` and `.ck-item__name` are
+   then the same colour by construction rather than by somebody remembering. */
+@theme inline {
+  --color-accent: var(--ck-accent);
+  --color-surface: var(--ck-surface);
+  --color-surface-raised: var(--ck-surface-raised);
+  --color-surface-sunken: var(--ck-surface-sunken);
+  --color-border-subtle: var(--ck-border);
+  --color-ink: var(--ck-text);
+  --color-muted: var(--ck-text-muted);
+  --color-subtle: var(--ck-text-subtle);
+  --color-danger: var(--ck-danger);
+  --color-success: var(--ck-success);
+  --radius-card: var(--ck-radius);
+}
+
 /* What this app hands the checkout kit. The kit's own palette is already this one, so all
    that is left is the font: restyling is a handful of variables, never a selector fight. */
 .ck-root {
@@ -34,7 +50,8 @@
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100svh;
+  /* dvh, so the sticky pay button does not leave a gap when the URL bar retracts. */
+  min-height: 100dvh;
 
   /* On the root element, not in <Main>: the router renders its pending component
      before <Main> mounts, and a gradient scoped there would flash in afterwards. */

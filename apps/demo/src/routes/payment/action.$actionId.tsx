@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { PaymentActionHost } from '@checkout-kit/react'
+import { AuthenticationState, Button } from '@checkout-kit/ui'
 import type { PaymentResult } from '@/entities/payment'
 
 // Where an action that needs a screen is shown - a 3-D Secure challenge today, hosted card
@@ -40,27 +41,29 @@ function ThreeDSPage() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 p-2">
-      <PaymentActionHost
-        onSettled={handleSettled}
-        className="h-[70svh] w-full max-w-full overflow-hidden rounded-xl border border-[#2e303a] bg-white"
-      />
+    <AuthenticationState
+      actions={
+        <>
+          <Button type="button" variant="ghost" onClick={handleCancel}>
+            Cancel payment
+          </Button>
 
-      <div className="flex items-center gap-4">
-        {/* Some banks would rather own the whole window. Same action, different surface -
-            the provider is not asked twice and knows nothing about the choice. */}
-        <button
-          type="button"
-          onClick={() => void checkout.runPendingAction({ surface: 'top' })}
-          className="text-sm text-purple-300 underline"
-        >
-          Open bank in this window (full-page redirect)
-        </button>
-
-        <button type="button" onClick={handleCancel} className="text-sm text-[#9aa0ac] underline">
-          Cancel payment
-        </button>
-      </div>
-    </div>
+          {/* Some banks would rather own the whole window. Same action, different surface -
+              the provider is not asked twice and knows nothing about the choice. */}
+          {import.meta.env.DEV ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => void checkout.runPendingAction({ surface: 'top' })}
+            >
+              Open bank in this window (full-page redirect)
+            </Button>
+          ) : null}
+        </>
+      }
+    >
+      <PaymentActionHost onSettled={handleSettled} className="ck-action-host" />
+    </AuthenticationState>
   )
 }

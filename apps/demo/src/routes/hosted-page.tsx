@@ -52,7 +52,7 @@ function HostedPage() {
     <Section>
       <form onSubmit={(event) => void handleSubmit(event)} className="flex flex-col gap-4">
         <h2 className="text-xl text-white">Acme Bank — secure payment</h2>
-        <p className="text-sm text-[#9aa0ac]">
+        <p className="text-sm text-muted">
           You are on your bank&apos;s page. The shop never sees these details.
         </p>
         <Input
@@ -67,7 +67,7 @@ function HostedPage() {
         <button
           type="button"
           onClick={() => leave('cancelled')}
-          className="text-sm text-[#9aa0ac] underline"
+          className="text-sm text-muted underline"
         >
           Cancel and return to the shop
         </button>

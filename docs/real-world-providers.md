@@ -26,7 +26,8 @@ shapes are the real ones, because your backend usually passes them through with 
 stripped out.
 
 The demo in this repository has no backend at all, so the mock answers in the provider's
-shape directly. That is the one place where it is not like production.
+shape directly. That is the one place where it is not like production - see
+[The backend a plugin talks to](./backend.md) for what to build there.
 
 ## The map
 

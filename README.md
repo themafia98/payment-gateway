@@ -141,6 +141,9 @@ Every doc exists in English and Russian, except the bank simulator's notes.
   are.
 - **Writing a payment plugin** ([English](./docs/plugin-authoring.md) / [Русский](./docs/plugin-authoring.ru.md)) —
   the contract, the rules that types cannot enforce, and the suite a plugin must pass.
+- **The backend a plugin talks to** ([English](./docs/backend.md) / [Русский](./docs/backend.ru.md)) —
+  the half this repository does not have: what your API must expose, why the plugin cannot
+  call a provider directly, and a worked example.
 - **Real providers, mapped onto the contract** ([English](./docs/real-world-providers.md) / [Русский](./docs/real-world-providers.ru.md)) —
   what Stripe, Adyen, PayPal, Apple Pay and a bank acquirer return, and which action a
   plugin produces for each.

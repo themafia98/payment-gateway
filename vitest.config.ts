@@ -16,8 +16,8 @@ const packageSource = (path: string) =>
  */
 const workspaceSources = {
   alias: [
-    { find: /^@pg\/([^/]+)$/, replacement: packageSource('$1/src/index.ts') },
-    { find: /^@pg\/([^/]+)\/(.+)$/, replacement: packageSource('$1/src/$2/index.ts') },
+    { find: /^@checkout-kit\/([^/]+)$/, replacement: packageSource('$1/src/index.ts') },
+    { find: /^@checkout-kit\/([^/]+)\/(.+)$/, replacement: packageSource('$1/src/$2/index.ts') },
   ],
 }
 

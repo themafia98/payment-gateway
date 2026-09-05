@@ -4,8 +4,6 @@
 
 import { http } from 'msw'
 import type { HttpHandler } from 'msw'
-import { DEFAULT_OUTCOME, TEST_CARDS } from '../../test-cards'
-import { PROCESSING_SETTLE_MS } from '../config'
 import {
   clearSettlement,
   idempotencyKeys,
@@ -14,11 +12,11 @@ import {
   processingSettlesAt,
   rememberIdempotencyKey,
   saveIntent,
-  scheduleSettlement,
 } from '../data'
 import { networkDelay } from '../lib/delay'
+import { settleByCard } from '../lib/settle-by-card'
 import { field, readForm } from '../lib/form'
-import { invalidJson, json, notFound } from '../lib/respond'
+import { alreadySettled, invalidJson, json, notFound } from '../lib/respond'
 import { invalidParam, normalizeCardNumber, readJson } from '../lib/validation'
 import type { PaymentIntent, PaymentIntentStatus } from '../types'
 
@@ -26,6 +24,8 @@ interface RegisterHostedOrderRequest {
   planId?: string
   returnUrl?: string
 }
+
+const SETTLED: readonly PaymentIntentStatus[] = ['succeeded', 'declined', 'canceled']
 
 const transitionTo = (intent: PaymentIntent, status: PaymentIntentStatus): PaymentIntent =>
   saveIntent({ ...intent, status, nextAction: null, error: null })
@@ -94,38 +94,9 @@ export const hostedPageHandlers: HttpHandler[] = [
 
     const intent = paymentIntents.get(String(params.id))
     if (!intent) return notFound('order')
+    if (SETTLED.includes(intent.status)) return alreadySettled('order')
 
     const form = await readForm(request)
-    const outcome = TEST_CARDS[normalizeCardNumber(field(form, 'cardNumber'))] ?? DEFAULT_OUTCOME
-
-    switch (outcome.type) {
-      case 'succeed':
-      case 'requires_action':
-        // A hosted page handles its own authentication, out of sight; by the time the
-        // shopper is sent back, the bank has already decided.
-        return json(transitionTo(intent, 'succeeded'))
-
-      case 'processing':
-        scheduleSettlement(intent.id, Date.now() + PROCESSING_SETTLE_MS)
-        return json(transitionTo(intent, 'processing'))
-
-      case 'chaos':
-      case 'decline':
-        return json(
-          saveIntent({
-            ...intent,
-            status: 'declined',
-            nextAction: null,
-            error:
-              outcome.type === 'decline'
-                ? { type: 'card_error', code: outcome.code, message: outcome.message }
-                : {
-                    type: 'api_error',
-                    code: 'processing_error',
-                    message: 'The payment could not be processed.',
-                  },
-          }),
-        )
-    }
+    return json(settleByCard(intent, normalizeCardNumber(field(form, 'cardNumber'))))
   }),
 ]

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HostedFieldsRouteImport } from './routes/hosted-fields'
 import { Route as HostedPageRouteImport } from './routes/hosted-page'
+import { Route as DevStatesRouteImport } from './routes/dev.states'
 import { Route as PaymentReturnRouteImport } from './routes/payment/return'
 import { Route as SummaryFailureRouteRouteImport } from './routes/summary/failure/route'
 import { Route as SummarySuccessRouteRouteImport } from './routes/summary/success/route'
@@ -32,6 +33,11 @@ const HostedFieldsRoute = HostedFieldsRouteImport.update({
 const HostedPageRoute = HostedPageRouteImport.update({
   id: '/hosted-page',
   path: '/hosted-page',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevStatesRoute = DevStatesRouteImport.update({
+  id: '/dev/states',
+  path: '/dev/states',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentReturnRoute = PaymentReturnRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/hosted-page': typeof HostedPageRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
+  '/dev/states': typeof DevStatesRoute
   '/payment/return': typeof PaymentReturnRoute
   '/payment/action/$actionId': typeof PaymentActionActionIdRoute
   '/summary/failure/': typeof SummaryFailureIndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/hosted-fields': typeof HostedFieldsRoute
   '/hosted-page': typeof HostedPageRoute
+  '/dev/states': typeof DevStatesRoute
   '/payment/return': typeof PaymentReturnRoute
   '/payment/action/$actionId': typeof PaymentActionActionIdRoute
   '/summary/failure': typeof SummaryFailureIndexRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/hosted-page': typeof HostedPageRoute
   '/summary/failure': typeof SummaryFailureRouteRouteWithChildren
   '/summary/success': typeof SummarySuccessRouteRouteWithChildren
+  '/dev/states': typeof DevStatesRoute
   '/payment/return': typeof PaymentReturnRoute
   '/payment/action/$actionId': typeof PaymentActionActionIdRoute
   '/summary/failure/': typeof SummaryFailureIndexRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/hosted-page'
     | '/summary/failure'
     | '/summary/success'
+    | '/dev/states'
     | '/payment/return'
     | '/payment/action/$actionId'
     | '/summary/failure/'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/'
     | '/hosted-fields'
     | '/hosted-page'
+    | '/dev/states'
     | '/payment/return'
     | '/payment/action/$actionId'
     | '/summary/failure'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/hosted-page'
     | '/summary/failure'
     | '/summary/success'
+    | '/dev/states'
     | '/payment/return'
     | '/payment/action/$actionId'
     | '/summary/failure/'
@@ -137,6 +149,7 @@ export interface RootRouteChildren {
   HostedPageRoute: typeof HostedPageRoute
   SummaryFailureRouteRoute: typeof SummaryFailureRouteRouteWithChildren
   SummarySuccessRouteRoute: typeof SummarySuccessRouteRouteWithChildren
+  DevStatesRoute: typeof DevStatesRoute
   PaymentReturnRoute: typeof PaymentReturnRoute
   PaymentActionActionIdRoute: typeof PaymentActionActionIdRoute
 }
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/hosted-page'
       fullPath: '/hosted-page'
       preLoaderRoute: typeof HostedPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/states': {
+      id: '/dev/states'
+      path: '/dev/states'
+      fullPath: '/dev/states'
+      preLoaderRoute: typeof DevStatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment/return': {
@@ -237,6 +257,7 @@ const rootRouteChildren: RootRouteChildren = {
   HostedPageRoute: HostedPageRoute,
   SummaryFailureRouteRoute: SummaryFailureRouteRouteWithChildren,
   SummarySuccessRouteRoute: SummarySuccessRouteRouteWithChildren,
+  DevStatesRoute: DevStatesRoute,
   PaymentReturnRoute: PaymentReturnRoute,
   PaymentActionActionIdRoute: PaymentActionActionIdRoute,
 }

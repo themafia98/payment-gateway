@@ -1,0 +1,13 @@
+{
+  "name": "react-native-checkout-example",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Opening the checkout in a React Native WebView. Deliberately outside the workspaces: installing it should not add a native toolchain to the repository.",
+  "dependencies": {
+    "@checkout-kit/core": "*",
+    "@checkout-kit/webview-bridge": "*",
+    "react": "^19.0.0",
+    "react-native": "^0.83.0",
+    "react-native-webview": "^13.16.0"
+  }
+}

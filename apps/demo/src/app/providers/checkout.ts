@@ -15,6 +15,7 @@ import type { AcquiringConfig } from '@checkout-kit/provider-acquiring'
 import type { HostedPageConfig } from '@checkout-kit/provider-hpp'
 import type { HostedFieldsConfig } from '@checkout-kit/provider-hosted-fields'
 import type { WalletConfig } from '@checkout-kit/provider-wallet'
+import type { BankTransferConfig } from '@checkout-kit/provider-bank-transfer'
 
 interface WalletSheetParams {
   merchantName: string
@@ -70,6 +71,15 @@ const walletConfig: WalletConfig = {
   merchantName: 'Demo Store',
 }
 
+// No card, no redirect, no frame: a code on the screen and a shopper paying it in their
+// banking app. The checkout finds out by asking, which is what `poll` means below.
+const transferConfig: BankTransferConfig = {
+  baseUrl: `${BASE_URL}api`,
+  format: 'qr',
+  instructions: 'Scan this with your banking app, or copy the code into it.',
+  poll: { intervalMs: 1500, timeoutMs: 10 * 60 * 1000 },
+}
+
 // Built from BASE_URL, so it stays right when the app is served from a sub-path.
 const runtime = createBrowserRuntime({
   returnPath: `${BASE_URL}payment/return`,
@@ -121,6 +131,11 @@ export const checkout: CheckoutEngine = createCheckout({
       id: 'wallet',
       config: walletConfig,
       load: () => import('@checkout-kit/provider-wallet'),
+    }),
+    defineProvider({
+      id: 'transfer',
+      config: transferConfig,
+      load: () => import('@checkout-kit/provider-bank-transfer'),
     }),
   ],
   defaultProviderId: 'psp',

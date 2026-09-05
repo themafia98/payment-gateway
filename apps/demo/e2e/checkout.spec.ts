@@ -3,6 +3,7 @@ import {
   cardEntryTest,
   hostedPageTest,
   hostedFieldsTest,
+  transferTest,
   walletTest,
   expect,
 } from './fixtures'
@@ -192,6 +193,37 @@ test.describe('Payments approved in a wallet', () => {
       await expect(page).not.toHaveURL(URL_PATTERNS.summary)
     },
   )
+})
+
+test.describe('Payments made in a banking app', () => {
+  transferTest(
+    'the shopper pays the code and the checkout notices by itself',
+    async ({ page, checkoutPage, successPage }) => {
+      await checkoutPage.goto()
+      await expect(checkoutPage.cardNumber).toHaveCount(0)
+      await checkoutPage.fillBilling()
+      await checkoutPage.payButton.click()
+
+      // The code is on screen and nothing here can tell when it gets paid.
+      await expect(page.locator('.ck-display__value')).toBeVisible()
+      await page.getByRole('button', { name: 'Pay in the bank app' }).click()
+
+      // Nobody told the checkout. It found out by asking the provider, over and over.
+      await expect(page).toHaveURL(URL_PATTERNS.success)
+      await expect(successPage.heading).toBeVisible()
+    },
+  )
+
+  transferTest('a transfer the bank refuses says so', async ({ page, checkoutPage }) => {
+    await checkoutPage.goto()
+    await checkoutPage.fillBilling()
+    await checkoutPage.payButton.click()
+
+    await page.getByRole('button', { name: 'Let the bank refuse it' }).click()
+
+    await expect(checkoutPage.errorAlert).toHaveText(TEXT.declinedMessage)
+    await expect(page).not.toHaveURL(URL_PATTERNS.summary)
+  })
 })
 
 test.describe('Result pages', () => {

@@ -29,6 +29,7 @@
     "@checkout-kit/provider-hpp": "*",
     "@checkout-kit/provider-psp": "*",
     "@checkout-kit/provider-wallet": "*",
+    "@checkout-kit/provider-bank-transfer": "*",
     "@checkout-kit/react": "*",
     "@checkout-kit/runtime-browser": "*",
     "@checkout-kit/ui": "*",

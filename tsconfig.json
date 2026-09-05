@@ -10,6 +10,7 @@
     { "path": "./packages/provider-hpp" },
     { "path": "./packages/provider-hosted-fields" },
     { "path": "./packages/provider-wallet" },
+    { "path": "./packages/provider-bank-transfer" },
     { "path": "./packages/testing" },
     { "path": "./packages/conformance" },
     { "path": "./apps/demo" },

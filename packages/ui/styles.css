@@ -164,3 +164,54 @@
 .ck-status--failure {
   color: var(--ck-danger);
 }
+
+/*
+ * A payment shown on screen and paid somewhere else: a QR code, a transfer code, a slip
+ * number. Rendered by the display runner in @checkout-kit/runtime-browser, styled here so
+ * it does not arrive unstyled.
+ */
+.ck-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.ck-display__qr {
+  width: 160px;
+  height: 160px;
+  border-radius: var(--ck-radius-small);
+  background: #ffffff;
+  padding: 8px;
+}
+
+.ck-display__instructions {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: 14px;
+}
+
+.ck-display__value {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: var(--ck-text);
+}
+
+.ck-display__copy {
+  border: 1px solid var(--ck-surface-raised);
+  border-radius: var(--ck-radius-small);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.ck-display__app {
+  color: var(--ck-accent);
+  font-size: 14px;
+}

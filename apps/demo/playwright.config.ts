@@ -34,6 +34,10 @@ export default defineConfig<CheckoutOptions>({
       name: 'wallet',
       use: { ...devices['Desktop Chrome'], paymentProvider: 'wallet' },
     },
+    {
+      name: 'transfer',
+      use: { ...devices['Desktop Chrome'], paymentProvider: 'transfer' },
+    },
   ],
   webServer: {
     command: 'npm run dev:mock',

@@ -3,19 +3,20 @@ import { cx } from './cx'
 
 export interface ErrorTextProps {
   children?: ReactNode
+  id?: string
   className?: string
 }
 
 /**
- * What went wrong, in the shopper's terms. Always rendered as an alert, so a decline is
- * announced rather than merely displayed - and collapsed when empty, so it takes no room
- * until there is something to say.
+ * The payment-level error, and the only alert on the page. Field errors are polite - see
+ * <Field> - so a decline interrupts and a typo does not.
  */
-export const ErrorText = ({ children, className }: ErrorTextProps): ReactElement => (
-  <p role="alert" className={cx('ck-error', className)}>
-    {children}
-  </p>
-)
+export const ErrorText = ({ children, id, className }: ErrorTextProps): ReactElement | null =>
+  children ? (
+    <p role="alert" id={id} className={cx('ck-error', className)}>
+      {children}
+    </p>
+  ) : null
 
 export interface StatusProps {
   children: ReactNode

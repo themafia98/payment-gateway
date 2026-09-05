@@ -56,6 +56,14 @@ export default defineConfig({
           include: ['packages/react/src/**/*.test.tsx'],
         },
       },
+      {
+        resolve: workspaceSources,
+        test: {
+          name: 'ui',
+          environment: 'happy-dom',
+          include: ['packages/ui/src/**/*.test.tsx'],
+        },
+      },
     ],
   },
 })

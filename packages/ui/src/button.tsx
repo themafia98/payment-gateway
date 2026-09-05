@@ -1,34 +1,56 @@
-import type { ButtonHTMLAttributes, ReactElement, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactElement, ReactNode, Ref } from 'react'
 import { cx } from './cx'
+import { Spinner } from './spinner'
 
-export interface ButtonProps {
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+
+export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   children: ReactNode
   type?: ButtonHTMLAttributes<HTMLButtonElement>['type']
-  onClick?: ButtonHTMLAttributes<HTMLButtonElement>['onClick']
-  variant?: 'primary' | 'secondary'
-  disabled?: boolean
-  className?: string
+  variant?: ButtonVariant
+  size?: 'sm' | 'md'
+  fullWidth?: boolean
+  /** Shows a spinner and stops responding. Keeps the label: it is a moving target otherwise. */
+  busy?: boolean
   leftIcon?: ReactNode
   rightIcon?: ReactNode
+  className?: string
+  ref?: Ref<HTMLButtonElement>
 }
 
 export const Button = ({
   children,
   type = 'button',
-  onClick,
   variant = 'primary',
+  size = 'md',
+  fullWidth = true,
+  busy = false,
   disabled,
-  className,
   leftIcon,
   rightIcon,
+  className,
+  onClick,
+  ref,
+  ...props
 }: ButtonProps): ReactElement => (
   <button
+    {...props}
+    ref={ref}
     type={type}
-    onClick={onClick}
     disabled={disabled}
-    className={cx('ck-button', variant === 'secondary' && 'ck-button--secondary', className)}
+    // Not `disabled`: that drops focus to the top of the page mid-payment.
+    aria-disabled={busy || undefined}
+    aria-busy={busy || undefined}
+    onClick={busy ? undefined : onClick}
+    className={cx(
+      'ck-button',
+      variant !== 'primary' && `ck-button--${variant}`,
+      size === 'sm' && 'ck-button--sm',
+      !fullWidth && 'ck-button--auto',
+      className,
+    )}
   >
-    {leftIcon}
+    {busy ? <Spinner /> : leftIcon}
     <span>{children}</span>
     {rightIcon}
   </button>

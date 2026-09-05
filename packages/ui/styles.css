@@ -260,6 +260,257 @@
   line-height: var(--ck-line-tight);
 }
 
+/* ─────────────────────────────────────────────────────────────── fields ── */
+
+.ck-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-2);
+}
+
+.ck-field__label {
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-sm);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-field__optional {
+  color: var(--ck-text-subtle);
+  font-weight: var(--ck-weight-regular);
+}
+
+.ck-field__hint {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-field__error {
+  margin: 0;
+  color: var(--ck-danger);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-4);
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.ck-fieldset__legend {
+  padding: 0;
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+}
+
+/* ─────────────────────────────────────────────────────────────── choices ── */
+
+.ck-option-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.ck-option-group__legend {
+  padding: 0 0 var(--ck-space-3);
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-option-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-2);
+}
+
+.ck-option {
+  display: flex;
+  min-block-size: var(--ck-tap-target);
+  align-items: center;
+  gap: var(--ck-space-3);
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius-small);
+  background: var(--ck-surface-sunken);
+  padding: var(--ck-space-3) var(--ck-space-4);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color var(--ck-duration-fast) var(--ck-ease-standard),
+    background-color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+.ck-option:has(.ck-option__input:checked) {
+  border-color: var(--ck-accent);
+  background: var(--ck-accent-subtle);
+}
+
+.ck-option:has(.ck-option__input:focus-visible) {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
+}
+
+@media (hover: hover) {
+  .ck-option:hover:not(.ck-option--disabled) {
+    border-color: var(--ck-border-strong);
+  }
+}
+
+.ck-option--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Kept in the layout and in the tab order; the marker below is what is seen. */
+.ck-option__input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ck-option__marker {
+  flex: 0 0 auto;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border: 2px solid var(--ck-border-strong);
+  border-radius: var(--ck-radius-full);
+  transition: border-color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+.ck-option:has(.ck-option__input:checked) .ck-option__marker {
+  border-color: var(--ck-accent);
+  background: radial-gradient(circle, var(--ck-accent) 0 45%, transparent 46%);
+}
+
+.ck-option__media {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.ck-option__body {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--ck-space-1);
+}
+
+.ck-option__label {
+  display: flex;
+  align-items: center;
+  gap: var(--ck-space-2);
+  color: var(--ck-text);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-option__description {
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-option__aside {
+  flex: 0 0 auto;
+  color: var(--ck-text);
+  font-weight: var(--ck-weight-medium);
+}
+
+/* ──────────────────────────────────────────────────── badges, spinners ── */
+
+.ck-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--ck-radius-full);
+  background: var(--ck-surface-raised);
+  padding: 0 var(--ck-space-2);
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-xs);
+  font-weight: var(--ck-weight-medium);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.ck-badge--accent {
+  background: var(--ck-accent);
+  color: var(--ck-text-on-accent);
+}
+
+.ck-badge--success {
+  background: var(--ck-success-surface);
+  color: var(--ck-success);
+}
+
+.ck-badge--danger {
+  background: var(--ck-danger-surface);
+  color: var(--ck-danger);
+}
+
+.ck-spinner {
+  display: inline-block;
+  flex: 0 0 auto;
+  inline-size: 1em;
+  block-size: 1em;
+  border: 2px solid currentcolor;
+  border-block-start-color: transparent;
+  border-radius: var(--ck-radius-full);
+  animation: ck-spin 700ms linear infinite;
+}
+
+.ck-spinner--md {
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-width: 3px;
+}
+
+@keyframes ck-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes ck-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Something still has to say it is working, so the spin becomes a slow fade. */
+@media (prefers-reduced-motion: reduce) {
+  .ck-spinner {
+    animation: ck-pulse 1.6s ease-in-out infinite;
+    border-block-start-color: currentcolor;
+    opacity: 0.6;
+  }
+}
+
+.ck-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 /* ────────────────────────────────────────────────────────────── buttons ── */
 
 .ck-button {

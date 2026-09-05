@@ -16,6 +16,10 @@ const action = (overrides: Partial<Extract<PaymentAction, { kind: 'redirect' }>>
     ...overrides,
   }) as Extract<PaymentAction, { kind: 'redirect' }>
 
+/** The element the runner was given to draw in. */
+const hostOf = (ctx: RunnerContext): HTMLElement | undefined =>
+  (ctx.mount?.element as HTMLElement | undefined) ?? undefined
+
 const context = (overrides: Partial<RunnerContext> = {}): RunnerContext => {
   const mount = document.createElement('div')
   document.body.append(mount)
@@ -43,7 +47,7 @@ describe('the redirect runner, in a frame', () => {
 
     void runner.run(action(), ctx)
 
-    const frame = (ctx.mount?.element as HTMLElement).querySelector('iframe')
+    const frame = hostOf(ctx)?.querySelector('iframe')
     expect(frame?.title).toBe('Bank')
     expect(frame?.getAttribute('sandbox')).toBe('allow-scripts allow-forms allow-same-origin')
     expect(frame?.referrerPolicy).toBe('no-referrer')
@@ -86,10 +90,7 @@ describe('the redirect runner, in a frame', () => {
   it('refuses an action that cannot report back through the frame', async () => {
     const runner = createRedirectRunner()
 
-    const evidence = await runner.run(
-      action({ completion: { via: 'return_url' } }),
-      context(),
-    )
+    const evidence = await runner.run(action({ completion: { via: 'return_url' } }), context())
 
     expect(evidence).toMatchObject({ via: 'aborted', reason: 'runner_error' })
   })
@@ -109,7 +110,7 @@ describe('the redirect runner, in a frame', () => {
 
     await evidence
 
-    expect((ctx.mount?.element as HTMLElement).querySelector('iframe')).toBeNull()
+    expect(hostOf(ctx)?.querySelector('iframe')).toBeNull()
     submit.mockRestore()
   })
 })

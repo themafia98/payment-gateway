@@ -48,6 +48,14 @@ export default defineConfig({
           include: ['packages/runtime-browser/src/**/*.test.ts'],
         },
       },
+      {
+        resolve: workspaceSources,
+        test: {
+          name: 'react',
+          environment: 'happy-dom',
+          include: ['packages/react/src/**/*.test.tsx'],
+        },
+      },
     ],
   },
 })

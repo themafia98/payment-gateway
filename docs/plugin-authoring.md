@@ -78,6 +78,26 @@ does not care how many requests a method makes.
 **`confirm`** presents the instrument. It either settles the payment or answers
 `requires_action` with the next step.
 
+The instrument is one of five kinds, and `capabilities.instruments` must list exactly the
+ones you accept - it is what the checkout builds its form from, and the contract suite
+checks both directions:
+
+| Kind             | What it carries                 | Who collects it                  |
+| ---------------- | ------------------------------- | -------------------------------- |
+| `card`           | number, expiry, security code   | the checkout's own form          |
+| `token`          | an id for a card saved earlier  | your API, on a previous visit    |
+| `hosted_session` | an id for a session you started | your API                         |
+| `wallet`         | a payload from a wallet SDK     | the wallet, if the host holds it |
+| `none`           | nothing                         | somewhere else entirely          |
+
+Turn down a kind you do not take with the code `unsupported_instrument`. It is the one error
+code the engine and the suite read: any other code means "this particular instrument failed",
+which is a different thing.
+
+A saved card is worth calling out, because it is easy to get wrong: it is `token`, the
+browser holds an id and four digits, and the payment carries on exactly as a typed card
+would - it can be declined, and the bank can still ask for authentication.
+
 **`resume`** continues after that step finished. It receives the raw evidence the runner
 collected. **This is where your protocol's meaning lives.** A `transStatus` of `Y`, an
 `orderStatus` of 6, a `PaRes` blob, a wallet token — you read all of that here and nowhere

@@ -9,6 +9,7 @@ import {
   processingSettlesAt,
   rememberIdempotencyKey,
   saveIntent,
+  savedCardNumbers,
   scheduleSettlement,
 } from '../data'
 import { PROCESSING_SETTLE_MS } from '../config'
@@ -113,9 +114,27 @@ export const paymentIntentHandlers: HttpHandler[] = [
 
     const body = await readJson<Partial<ConfirmPaymentIntentRequest>>(request)
     if (!body) return invalidJson()
-    if (!body.cardNumber) return error(400, missingParam('cardNumber'))
 
-    const outcome = TEST_CARDS[normalizeCardNumber(body.cardNumber)] ?? DEFAULT_OUTCOME
+    // A card typed now, or one saved earlier. Everything after this line is the same,
+    // including the bank asking for authentication.
+    let cardNumber: string | undefined
+    if (body.paymentMethodId) {
+      cardNumber = savedCardNumbers.get(body.paymentMethodId)
+      if (!cardNumber) {
+        return error(404, {
+          type: 'invalid_request_error',
+          code: 'resource_missing',
+          message: 'No such saved payment method.',
+          param: 'paymentMethodId',
+        })
+      }
+    } else if (body.cardNumber) {
+      cardNumber = normalizeCardNumber(body.cardNumber)
+    } else {
+      return error(400, missingParam('cardNumber'))
+    }
+
+    const outcome = TEST_CARDS[cardNumber] ?? DEFAULT_OUTCOME
 
     switch (outcome.type) {
       case 'chaos':

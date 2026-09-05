@@ -13,20 +13,32 @@ export const merchantConfig: MerchantConfig = {
   amount: 4999,
 }
 
+/** Cards the shopper saved on a previous visit. */
 export const paymentMethods: PaymentMethod[] = [
   {
-    id: 'card_visa',
+    id: 'pm_visa_4242',
     brand: 'Visa',
-    label: 'Visa test card',
+    label: 'Visa ending 4242',
     last4: '4242',
   },
   {
-    id: 'card_mastercard',
-    brand: 'Mastercard',
-    label: 'Mastercard test card',
-    last4: '4444',
+    id: 'pm_visa_3155',
+    brand: 'Visa',
+    label: 'Visa ending 3155',
+    last4: '3155',
   },
 ]
+
+/**
+ * The card behind each saved method.
+ *
+ * Server-side only, and that is the whole point of saving a card: the browser holds an id
+ * and four digits, and the number stays where the number belongs.
+ */
+export const savedCardNumbers: Map<string, string> = new Map([
+  ['pm_visa_4242', '4242424242424242'],
+  ['pm_visa_3155', '4000002500003155'],
+])
 
 export const plans: PlanRecord[] = [
   { id: '1id', name: 'Monthly', price: '25/month', amount: 2500, currency: 'USD' },

@@ -40,8 +40,9 @@ interface ChargeDto {
 }
 
 const capabilities: ProviderCapabilities = {
-  // A token, once the frame has produced one. Never a card.
-  instruments: ['none', 'token'],
+  // Nothing is passed in at all: the token is produced by the frame and arrives as
+  // evidence, so `none` is the only thing this plugin can be confirmed with.
+  instruments: ['none'],
   actions: ['collect_fields'],
   surfaces: ['inline'],
   authentication: ['none'],

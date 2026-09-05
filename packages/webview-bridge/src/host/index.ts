@@ -101,6 +101,19 @@ export const createNavigationPolicy = (
   },
 })
 
+const SLASH = 47
+
+/** Not `/^\/+|\/+$/`: that one is quadratic on a string of slashes, and the input is a URL. */
+const trimSlashes = (value: string): string => {
+  let start = 0
+  let end = value.length
+
+  while (start < end && value.charCodeAt(start) === SLASH) start += 1
+  while (end > start && value.charCodeAt(end - 1) === SLASH) end -= 1
+
+  return value.slice(start, end)
+}
+
 /**
  * Reads the query off a return deep link. Feed the result back in as `PAYMENT_RESUME`, and
  * the checkout hydrates exactly as it would after a browser redirect.
@@ -120,9 +133,8 @@ export const parseReturnDeepLink = (
 
   if (options.path) {
     // A custom-scheme URL puts the first segment in `host`, so both spellings are checked.
-    const path = `${url.host}${url.pathname}`.replace(/^\/+|\/+$/g, '')
-    const wanted = options.path.replace(/^\/+|\/+$/g, '')
-    if (path !== wanted) return null
+    const path = trimSlashes(`${url.host}${url.pathname}`)
+    if (path !== trimSlashes(options.path)) return null
   }
 
   return Object.fromEntries(url.searchParams)

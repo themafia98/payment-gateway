@@ -115,3 +115,22 @@ describe('parseReturnDeepLink', () => {
     expect(parseReturnDeepLink('https://example.com/return', { scheme: 'myapp' })).toBeNull()
   })
 })
+
+describe('trimming the path', () => {
+  it('is not fooled by extra slashes on either side', () => {
+    const params = parseReturnDeepLink('myapp://payment/return/?intentId=pi_1', {
+      scheme: 'myapp',
+      path: '/payment/return/',
+    })
+
+    expect(params).toEqual({ intentId: 'pi_1' })
+  })
+
+  it('stays linear on a long run of slashes', () => {
+    // The obvious `/^\/+|\/+$/` here is quadratic, and the input is a URL from outside.
+    const started = Date.now()
+    parseReturnDeepLink(`myapp://${'/'.repeat(50_000)}x`, { scheme: 'myapp', path: 'nope' })
+
+    expect(Date.now() - started).toBeLessThan(1000)
+  })
+})

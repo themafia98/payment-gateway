@@ -15,6 +15,7 @@
     "build": "npm run build:packages && npm run build -w @pg/demo",
     "build:mock": "npm run build:packages && npm run build:mock -w @pg/demo",
     "verify:dist": "node scripts/verify-dist.mjs",
+    "check:types": "node scripts/check-published-types.mjs",
     "preview": "npm run preview -w @pg/demo",
     "preview:mock": "npm run preview:mock -w @pg/demo",
     "typecheck": "tsc -b",
@@ -28,6 +29,7 @@
     "purity": "node scripts/check-core-purity.mjs"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@arethetypeswrong/core": "^0.18.2",
     "happy-dom": "^20.14.0",
     "oxlint": "^1.75.0",

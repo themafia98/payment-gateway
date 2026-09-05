@@ -1,34 +1,249 @@
 /**
  * The checkout kit's styles.
  *
- * Plain CSS, so a consumer needs no particular framework. Everything is themed through
- * `--ck-*` variables with defaults, so restyling is a few declarations:
+ * Plain CSS, so a consumer needs no particular framework and no build step. Everything is
+ * themed through `--ck-*` variables, in three tiers:
  *
- *   .ck-root { --ck-accent: #0a7; --ck-radius: 8px; }
+ *   primitives  --ck-p-*        raw ramps; only the tier below reads them
+ *   semantic    --ck-accent…    what the rules below actually use
+ *   component   --ck-button-*   one knob per component, for the rare surgical override
  *
- * Every rule is one class under `.ck-root`, so nothing here is hard to override.
+ * Rebranding the whole kit is one declaration, because the semantic tier is derived:
+ *
+ *   .ck-root { --ck-p-accent-500: #0a7; }
+ *
+ * Overriding one thing is also one declaration:
+ *
+ *   .ck-root { --ck-radius: 8px; }
+ *
+ * Every rule is a class under `.ck-root` - never a bare element - so nothing here fights a
+ * host's CSS reset, and nothing here needs `!important`.
  */
 
+/* ─────────────────────────────────────────────────────────────── tokens ── */
+
 .ck-root {
+  /* Primitives ------------------------------------------------------------ */
+
+  /* The accent ramp. Move 500 and every state below moves with it. */
+  --ck-p-accent-100: #f2e3ff;
+  --ck-p-accent-200: #ddbcff;
+  --ck-p-accent-300: #c689ff;
+  --ck-p-accent-400: #b862ff;
+  --ck-p-accent-500: #aa3bff;
+  --ck-p-accent-600: #922ce0;
+  --ck-p-accent-700: #7621b8;
+  --ck-p-accent-800: #4d1578;
+  --ck-p-accent-900: #2a0f46;
+
+  /* Neutrals, carrying a trace of the same violet so greys never look muddy next to it. */
+  --ck-p-neutral-0: #ffffff;
+  --ck-p-neutral-50: #f6f5f8;
+  --ck-p-neutral-100: #ebe9ef;
+  --ck-p-neutral-200: #d6d3dd;
+  --ck-p-neutral-300: #b0b0b8;
+  --ck-p-neutral-400: #8b8a95;
+  --ck-p-neutral-500: #6b6a76;
+  --ck-p-neutral-600: #4f4e59;
+  --ck-p-neutral-700: #3d3d47;
+  --ck-p-neutral-800: #2b2a33;
+  --ck-p-neutral-900: #16151c;
+  --ck-p-neutral-1000: #06040a;
+
+  --ck-p-danger-300: #fca5a5;
+  --ck-p-danger-500: #f87171;
+  --ck-p-danger-700: #b91c1c;
+  --ck-p-success-300: #86efac;
+  --ck-p-success-500: #4ade80;
+  --ck-p-success-700: #15803d;
+  --ck-p-warning-500: #fbbf24;
+
+  --ck-p-unit: 0.25rem;
+
+  /* Semantic: colour ------------------------------------------------------ */
+
+  --ck-accent: var(--ck-p-accent-500);
+  --ck-accent-hover: var(--ck-p-accent-400);
+  --ck-accent-active: var(--ck-p-accent-600);
+  --ck-accent-subtle: color-mix(in srgb, var(--ck-accent) 16%, transparent);
+  --ck-accent-contrast: var(--ck-p-neutral-0);
+  --ck-text-on-accent: var(--ck-accent-contrast);
+
+  --ck-surface: var(--ck-p-neutral-700);
+  --ck-surface-raised: var(--ck-p-neutral-600);
+  --ck-surface-sunken: var(--ck-p-neutral-800);
+  --ck-surface-overlay: var(--ck-p-neutral-900);
+
+  --ck-border: color-mix(in srgb, var(--ck-p-neutral-0) 12%, transparent);
+  --ck-border-strong: color-mix(in srgb, var(--ck-p-neutral-0) 28%, transparent);
+
+  --ck-text: var(--ck-p-neutral-100);
+  --ck-text-muted: var(--ck-p-neutral-300);
+  --ck-text-subtle: var(--ck-p-neutral-400);
+
+  --ck-danger: var(--ck-p-danger-500);
+  --ck-danger-surface: color-mix(in srgb, var(--ck-danger) 14%, transparent);
+  --ck-danger-border: color-mix(in srgb, var(--ck-danger) 55%, transparent);
+  --ck-success: var(--ck-p-success-500);
+  --ck-success-surface: color-mix(in srgb, var(--ck-success) 14%, transparent);
+  --ck-warning: var(--ck-p-warning-500);
+
+  /* Semantic: space, type, size ------------------------------------------- */
+
+  --ck-space-1: calc(var(--ck-p-unit) * 1);
+  --ck-space-2: calc(var(--ck-p-unit) * 2);
+  --ck-space-3: calc(var(--ck-p-unit) * 3);
+  --ck-space-4: calc(var(--ck-p-unit) * 4);
+  --ck-space-5: calc(var(--ck-p-unit) * 5);
+  --ck-space-6: calc(var(--ck-p-unit) * 6);
+  --ck-space-8: calc(var(--ck-p-unit) * 8);
+  --ck-space-10: calc(var(--ck-p-unit) * 10);
+  --ck-space-12: calc(var(--ck-p-unit) * 12);
+
   --ck-font: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --ck-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --ck-accent: #aa3bff;
-  --ck-accent-contrast: #ffffff;
-  --ck-surface: #3d3d3d;
-  --ck-surface-raised: #4f4f4f;
-  --ck-text: #e9e9e9;
-  --ck-text-muted: #9aa0ac;
-  --ck-danger: #f87171;
-  --ck-success: #4ade80;
+  --ck-font-size-xs: 0.6875rem;
+  --ck-font-size-sm: 0.8125rem;
+  /* Never below 16px in practice: a smaller font makes iOS zoom the page on focus. */
+  --ck-font-size-md: 1rem;
+  --ck-font-size-lg: 1.125rem;
+  --ck-font-size-xl: 1.375rem;
+  --ck-font-size-2xl: 1.75rem;
 
-  --ck-radius: 14px;
-  --ck-radius-small: 10px;
-  --ck-gap: 16px;
-  --ck-control-height: 66px;
+  --ck-line-tight: 1.2;
+  --ck-line-normal: 1.45;
+  --ck-weight-regular: 400;
+  --ck-weight-medium: 500;
+  --ck-weight-semibold: 600;
+
+  --ck-control-height-sm: 2.25rem;
+  --ck-control-height-md: clamp(3rem, 2.6rem + 1.2vw, 3.5rem);
+  --ck-control-height-lg: clamp(3.25rem, 2.8rem + 1.6vw, 3.75rem);
+  --ck-control-padding-inline: var(--ck-space-4);
+  /* The smallest thing a finger can reliably hit. Raised on touch screens, below. */
+  --ck-tap-target: 44px;
+
+  --ck-radius-xs: 6px;
+  --ck-radius-sm: 8px;
+  --ck-radius-md: 10px;
+  --ck-radius-lg: 14px;
+  --ck-radius-full: 999px;
+
+  /* Semantic: focus, motion, depth, layout -------------------------------- */
+
+  --ck-focus-ring-width: 2px;
+  --ck-focus-ring-offset: 2px;
+  --ck-focus-ring-color: var(--ck-accent);
+
+  --ck-duration-fast: 120ms;
+  --ck-duration-normal: 200ms;
+  --ck-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  --ck-shadow-sm: 0 1px 2px rgb(0 0 0 / 24%);
+  --ck-shadow-md: 0 8px 24px rgb(0 0 0 / 32%);
+  --ck-z-sticky: 10;
+
+  --ck-layout-max: 34rem;
+  --ck-layout-aside: 20rem;
+  --ck-safe-block-end: env(safe-area-inset-bottom, 0px);
+
+  /* Aliases kept for hosts that themed the kit before the scale existed. ---- */
+
+  --ck-gap: var(--ck-space-4);
+  --ck-radius: var(--ck-radius-lg);
+  --ck-radius-small: var(--ck-radius-md);
+  --ck-control-height: var(--ck-control-height-md);
+
+  /* Component knobs -------------------------------------------------------- */
+
+  --ck-button-height: var(--ck-control-height);
+  --ck-input-height: var(--ck-control-height);
+  --ck-tab-height: var(--ck-control-height-sm);
 
   font-family: var(--ck-font);
   color: var(--ck-text);
+
+  /* Layout here answers to the width it was given, not the width of the window: the same
+     checkout renders full-page, in a 360px WebView and inside a merchant's iframe. */
+  container-type: inline-size;
+  container-name: ck;
 }
+
+/* ─────────────────────────────────────────────────────────────── themes ── */
+
+/*
+ * Only the semantic tier is redefined, so a light theme is the same brand rather than a
+ * second one. No attribute at all means dark, which is what the kit shipped with.
+ */
+.ck-root[data-ck-theme='light'] {
+  --ck-accent-hover: var(--ck-p-accent-600);
+  --ck-accent-active: var(--ck-p-accent-700);
+  --ck-surface: var(--ck-p-neutral-100);
+  --ck-surface-raised: var(--ck-p-neutral-0);
+  --ck-surface-sunken: var(--ck-p-neutral-50);
+  --ck-surface-overlay: var(--ck-p-neutral-0);
+  --ck-border: color-mix(in srgb, var(--ck-p-neutral-1000) 12%, transparent);
+  --ck-border-strong: color-mix(in srgb, var(--ck-p-neutral-1000) 28%, transparent);
+  --ck-text: var(--ck-p-neutral-900);
+  --ck-text-muted: var(--ck-p-neutral-500);
+  --ck-text-subtle: var(--ck-p-neutral-400);
+  --ck-danger: var(--ck-p-danger-700);
+  --ck-success: var(--ck-p-success-700);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  .ck-root[data-ck-theme='auto'] {
+    --ck-accent-hover: var(--ck-p-accent-600);
+    --ck-accent-active: var(--ck-p-accent-700);
+    --ck-surface: var(--ck-p-neutral-100);
+    --ck-surface-raised: var(--ck-p-neutral-0);
+    --ck-surface-sunken: var(--ck-p-neutral-50);
+    --ck-surface-overlay: var(--ck-p-neutral-0);
+    --ck-border: color-mix(in srgb, var(--ck-p-neutral-1000) 12%, transparent);
+    --ck-border-strong: color-mix(in srgb, var(--ck-p-neutral-1000) 28%, transparent);
+    --ck-text: var(--ck-p-neutral-900);
+    --ck-text-muted: var(--ck-p-neutral-500);
+    --ck-text-subtle: var(--ck-p-neutral-400);
+    --ck-danger: var(--ck-p-danger-700);
+    --ck-success: var(--ck-p-success-700);
+
+    color-scheme: light;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── preferences ── */
+
+/*
+ * One block turns off every animation in the kit, because no rule below hard-codes a
+ * duration - they all read these two tokens.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ck-root {
+    --ck-duration-fast: 1ms;
+    --ck-duration-normal: 1ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ck-root {
+    --ck-border: color-mix(in srgb, currentcolor 45%, transparent);
+    --ck-border-strong: currentcolor;
+    --ck-text-muted: var(--ck-text);
+    --ck-focus-ring-width: 3px;
+  }
+}
+
+/* A finger is not a mouse pointer. */
+@media (pointer: coarse) {
+  .ck-root {
+    --ck-tap-target: 48px;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── surfaces ── */
 
 .ck-section {
   display: flex;
@@ -37,81 +252,214 @@
   gap: var(--ck-gap);
 }
 
+.ck-section__title {
+  margin: 0;
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+  line-height: var(--ck-line-tight);
+}
+
+/* ────────────────────────────────────────────────────────────── buttons ── */
+
 .ck-button {
   display: flex;
-  width: 100%;
-  height: var(--ck-control-height);
+  box-sizing: border-box;
+  min-block-size: var(--ck-tap-target);
+  block-size: var(--ck-button-height);
+  inline-size: 100%;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 32px;
+  gap: var(--ck-space-2);
+  padding-inline: var(--ck-space-8);
   border: 0;
   border-radius: var(--ck-radius);
   background: var(--ck-accent);
-  color: var(--ck-accent-contrast);
+  color: var(--ck-text-on-accent);
   font: inherit;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+  line-height: var(--ck-line-tight);
+  text-align: center;
   cursor: pointer;
+  /* No 300ms wait for a double-tap that is not coming. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ck-duration-fast) var(--ck-ease-standard),
+    opacity var(--ck-duration-fast) var(--ck-ease-standard);
 }
 
 .ck-button--secondary {
-  background: color-mix(in srgb, var(--ck-accent) 50%, transparent);
+  background: var(--ck-accent-subtle);
+  color: var(--ck-text);
 }
 
-.ck-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+.ck-button--ghost {
+  background: transparent;
+  color: var(--ck-text);
+  box-shadow: inset 0 0 0 1px var(--ck-border);
 }
+
+.ck-button--danger {
+  background: var(--ck-danger);
+  color: var(--ck-p-neutral-1000);
+}
+
+.ck-button--sm {
+  block-size: var(--ck-control-height-sm);
+  padding-inline: var(--ck-space-4);
+  font-size: var(--ck-font-size-sm);
+}
+
+.ck-button--auto {
+  inline-size: auto;
+}
+
+/* Guarded: an unguarded :hover sticks after a tap in a WebView, and the pay button then
+   looks permanently pressed. */
+@media (hover: hover) {
+  .ck-button:hover:not(:disabled):not([aria-disabled='true']) {
+    background: var(--ck-accent-hover);
+  }
+
+  .ck-button--secondary:hover:not(:disabled):not([aria-disabled='true']) {
+    background: color-mix(in srgb, var(--ck-accent) 26%, transparent);
+  }
+
+  .ck-button--ghost:hover:not(:disabled):not([aria-disabled='true']) {
+    background: var(--ck-accent-subtle);
+  }
+}
+
+/* Paired with the transparent tap highlight above: without a pressed state, a button in an
+   Android WebView feels dead. */
+.ck-button:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ck-accent-active);
+}
+
+.ck-button:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
+}
+
+.ck-button:disabled,
+.ck-button[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Busy is not disabled: the button keeps focus while the payment runs. */
+.ck-button[aria-busy='true'] {
+  cursor: progress;
+}
+
+/* ─────────────────────────────────────────────────────────────── inputs ── */
 
 .ck-input {
   display: flex;
-  height: var(--ck-control-height);
-  width: 100%;
   box-sizing: border-box;
+  block-size: var(--ck-input-height);
+  min-block-size: var(--ck-tap-target);
+  inline-size: 100%;
   align-items: center;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--ck-radius-small);
   background: var(--ck-surface);
-  padding: 0 16px;
+  padding-inline: var(--ck-control-padding-inline);
   color: var(--ck-text);
   font: inherit;
+  font-size: var(--ck-font-size-md);
+  /* Clears the sticky action bar when a field near the bottom takes focus. */
+  scroll-margin-block: var(--ck-space-10);
+  transition:
+    border-color var(--ck-duration-fast) var(--ck-ease-standard),
+    background-color var(--ck-duration-fast) var(--ck-ease-standard);
 }
 
 .ck-input::placeholder {
-  color: var(--ck-text-muted);
+  color: var(--ck-text-subtle);
 }
 
 .ck-input:focus-visible {
-  outline: 2px solid var(--ck-accent);
-  outline-offset: 2px;
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
 }
+
+.ck-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ck-input[aria-invalid='true'] {
+  border-color: var(--ck-danger-border);
+  background: var(--ck-danger-surface);
+}
+
+/* ───────────────────────────────────────────────────────────────── tabs ── */
 
 .ck-tabs {
   display: flex;
   align-items: stretch;
-  gap: 6px;
+  gap: var(--ck-space-1);
   border-radius: var(--ck-radius-small);
   background: var(--ck-surface);
-  padding: 6px;
+  padding: var(--ck-space-1);
+  /* More methods than fit is the normal case on a phone, not an error state. */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+
+.ck-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .ck-tab {
-  flex: 1;
   display: flex;
+  flex: 0 0 auto;
+  min-block-size: var(--ck-tap-target);
   align-items: center;
   justify-content: center;
+  scroll-snap-align: start;
   border: 0;
   border-radius: var(--ck-radius-small);
   background: transparent;
-  padding: 14px 12px;
-  color: var(--ck-text);
+  padding: var(--ck-space-2) var(--ck-space-3);
+  color: var(--ck-text-muted);
   font: inherit;
+  font-size: var(--ck-font-size-sm);
+  white-space: nowrap;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ck-duration-fast) var(--ck-ease-standard),
+    color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+/* Wide enough for all of them: share the row instead of scrolling. */
+@container ck (min-width: 34rem) {
+  .ck-tab {
+    flex: 1 1 0;
+  }
 }
 
 .ck-tab[aria-selected='true'] {
   background: var(--ck-surface-raised);
+  color: var(--ck-text);
+}
+
+.ck-tab:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: calc(var(--ck-focus-ring-offset) * -1);
+}
+
+@media (hover: hover) {
+  .ck-tab:hover:not([aria-disabled='true']):not([aria-selected='true']) {
+    color: var(--ck-text);
+  }
 }
 
 .ck-tab[aria-disabled='true'] {
@@ -119,33 +467,43 @@
   opacity: 0.5;
 }
 
+/* ──────────────────────────────────────────────────────────────── lists ── */
+
 .ck-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--ck-space-2);
+  margin: 0;
 }
 
 .ck-item {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--ck-space-4);
 }
 
 .ck-item__name {
   color: var(--ck-text-muted);
 }
 
+.ck-item__value {
+  text-align: end;
+}
+
 .ck-item--total .ck-item__name,
 .ck-item--total .ck-item__value {
   color: var(--ck-text);
-  font-weight: 600;
+  font-weight: var(--ck-weight-semibold);
 }
+
+/* ─────────────────────────────────────────────────────────────── status ── */
 
 .ck-error {
   margin: 0;
   color: var(--ck-danger);
-  font-size: 14px;
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
 }
 
 .ck-error:empty {
@@ -154,7 +512,8 @@
 
 .ck-status {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--ck-font-size-md);
+  line-height: var(--ck-line-normal);
 }
 
 .ck-status--success {
@@ -165,53 +524,71 @@
   color: var(--ck-danger);
 }
 
+/* ────────────────────────────────────────────────────── displayed codes ── */
+
 /*
  * A payment shown on screen and paid somewhere else: a QR code, a transfer code, a slip
- * number. Rendered by the display runner in @checkout-kit/runtime-browser, styled here so
- * it does not arrive unstyled.
+ * number. The markup is built imperatively by the display runner in
+ * @checkout-kit/runtime-browser - these class names are its contract, so they are styled
+ * here but never renamed here.
  */
 .ck-display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: var(--ck-space-3);
+  padding: var(--ck-space-4);
   text-align: center;
 }
 
 .ck-display__qr {
-  width: 160px;
-  height: 160px;
+  inline-size: clamp(9rem, 40cqi, 12rem);
+  block-size: auto;
+  aspect-ratio: 1;
   border-radius: var(--ck-radius-small);
-  background: #ffffff;
-  padding: 8px;
+  /* The code has to be dark-on-light whatever the theme, or a scanner will not read it. */
+  background: var(--ck-p-neutral-0);
+  padding: var(--ck-space-2);
 }
 
 .ck-display__instructions {
   margin: 0;
   color: var(--ck-text-muted);
-  font-size: 14px;
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
 }
 
 .ck-display__value {
-  max-width: 100%;
+  max-inline-size: 100%;
   overflow-wrap: anywhere;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
+  font-family: var(--ck-font-mono);
+  font-size: var(--ck-font-size-sm);
   color: var(--ck-text);
+  user-select: all;
 }
 
 .ck-display__copy {
-  border: 1px solid var(--ck-surface-raised);
+  min-block-size: var(--ck-tap-target);
+  border: 1px solid var(--ck-border-strong);
   border-radius: var(--ck-radius-small);
   background: transparent;
   color: inherit;
   font: inherit;
-  padding: 8px 14px;
+  font-size: var(--ck-font-size-sm);
+  padding-inline: var(--ck-space-4);
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+.ck-display__copy:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
 }
 
 .ck-display__app {
+  display: inline-flex;
+  min-block-size: var(--ck-tap-target);
+  align-items: center;
   color: var(--ck-accent);
-  font-size: 14px;
+  font-size: var(--ck-font-size-sm);
 }

@@ -30,10 +30,28 @@ interface DemoWallet {
 const BASE_URL = import.meta.env.BASE_URL
 const ACS_ORIGIN: string = import.meta.env.VITE_ACS_ORIGIN ?? 'https://localhost:5100'
 
+// Anything long enough to be a card number is masked before it reaches the console. The
+// engine logs the cause of a provider failure, and a cause can carry the request that
+// caused it.
+const PAN = /\b\d{12,19}\b/g
+
+const redact = (detail: unknown): unknown => {
+  if (detail === undefined) return ''
+  try {
+    return JSON.parse(
+      JSON.stringify(detail, (_key, value) =>
+        typeof value === 'string' ? value.replace(PAN, '[redacted]') : value,
+      ) ?? '""',
+    )
+  } catch {
+    return '[unserializable]'
+  }
+}
+
 const consoleLogger: Logger = {
-  debug: (message, detail) => console.debug(`[checkout] ${message}`, detail ?? ''),
-  warn: (message, detail) => console.warn(`[checkout] ${message}`, detail ?? ''),
-  error: (message, detail) => console.error(`[checkout] ${message}`, detail ?? ''),
+  debug: (message, detail) => console.debug(`[checkout] ${message}`, redact(detail)),
+  warn: (message, detail) => console.warn(`[checkout] ${message}`, redact(detail)),
+  error: (message, detail) => console.error(`[checkout] ${message}`, redact(detail)),
 }
 
 const pspConfig: PspConfig = {

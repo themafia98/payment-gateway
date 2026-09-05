@@ -26,10 +26,14 @@ describeProviderContract({
   instrumentFor: (testCase) => card(SCENARIO_CARDS[testCase]),
 
   // What the access control server posts back once the shopper has authenticated.
-  evidenceFor: (action, outcome) => ({
+  evidenceFor: (action, testCase) => ({
     via: 'post_message',
     actionId: action.id,
     origin: config.acsOrigin,
-    data: { type: '3ds-cres', challengeId: action.id, transStatus: outcome === 'pass' ? 'Y' : 'N' },
+    data: {
+      type: '3ds-cres',
+      challengeId: action.id,
+      transStatus: testCase === 'challengeFail' ? 'N' : 'Y',
+    },
   }),
 })

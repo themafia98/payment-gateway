@@ -2,7 +2,8 @@
 //
 // A plugin author says what their provider is, what backend it talks to and what data
 // produces each outcome, and gets back everything the engine and the UI are allowed to
-// assume. Cases are named after outcomes, not card numbers: a bank plugin has none.
+// assume. Cases are named after outcomes, not card numbers: half of these plugins never
+// see a card.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { setupServer } from 'msw/node'
@@ -15,23 +16,36 @@ import type {
   PaymentInstrument,
   PaymentProvider,
   PaymentProviderInstance,
+  PaymentResult,
   ProviderContext,
 } from '@checkout-kit/core'
 
 export type ConformanceCase =
-  'approve' | 'decline' | 'challengePass' | 'challengeFail' | 'processing' | 'chaos'
+  'approve' | 'decline' | 'challengePass' | 'challengeFail' | 'processing'
 
 export interface ConformanceSuite<TConfig> {
   readonly provider: PaymentProvider<TConfig>
   readonly config: TConfig
   /** MSW handlers for this provider's backend. */
   readonly handlers: readonly RequestHandler[]
-  /** The instrument that produces each outcome with this provider. */
+  /**
+   * The instrument that starts each case. Plugins that collect the card somewhere else -
+   * a hosted page, a frame, a wallet - return `{ kind: 'none' }` for all of them and
+   * decide the outcome in `evidenceFor` instead.
+   */
   readonly instrumentFor: (testCase: ConformanceCase) => PaymentInstrument
-  /** Evidence shaped the way this provider's authentication step reports a verdict. */
-  readonly evidenceFor: (action: PaymentAction, outcome: 'pass' | 'fail') => ActionEvidence
+  /**
+   * What comes back from the action, shaped to produce this case's outcome. It may call
+   * the backend first: that is what the bank's page or the provider's frame does.
+   */
+  readonly evidenceFor: (
+    action: PaymentAction,
+    testCase: ConformanceCase,
+  ) => ActionEvidence | Promise<ActionEvidence>
   /** The message the issuer returns for `decline`, asserted verbatim. */
   readonly declineMessage: string
+  /** Card numbers this suite pays with. None of them may come back out of the plugin. */
+  readonly secrets?: readonly string[]
   readonly planId?: string
 }
 
@@ -84,6 +98,24 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       return { intent, result }
     }
 
+    /**
+     * The engine's loop, in miniature: keep answering actions until the payment settles.
+     * A card plugin usually settles on `confirm`; a hosted page always takes one turn
+     * around the loop. Same code either way, which is the whole idea.
+     */
+    const settle = async (testCase: ConformanceCase) => {
+      const { intent, result: confirmed } = await startPayment(testCase)
+      let result: PaymentResult = confirmed
+
+      for (let step = 0; step < 4 && result.status === 'requires_action'; step += 1) {
+        const evidence = await suite.evidenceFor(result.action, testCase)
+        result = await provider.resume(intent.id, evidence, options(nextKey()))
+      }
+
+      expect(result.status, 'the plugin kept asking for more actions').not.toBe('requires_action')
+      return { intent, result }
+    }
+
     it('declares capabilities it can actually deliver', () => {
       const { capabilities } = suite.provider
       expect(capabilities.instruments.length).toBeGreaterThan(0)
@@ -107,8 +139,8 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       expect(second.id).toBe(first.id)
     })
 
-    it('approves a good instrument, and says so again when asked', async () => {
-      const { intent, result } = await startPayment('approve')
+    it('approves a good payment, and says so again when asked', async () => {
+      const { intent, result } = await settle('approve')
 
       expect(result.status).toBe('succeeded')
 
@@ -116,12 +148,21 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       expect(reread.status).toBe('succeeded')
     })
 
-    it("reports a decline with the issuer's own message", async () => {
-      const { result } = await startPayment('decline')
+    it('reports a decline in the words the issuer used', async () => {
+      const { result } = await settle('decline')
 
       expect(result.status).toBe('declined')
       // Whatever the shopper is told here is what they will read out to their bank.
       expect(result.status === 'declined' && result.error.message).toBe(suite.declineMessage)
+    })
+
+    it('carries the amount on every intent it returns', async () => {
+      const { intent, result } = await startPayment('approve')
+
+      // The checkout shows this while the payment is in flight, so a placeholder here is
+      // a wrong price on the screen.
+      expect(intent.amount).toBeGreaterThan(0)
+      if ('intent' in result && result.intent) expect(result.intent.amount).toBe(intent.amount)
     })
 
     it('asks for an action it has told the engine it can produce', async () => {
@@ -137,65 +178,73 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
     })
 
     it('settles an approved authentication', async () => {
-      const { intent, result } = await startPayment('challengePass')
-      if (result.status !== 'requires_action') throw new Error('expected an action')
-
-      const settled = await provider.resume(
-        intent.id,
-        suite.evidenceFor(result.action, 'pass'),
-        options(nextKey()),
-      )
-
-      expect(settled.status).toBe('succeeded')
+      const { result } = await settle('challengePass')
+      expect(result.status).toBe('succeeded')
     })
 
     it('declines a rejected authentication', async () => {
-      const { intent, result } = await startPayment('challengePass')
-      if (result.status !== 'requires_action') throw new Error('expected an action')
-
-      const settled = await provider.resume(
-        intent.id,
-        suite.evidenceFor(result.action, 'fail'),
-        options(nextKey()),
-      )
-
-      expect(settled.status).toBe('declined')
+      const { result } = await settle('challengeFail')
+      expect(result.status).toBe('declined')
     })
 
     it('refuses evidence for an action it never issued', async () => {
       const { intent, result } = await startPayment('challengePass')
       if (result.status !== 'requires_action') throw new Error('expected an action')
 
-      const forged = suite.evidenceFor({ ...result.action, id: 'not-a-real-action' }, 'pass')
+      const forged = await suite.evidenceFor(
+        { ...result.action, id: 'not-a-real-action' },
+        'challengePass',
+      )
       const settled = await provider.resume(intent.id, forged, options(nextKey()))
 
-      // Anything but success: a plugin that approves unknown evidence approves anything.
+      // Anything but success: a plugin that accepts unknown evidence accepts anything.
       expect(settled.status).not.toBe('succeeded')
     })
 
-    it('answers a repeated resume the same way twice, without throwing', async () => {
+    it('does not settle twice when resume is repeated', async () => {
       const { intent, result } = await startPayment('challengePass')
       if (result.status !== 'requires_action') throw new Error('expected an action')
 
-      const evidence = suite.evidenceFor(result.action, 'pass')
-      await provider.resume(intent.id, evidence, options(nextKey()))
+      const evidence = await suite.evidenceFor(result.action, 'challengePass')
+      const first = await provider.resume(intent.id, evidence, options(nextKey()))
       const again = await provider.resume(intent.id, evidence, options(nextKey()))
 
-      expect(again.status).toBe('error')
+      // A retry, a refreshed tab, an engine picking a payment back up. Either the plugin
+      // repeats its answer or it refuses - never a second charge, and never a throw.
+      expect([first.status, 'error']).toContain(again.status)
+
+      const reread = await provider.getIntent(intent.id, options(nextKey()))
+      expect(reread.status).toBe('succeeded')
     })
 
     it('reports an authorization that has not settled yet', async () => {
       if (!suite.provider.capabilities.poll) return
 
-      const { result } = await startPayment('processing')
+      const { result } = await settle('processing')
 
       // Neither succeeded nor declined - the engine polls from this state.
       expect(result.status).toBe('processing')
     })
 
     it('turns a provider-side outage into an error, not an exception', async () => {
-      const { result } = await startPayment('chaos')
+      const intent = await provider.createIntent(
+        { planId: suite.planId ?? '1id' },
+        options(nextKey()),
+      )
+      server.use(
+        http.all('*', () =>
+          HttpResponse.json(
+            { error: { type: 'api_error', message: 'Something went wrong on our end.' } },
+            { status: 500 },
+          ),
+        ),
+      )
 
+      const result = await provider.confirm(
+        intent.id,
+        suite.instrumentFor('approve'),
+        options(nextKey()),
+      )
       expect(result.status).toBe('error')
       expect(result.status === 'error' && result.error.message).toBeTruthy()
     })
@@ -217,13 +266,15 @@ export const describeProviderContract = <TConfig>(suite: ConformanceSuite<TConfi
       expect(result.status).toBe('error')
     })
 
-    it('never lets instrument data back out', async () => {
-      const instrument = suite.instrumentFor('approve')
+    it('never lets card data back out', async () => {
       // Long values only: an expiry or a three-digit code is short enough to appear inside
       // a generated identifier by chance, and a flaky test proves nothing.
-      const secrets = stringsIn(instrument).filter((value) => value.length >= 8)
+      const secrets = [
+        ...stringsIn(suite.instrumentFor('approve')),
+        ...(suite.secrets ?? []),
+      ].filter((value) => value.length >= 8)
 
-      const { intent, result } = await startPayment('approve')
+      const { intent, result } = await settle('approve')
       const exposed = stringsIn({ intent, result }).join(' ')
 
       for (const secret of secrets) {

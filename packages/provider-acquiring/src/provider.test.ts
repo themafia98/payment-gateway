@@ -34,10 +34,14 @@ describeProviderContract({
   instrumentFor: (testCase) => card(SCENARIO_CARDS[testCase]),
 
   // 3-D Secure 1: the access control server posts back a PaRes rather than a CRes.
-  evidenceFor: (action, outcome) => ({
+  evidenceFor: (action, testCase) => ({
     via: 'post_message',
     actionId: action.id,
     origin: config.acsOrigin,
-    data: { type: '3ds-pares', MD: action.id, transStatus: outcome === 'pass' ? 'Y' : 'N' },
+    data: {
+      type: '3ds-pares',
+      MD: action.id,
+      transStatus: testCase === 'challengeFail' ? 'N' : 'Y',
+    },
   }),
 })

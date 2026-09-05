@@ -1,4 +1,4 @@
-# @pg/core
+# @checkout-kit/core
 
 The headless half of the checkout: the vocabulary a payment is described in, the contract
 a payment integration implements, and an HTTP client with no opinions about payments.
@@ -8,12 +8,12 @@ worker, and `npm run purity` fails the build if a browser-only global gets in.
 
 ## What lives here
 
-| Import              | Contents                                                      |
-| ------------------- | ------------------------------------------------------------- |
-| `@pg/core`          | domain types, the plugin contract, `Logger`                   |
-| `@pg/core/domain`   | just the domain: intent, instrument, action, evidence, result |
-| `@pg/core/provider` | just the plugin contract: `PaymentProvider`, capabilities     |
-| `@pg/core/http`     | `createHttpClient` - base URL, body encoding, error parsing   |
+| Import                        | Contents                                                      |
+| ----------------------------- | ------------------------------------------------------------- |
+| `@checkout-kit/core`          | domain types, the plugin contract, `Logger`                   |
+| `@checkout-kit/core/domain`   | just the domain: intent, instrument, action, evidence, result |
+| `@checkout-kit/core/provider` | just the plugin contract: `PaymentProvider`, capabilities     |
+| `@checkout-kit/core/http`     | `createHttpClient` - base URL, body encoding, error parsing   |
 
 ## The idea
 

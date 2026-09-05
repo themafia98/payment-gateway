@@ -1,4 +1,4 @@
-import { declineMessage } from '@pg/testing'
+import { declineMessage } from '@checkout-kit/testing'
 
 export const PLACEHOLDERS = {
   cardNumber: '0000 0000 0000 0000',

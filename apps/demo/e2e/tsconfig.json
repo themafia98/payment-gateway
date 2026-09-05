@@ -12,7 +12,7 @@
     /* Playwright honours these mappings, so the specs read the testing package straight
        from source. Without them e2e would only run after `npm run build:packages`. */
     "paths": {
-      "@pg/testing": ["../../../packages/testing/src/index.ts"]
+      "@checkout-kit/testing": ["../../../packages/testing/src/index.ts"]
     }
   },
   "include": ["."]

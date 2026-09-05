@@ -1,7 +1,7 @@
 // sessionStorage, not localStorage: a payment in flight belongs to this tab and this
 // visit. Every call is guarded, because storage throws outright in some private modes.
 
-import type { StorageAdapter } from '@pg/core'
+import type { StorageAdapter } from '@checkout-kit/core'
 
 export const sessionStorageAdapter = (): StorageAdapter => ({
   read: (key) => {

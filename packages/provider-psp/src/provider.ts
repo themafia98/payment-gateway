@@ -4,7 +4,12 @@
 // Two things used to live in a React component and belong here: building the `CReq`, and
 // the rule that `transStatus === 'Y'` means approved. Both are this protocol's details.
 
-import { createHttpClient, HttpError, type ApiErrorPayload, type HttpClient } from '@pg/core/http'
+import {
+  createHttpClient,
+  HttpError,
+  type ApiErrorPayload,
+  type HttpClient,
+} from '@checkout-kit/core/http'
 import type {
   ActionEvidence,
   CallOptions,
@@ -19,7 +24,7 @@ import type {
   PaymentStatus,
   ProviderCapabilities,
   ProviderContext,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export interface PspConfig {
   /** Root of the PSP API, e.g. `/api` under the app's base path. */
@@ -31,7 +36,7 @@ export interface PspConfig {
 // Announces this plugin to the host's type system. Importing the config type is enough to
 // pick it up, so `defineProvider({ id: 'psp', ... })` is checked even when the plugin
 // itself is only ever loaded through a dynamic import.
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     psp: PspConfig
   }

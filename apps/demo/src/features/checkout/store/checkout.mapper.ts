@@ -1,4 +1,4 @@
-import type { CheckoutSnapshot, CheckoutPhase } from '@pg/core'
+import type { CheckoutSnapshot, CheckoutPhase } from '@checkout-kit/core'
 import type { CheckoutState, CheckoutStatus } from './checkout.types'
 
 // The engine's phases are finer-grained than anything this UI shows: it distinguishes

@@ -150,7 +150,7 @@ action: {
 }
 ```
 
-This is the same shape as `@pg/provider-hpp` in this repository.
+This is the same shape as `@checkout-kit/provider-hpp` in this repository.
 
 ### Status mapping
 
@@ -278,7 +278,7 @@ Without the SDK, use the `approve` link from the order and a `redirect` action w
 
 Both are wallets: a script draws a sheet, the shopper approves with a fingerprint or a face,
 and you get an encrypted token that your PSP charges. This is `sdk_handoff`, and it is what
-`@pg/provider-wallet` is modelled on.
+`@checkout-kit/provider-wallet` is modelled on.
 
 ```ts
 action: {
@@ -308,7 +308,7 @@ For both, `resume` sends the token to your backend, which charges it through you
 
 ## Bank acquiring, host to host
 
-This is the shape `@pg/provider-acquiring` follows: an older API, form-urlencoded, with
+This is the shape `@checkout-kit/provider-acquiring` follows: an older API, form-urlencoded, with
 credentials in the body of every call. Several bank platforms in Europe and the CIS still
 work this way.
 
@@ -334,7 +334,7 @@ Three details to expect from this family of APIs:
 ## Provider-hosted card fields
 
 Some providers give you a URL to render in an iframe, and post a token back with
-`postMessage`. That is what `collect_fields` is for, and what `@pg/provider-hosted-fields`
+`postMessage`. That is what `collect_fields` is for, and what `@checkout-kit/provider-hosted-fields`
 does.
 
 Note the difference from Stripe Elements: Elements is a _script_ that creates its own

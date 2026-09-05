@@ -2,7 +2,7 @@
 // component and other values breaks fast refresh.
 
 import { createContext, useContext, type Context } from 'react'
-import type { CheckoutEngine } from '@pg/core'
+import type { CheckoutEngine } from '@checkout-kit/core'
 
 export const CheckoutContext: Context<CheckoutEngine | null> = createContext<CheckoutEngine | null>(
   null,

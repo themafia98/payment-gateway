@@ -149,7 +149,7 @@ action: {
 }
 ```
 
-Это ровно та же форма, что у `@pg/provider-hpp` в этом репозитории.
+Это ровно та же форма, что у `@checkout-kit/provider-hpp` в этом репозитории.
 
 ### Маппинг статусов
 
@@ -277,7 +277,7 @@ resume: async (intentId, evidence, opts) => {
 
 Оба — кошельки: скрипт рисует свой лист, покупатель подтверждает отпечатком или лицом, а вы
 получаете зашифрованный токен, который списывает ваш PSP. Это `sdk_handoff`, и именно с этого
-списан `@pg/provider-wallet`.
+списан `@checkout-kit/provider-wallet`.
 
 ```ts
 action: {
@@ -307,7 +307,7 @@ action: {
 
 ## Банковский эквайринг host-to-host
 
-Это форма, которой следует `@pg/provider-acquiring`: старое API, form-urlencoded, с
+Это форма, которой следует `@checkout-kit/provider-acquiring`: старое API, form-urlencoded, с
 кредами в теле каждого вызова. Несколько банковских платформ в Европе и СНГ до сих пор так
 работают.
 
@@ -333,7 +333,7 @@ getOrderStatusExtended.do   прочитать настоящий исход
 ## Hosted-поля провайдера
 
 Некоторые провайдеры дают URL, который вы рендерите в iframe, и присылают токен через
-`postMessage`. Для этого и нужен `collect_fields`, и это делает `@pg/provider-hosted-fields`.
+`postMessage`. Для этого и нужен `collect_fields`, и это делает `@checkout-kit/provider-hosted-fields`.
 
 Обратите внимание на отличие от Stripe Elements: Elements — это _скрипт_, который сам создаёт
 свои iframe'ы и сам подтверждает платёж, поэтому там `sdk_handoff`. Обычная hosted-fields

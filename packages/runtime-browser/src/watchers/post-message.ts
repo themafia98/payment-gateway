@@ -2,7 +2,7 @@
 // declared, the message type, and the action id. The last one stops a stale message from
 // an earlier attempt settling the current payment.
 
-import type { ActionEvidence } from '@pg/core'
+import type { ActionEvidence } from '@checkout-kit/core'
 
 export interface PostMessageExpectation {
   readonly actionId: string

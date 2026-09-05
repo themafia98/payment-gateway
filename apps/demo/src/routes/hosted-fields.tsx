@@ -39,7 +39,7 @@ function HostedFields() {
     const { token } = (await response.json()) as { token: string }
 
     // A token and an action id. Never the card - the parent has no way to ask for it.
-    window.parent.postMessage({ type: 'pg-fields-token', actionId, token }, '*')
+    window.parent.postMessage({ type: 'ck-fields-token', actionId, token }, '*')
   }
 
   return (

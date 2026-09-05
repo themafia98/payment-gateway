@@ -7,7 +7,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse, type RequestHandler } from 'msw'
-import { resetBackend } from '@pg/testing/backend'
+import { resetBackend } from '@checkout-kit/testing/backend'
 import type {
   ActionEvidence,
   CallOptions,
@@ -16,7 +16,7 @@ import type {
   PaymentProvider,
   PaymentProviderInstance,
   ProviderContext,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export type ConformanceCase =
   'approve' | 'decline' | 'challengePass' | 'challengeFail' | 'processing' | 'chaos'

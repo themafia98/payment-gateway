@@ -12,8 +12,8 @@
 ## Форма плагина
 
 ```ts
-import type { PaymentProvider, ProviderContext, PaymentProviderInstance } from '@pg/core'
-import { createHttpClient } from '@pg/core/http'
+import type { PaymentProvider, ProviderContext, PaymentProviderInstance } from '@checkout-kit/core'
+import { createHttpClient } from '@checkout-kit/core/http'
 
 export interface AcmeConfig {
   readonly baseUrl: string
@@ -22,7 +22,7 @@ export interface AcmeConfig {
 
 // Объявляем конфиг системе типов хоста, чтобы `defineProvider({ id: 'acme', ... })`
 // проверялся, хотя код плагина хост не импортирует.
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     acme: AcmeConfig
   }
@@ -67,7 +67,7 @@ export default acmeProvider
 ```
 
 Экспортируйте провайдер ещё и дефолтом: хост регистрирует его как
-`load: () => import('@pg/provider-acme')`, и реестр разворачивает дефолтный экспорт.
+`load: () => import('@checkout-kit/provider-acme')`, и реестр разворачивает дефолтный экспорт.
 
 ## Четыре глагола
 
@@ -147,9 +147,9 @@ hosted page игнорирует `status=success` в URL возврата и п�
 Каждый плагин проходит один и тот же набор:
 
 ```ts
-import { describeProviderContract } from '@pg/conformance'
+import { describeProviderContract } from '@checkout-kit/conformance'
 import { acmeHandlers } from './test-backend'
-import { SCENARIO_CARDS, declineMessage } from '@pg/testing'
+import { SCENARIO_CARDS, declineMessage } from '@checkout-kit/testing'
 import { acmeProvider } from './provider'
 
 describeProviderContract({
@@ -186,13 +186,13 @@ describeProviderContract({
 ## Регистрация
 
 ```ts
-import { defineProvider } from '@pg/core'
-import type { AcmeConfig } from '@pg/provider-acme'
+import { defineProvider } from '@checkout-kit/core'
+import type { AcmeConfig } from '@checkout-kit/provider-acme'
 
 defineProvider({
   id: 'acme',
   config: { baseUrl: '/api/acme', apiKey } satisfies AcmeConfig,
-  load: () => import('@pg/provider-acme'),
+  load: () => import('@checkout-kit/provider-acme'),
 })
 ```
 

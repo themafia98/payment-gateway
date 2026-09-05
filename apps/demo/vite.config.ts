@@ -13,10 +13,12 @@ export default defineConfig(({ command }) => ({
   plugins: [tailwindcss(), tanstackRouter({ target: 'react', autoCodeSplitting: true }), react()],
   resolve: {
     // Workspace packages are consumed through their real exports map, not a path alias:
-    // the `@pg/source` condition points at their TypeScript sources during development,
+    // the `@checkout-kit/source` condition points at their TypeScript sources during development,
     // while `PG_USE_DIST=1` drops it so CI can prove the published `dist` entry points
     // resolve too. An alias would bypass the exports map and hide mistakes in it.
-    conditions: process.env.PG_USE_DIST ? undefined : ['@pg/source', ...defaultClientConditions],
+    conditions: process.env.PG_USE_DIST
+      ? undefined
+      : ['@checkout-kit/source', ...defaultClientConditions],
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },

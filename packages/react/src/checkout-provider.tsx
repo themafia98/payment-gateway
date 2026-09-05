@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
-import type { CheckoutEngine } from '@pg/core'
+import type { CheckoutEngine } from '@checkout-kit/core'
 import { CheckoutContext } from './context'
 
 export interface CheckoutProviderProps {

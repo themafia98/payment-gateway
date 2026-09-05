@@ -1,1 +1,1 @@
-export type { CardNumber, CardExpiration, CvcCode } from '@pg/core'
+export type { CardNumber, CardExpiration, CvcCode } from '@checkout-kit/core'

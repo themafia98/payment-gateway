@@ -1,7 +1,7 @@
 // Hands the payment to a third-party script, such as a wallet. Scripts are loaded once per
 // URL, and an integrity hash is passed through when the provider publishes one.
 
-import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@pg/core'
+import type { ActionEvidence, ActionRunner, PaymentAction, RunnerContext } from '@checkout-kit/core'
 
 type SdkHandoffAction = Extract<PaymentAction, { kind: 'sdk_handoff' }>
 

@@ -1,4 +1,4 @@
-// The apps normally resolve packages through the `@pg/source` condition and compile
+// The apps normally resolve packages through the `@checkout-kit/source` condition and compile
 // against sources. That hides one kind of bug: a broken `exports` map. This builds the demo
 // the way a published consumer would, so every import has to land on `dist`.
 
@@ -21,6 +21,6 @@ const run = (args, env) => {
 }
 
 run(['run', 'build:packages'])
-run(['run', 'build', '-w', '@pg/demo'], { PG_USE_DIST: '1' })
+run(['run', 'build', '-w', '@checkout-kit/demo'], { PG_USE_DIST: '1' })
 
 console.log('\nThe demo builds against the packages’ published entry points.')

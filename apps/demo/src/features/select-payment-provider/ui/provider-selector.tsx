@@ -1,4 +1,4 @@
-import { useCheckout } from '@pg/react'
+import { useCheckout } from '@checkout-kit/react'
 import { Tabs, Tab } from '@/shared/ui'
 
 // Which acquirer takes the money. Normally a merchant setting nobody sees; here it is a

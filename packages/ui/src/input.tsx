@@ -8,5 +8,5 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = ({ className, ref, ...props }: InputProps): ReactElement => (
-  <input ref={ref} type="text" className={cx('pg-input', className)} {...props} />
+  <input ref={ref} type="text" className={cx('ck-input', className)} {...props} />
 )

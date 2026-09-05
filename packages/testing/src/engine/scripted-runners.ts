@@ -8,7 +8,7 @@ import {
   type PaymentAction,
   type PaymentActionKind,
   type RunnerRegistry,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 const ALL_KINDS: readonly PaymentActionKind[] = [
   'redirect',

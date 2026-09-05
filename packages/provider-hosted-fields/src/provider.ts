@@ -1,7 +1,7 @@
 // Hosted card fields: the provider renders the inputs in its own frame and hands back a
 // token. This plugin has no way to read a card, which is the point.
 
-import { createHttpClient, type HttpClient } from '@pg/core/http'
+import { createHttpClient, type HttpClient } from '@checkout-kit/core/http'
 import type {
   CallOptions,
   CreateIntentInput,
@@ -13,7 +13,7 @@ import type {
   PaymentStatus,
   ProviderCapabilities,
   ProviderContext,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export interface HostedFieldsConfig {
   readonly baseUrl: string
@@ -23,7 +23,7 @@ export interface HostedFieldsConfig {
   readonly fieldsOrigin: string
 }
 
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     hostedfields: HostedFieldsConfig
   }
@@ -130,7 +130,7 @@ export const createHostedFieldsProvider = (
           completion: {
             via: 'post_message',
             origin: ctx.config.fieldsOrigin,
-            type: 'pg-fields-token',
+            type: 'ck-fields-token',
           },
         },
       }

@@ -2,8 +2,8 @@
 // engine a DOM node and reports the result back.
 
 import { useEffect, useRef, type ReactElement } from 'react'
-import { createMount } from '@pg/runtime-browser'
-import type { ActionSurface, PaymentResult } from '@pg/core'
+import { createMount } from '@checkout-kit/runtime-browser'
+import type { ActionSurface, PaymentResult } from '@checkout-kit/core'
 import { useCheckout } from './use-checkout'
 
 export interface PaymentActionHostProps {
@@ -41,5 +41,5 @@ export const PaymentActionHost = ({
     // guard above is what actually keeps the action from running twice.
   }, [engine, action, phase, autoRun, surface, onSettled])
 
-  return <div ref={mountRef} className={className} data-pg-action-host="" />
+  return <div ref={mountRef} className={className} data-ck-action-host="" />
 }

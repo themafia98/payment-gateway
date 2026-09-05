@@ -4,7 +4,7 @@
 // The interesting part is `resume`: the browser returns saying `status=success` on a URL
 // the shopper could have typed, so the plugin ignores it and re-reads the order.
 
-import { createHttpClient, type HttpClient } from '@pg/core/http'
+import { createHttpClient, type HttpClient } from '@checkout-kit/core/http'
 import type {
   CallOptions,
   CreateIntentInput,
@@ -16,7 +16,7 @@ import type {
   PaymentStatus,
   ProviderCapabilities,
   ProviderContext,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export interface HostedPageConfig {
   /** Root of the merchant-facing API used to register and read orders. */
@@ -28,7 +28,7 @@ export interface HostedPageConfig {
   readonly pageUrl: string
 }
 
-declare module '@pg/core' {
+declare module '@checkout-kit/core' {
   interface ProviderConfigRegistry {
     hpp: HostedPageConfig
   }

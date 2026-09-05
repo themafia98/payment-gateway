@@ -15,7 +15,7 @@ export interface PendingCheckout {
   readonly startedAt: number
 }
 
-export const PENDING_CHECKOUT_KEY = 'pg:pending-checkout'
+export const PENDING_CHECKOUT_KEY = 'checkout-kit:pending-checkout'
 
 /** Used when no storage is available: the flow still works, minus redirect recovery. */
 export const memoryStorage = (): StorageAdapter => {

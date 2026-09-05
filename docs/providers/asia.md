@@ -165,8 +165,8 @@ What is actually missing is a fifth action kind:
 ```
 
 with a runner that renders it and an engine that polls the provider at the same time,
-stopping the display when the payment settles. Adding it is a change to `@pg/core`,
-`@pg/runtime-browser` and the conformance suite — the honest cost of covering the region
+stopping the display when the payment settles. Adding it is a change to `@checkout-kit/core`,
+`@checkout-kit/runtime-browser` and the conformance suite — the honest cost of covering the region
 properly, and it is on the list of known gaps rather than quietly missing.
 
 ## Banks in Asia

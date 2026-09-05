@@ -16,7 +16,7 @@ challenge in a frame, a redirect to the bank's page, fields the provider renders
 wallet on the phone. This part changes often and differs between providers. It is why
 "add a second payment provider" usually means rewriting a checkout.
 
-So the two are kept apart. The first lives in `@pg/core` and is written once. The second
+So the two are kept apart. The first lives in `@checkout-kit/core` and is written once. The second
 lives in plugins, one per provider, and the core cannot see it.
 
 ## One loop, five integrations
@@ -42,33 +42,33 @@ just asks for an action first.
 
 ```mermaid
 flowchart LR
-    UI["Checkout UI<br/>(@pg/ui, your components)"] --> R["@pg/react<br/>hooks, action host"]
-    R --> E["@pg/core<br/>engine + contract"]
+    UI["Checkout UI<br/>(@checkout-kit/ui, your components)"] --> R["@checkout-kit/react<br/>hooks, action host"]
+    R --> E["@checkout-kit/core<br/>engine + contract"]
     E -->|"asks for the next step"| P["plugin<br/>(one per provider)"]
-    E -->|"runs the step"| RN["@pg/runtime-browser<br/>frames, redirects, scripts"]
+    E -->|"runs the step"| RN["@checkout-kit/runtime-browser<br/>frames, redirects, scripts"]
     P -->|"HTTP"| API["provider's API"]
     RN -->|"frame / redirect / script"| BANK["provider's pages"]
 ```
 
 ## The packages
 
-**`@pg/core`** — the domain, the plugin contract, the engine. No React, no DOM, no bundler
+**`@checkout-kit/core`** — the domain, the plugin contract, the engine. No React, no DOM, no bundler
 environment. It compiles for a browser, a Node test and a worker, and `npm run purity` fails
 the build if a browser-only global gets in. That is what lets the whole payment loop run in
 a unit test, with scripted runners in place of a browser.
 
-**`@pg/runtime-browser`** — the parts that need a browser: runners that post forms into
+**`@checkout-kit/runtime-browser`** — the parts that need a browser: runners that post forms into
 sandboxed frames, take over the window or load a third-party script, plus the single
 `message` listener in the checkout.
 
-**`@pg/react`** — hooks over the engine's snapshot, and `<PaymentActionHost/>`, a mount point
+**`@checkout-kit/react`** — hooks over the engine's snapshot, and `<PaymentActionHost/>`, a mount point
 that gives the engine a DOM node and reports the result back. It knows no protocol.
 
-**`@pg/ui`** — the visual kit. Plain CSS, themed with `--pg-*` variables.
+**`@checkout-kit/ui`** — the visual kit. Plain CSS, themed with `--ck-*` variables.
 
-**`@pg/provider-*`** — one per integration. A protocol lives here and only here.
+**`@checkout-kit/provider-*`** — one per integration. A protocol lives here and only here.
 
-**`@pg/testing`** and **`@pg/conformance`** — the mock backend, and the contract suite every
+**`@checkout-kit/testing`** and **`@checkout-kit/conformance`** — the mock backend, and the contract suite every
 plugin must pass.
 
 ## What the engine does

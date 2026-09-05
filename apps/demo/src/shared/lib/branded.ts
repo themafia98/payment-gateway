@@ -1,1 +1,1 @@
-export { createBranded } from '@pg/core'
+export { createBranded } from '@checkout-kit/core'

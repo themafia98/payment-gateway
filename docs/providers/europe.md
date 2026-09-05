@@ -131,7 +131,7 @@ These are the platforms banks resell, and they usually offer both:
 - a **hosted payment page**: create a session server-side, redirect the shopper, come back
   and read the status. `redirect` + `surface: 'top'`.
 - **host-to-host**: you post the card yourself and get back an ACS URL for 3-D Secure. This
-  is the shape `@pg/provider-acquiring` follows.
+  is the shape `@checkout-kit/provider-acquiring` follows.
 
 Expect older conventions here: form-encoded bodies, signatures over concatenated fields
 (`SHA-256` of a fixed field order and a shared secret), and numeric status codes. Compute
@@ -173,7 +173,7 @@ If you integrate a bank directly rather than through a PSP, expect one of three 
 See above.
 
 **2. Host-to-host acquiring.** The bank's own API, usually form-encoded, with credentials
-in every request and numeric statuses. `@pg/provider-acquiring` is written against this
+in every request and numeric statuses. `@checkout-kit/provider-acquiring` is written against this
 shape:
 
 ```text

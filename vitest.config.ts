@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 // Split by what each layer needs. The core and the plugins run in Node with no DOM: if a
-// test there needs a browser, something has leaked out of @pg/runtime-browser.
+// test there needs a browser, something has leaked out of @checkout-kit/runtime-browser.
 
 const packageSource = (path: string) =>
   fileURLToPath(new URL(`./packages/${path}`, import.meta.url))
@@ -10,7 +10,7 @@ const packageSource = (path: string) =>
 /**
  * Resolve workspace packages to their sources.
  *
- * Vitest hands bare specifiers to Node, which knows nothing about our `@pg/source`
+ * Vitest hands bare specifiers to Node, which knows nothing about our `@checkout-kit/source`
  * condition, so it would fall back to `dist` - passing locally and failing on a clean
  * checkout. The exports maps are still checked by publint, attw and the verify:dist job.
  */

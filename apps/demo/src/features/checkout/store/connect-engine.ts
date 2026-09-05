@@ -1,4 +1,4 @@
-import type { CheckoutEngine } from '@pg/core'
+import type { CheckoutEngine } from '@checkout-kit/core'
 import { useCheckoutStore } from './checkout.store'
 import { snapshotToState } from './checkout.mapper'
 

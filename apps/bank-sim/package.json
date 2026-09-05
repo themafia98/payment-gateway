@@ -1,9 +1,16 @@
 {
-  "name": "@pg/bank-sim",
+  "name": "@checkout-kit/bank-sim",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "description": "Standalone 3-D Secure ACS simulator: a separate https origin the checkout talks to.",
+  "license": "Apache-2.0",
+  "author": "themafia98",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themafia98/payment-gateway.git",
+    "directory": "apps/bank-sim"
+  },
   "scripts": {
     "dev": "node src/acs/server.ts"
   },

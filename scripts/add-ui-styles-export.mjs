@@ -1,6 +1,6 @@
 // The kit's stylesheet is hand-written and lives at the package root, so it resolves the
 // same before a build, after one, and from a published tarball. (Tailwind resolves CSS
-// imports with its own resolver, which knows nothing about our `@pg/source` condition.)
+// imports with its own resolver, which knows nothing about our `@checkout-kit/source` condition.)
 //
 // tsdown regenerates the exports map from the JavaScript entry points, so this runs
 // afterwards and puts back the one entry it cannot know about.
@@ -28,4 +28,4 @@ if (manifest.publishConfig?.exports) {
 
 await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
 
-console.log('@pg/ui: styles.css kept in the exports map')
+console.log('@checkout-kit/ui: styles.css kept in the exports map')

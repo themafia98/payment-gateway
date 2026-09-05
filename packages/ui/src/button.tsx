@@ -26,7 +26,7 @@ export const Button = ({
     type={type}
     onClick={onClick}
     disabled={disabled}
-    className={cx('pg-button', variant === 'secondary' && 'pg-button--secondary', className)}
+    className={cx('ck-button', variant === 'secondary' && 'ck-button--secondary', className)}
   >
     {leftIcon}
     <span>{children}</span>

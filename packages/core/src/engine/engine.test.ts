@@ -7,7 +7,7 @@ import {
   fakeIntent,
   FAKE_PROVIDER_ID,
   type FakeProviderScript,
-} from '@pg/testing/engine'
+} from '@checkout-kit/testing/engine'
 import type { PaymentInstrument } from '../domain/instrument'
 import type { CardExpiration, CardNumber, CvcCode } from '../domain/brand'
 import { createCheckout, type CheckoutEngine, type CheckoutEngineConfig } from './engine'

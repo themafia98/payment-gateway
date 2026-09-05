@@ -14,7 +14,7 @@ import {
   type CheckoutFormSchema,
 } from '../model/schema'
 import { CheckoutDetails } from './checkout-details'
-import { PaymentActionHost, useCheckout } from '@pg/react'
+import { PaymentActionHost, useCheckout } from '@checkout-kit/react'
 import type { Plan } from '@/entities/plan'
 import type { PaymentResult } from '@/entities/payment'
 import {

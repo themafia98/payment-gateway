@@ -10,7 +10,7 @@ import type {
   PaymentProviderInstance,
   PaymentResult,
   ProviderCapabilities,
-} from '@pg/core'
+} from '@checkout-kit/core'
 
 export interface FakeProviderScript {
   /** Answers for successive `confirm` calls; the last one repeats. */

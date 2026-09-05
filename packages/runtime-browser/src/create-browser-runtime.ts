@@ -5,7 +5,7 @@ import {
   type MountHandle,
   type RunnerRegistry,
   type StorageAdapter,
-} from '@pg/core'
+} from '@checkout-kit/core'
 import {
   createCollectFieldsRunner,
   type CollectFieldsRunnerOptions,

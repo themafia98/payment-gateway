@@ -1,7 +1,7 @@
-import { describeProviderContract } from '@pg/conformance'
-import { acquiringHandlers } from '@pg/testing/backend'
-import { SCENARIO_CARDS, declineMessage } from '@pg/testing'
-import type { CardExpiration, CardNumber, CvcCode } from '@pg/core'
+import { describeProviderContract } from '@checkout-kit/conformance'
+import { acquiringHandlers } from '@checkout-kit/testing/backend'
+import { SCENARIO_CARDS, declineMessage } from '@checkout-kit/testing'
+import type { CardExpiration, CardNumber, CvcCode } from '@checkout-kit/core'
 import { acquiringProvider, type AcquiringConfig } from './provider'
 
 // The same suite the PSP plugin passes, against a protocol that shares nothing with it:

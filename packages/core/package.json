@@ -1,32 +1,39 @@
 {
-  "name": "@pg/core",
+  "name": "@checkout-kit/core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "description": "Headless checkout core: domain vocabulary, the payment plugin contract, and an HTTP client with no opinions about payments.",
+  "license": "Apache-2.0",
+  "author": "themafia98",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themafia98/payment-gateway.git",
+    "directory": "packages/core"
+  },
   "sideEffects": false,
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
-      "@pg/source": "./src/index.ts",
+      "@checkout-kit/source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./domain": {
-      "@pg/source": "./src/domain/index.ts",
+      "@checkout-kit/source": "./src/domain/index.ts",
       "default": "./dist/domain/index.mjs"
     },
     "./engine": {
-      "@pg/source": "./src/engine/index.ts",
+      "@checkout-kit/source": "./src/engine/index.ts",
       "default": "./dist/engine/index.mjs"
     },
     "./http": {
-      "@pg/source": "./src/http/index.ts",
+      "@checkout-kit/source": "./src/http/index.ts",
       "default": "./dist/http/index.mjs"
     },
     "./provider": {
-      "@pg/source": "./src/provider/index.ts",
+      "@checkout-kit/source": "./src/provider/index.ts",
       "default": "./dist/provider/index.mjs"
     },
     "./package.json": "./package.json"
@@ -48,6 +55,6 @@
     }
   },
   "devDependencies": {
-    "@pg/testing": "*"
+    "@checkout-kit/testing": "*"
   }
 }

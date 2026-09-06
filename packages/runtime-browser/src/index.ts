@@ -1,4 +1,5 @@
 export * from './create-browser-runtime'
+export * from './platform'
 export * from './runners/collect-fields'
 export * from './runners/display'
 export * from './runners/redirect'

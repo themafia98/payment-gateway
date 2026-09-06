@@ -16,7 +16,8 @@
   ],
   "files": [
     "dist",
-    "styles.css"
+    "styles.css",
+    "styles"
   ],
   "scripts": {
     "build": "tsdown"

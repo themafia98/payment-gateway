@@ -1,7 +1,5 @@
-// What a checkout screen shows, derived from what the engine is doing.
-//
-// Lives here rather than in the React package because both the React bindings and the UI
-// kit need it, and it is a plain mapping over CheckoutPhase with no React in it.
+// What a screen shows, from what the engine is doing. Here rather than in the React package
+// because the UI kit needs it too, and there is no React in it.
 
 import type { CheckoutPhase } from './machine'
 
@@ -17,11 +15,8 @@ export type PaymentUiState =
   | 'cancelled'
 
 /**
- * Exhaustive on purpose: a new phase is a compile error here rather than a screen that
- * renders nothing.
- *
- * `editing` and `validating` are missing because the engine cannot know them - they are
- * form states, and the React hook layers them over `idle`.
+ * Exhaustive: a new phase is a compile error rather than a screen that renders nothing.
+ * `editing` and `validating` are form states, layered over `idle` by the React hook.
  */
 export const PHASE_TO_UI_STATE: Record<CheckoutPhase, PaymentUiState> = {
   idle: 'idle',

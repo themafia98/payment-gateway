@@ -1,4 +1,6 @@
 export { CheckoutProvider } from './checkout-provider'
+export { CheckoutRoot } from './checkout-root'
+export type { CheckoutRootProps } from './checkout-root'
 export type { CheckoutProviderProps } from './checkout-provider'
 export { PaymentActionHost } from './payment-action-host'
 export type { PaymentActionHostProps } from './payment-action-host'

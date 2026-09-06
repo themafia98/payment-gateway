@@ -1,0 +1,225 @@
+.ck-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-2);
+  margin: 0;
+}
+
+.ck-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ck-space-4);
+}
+
+.ck-item__name {
+  color: var(--ck-text-muted);
+}
+
+.ck-item__value {
+  text-align: end;
+}
+
+.ck-item--total .ck-item__name,
+.ck-item--total .ck-item__value {
+  color: var(--ck-text);
+  font-weight: var(--ck-weight-semibold);
+}
+
+.ck-error {
+  margin: 0;
+  color: var(--ck-danger);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-error:empty {
+  display: none;
+}
+
+.ck-status {
+  margin: 0;
+  font-size: var(--ck-font-size-md);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-status--success {
+  color: var(--ck-success);
+}
+
+.ck-status--failure {
+  color: var(--ck-danger);
+}
+
+.ck-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ck-space-4);
+  text-align: center;
+  /* prefers-reduced-motion zeroes the duration token, so this needs no guard. */
+  animation: ck-arrive var(--ck-duration-normal) var(--ck-ease-standard) both;
+}
+
+@keyframes ck-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+/* Focused on arrival so a screen reader starts at the answer, but never outlined for it. */
+.ck-state:focus {
+  outline: none;
+}
+
+.ck-state__icon {
+  display: flex;
+  color: var(--ck-text-muted);
+}
+
+.ck-state--success .ck-state__icon {
+  color: var(--ck-success);
+}
+
+.ck-state--failure .ck-state__icon {
+  color: var(--ck-danger);
+}
+
+.ck-state__heading {
+  margin: 0;
+  font-size: var(--ck-font-size-xl);
+  font-weight: var(--ck-weight-medium);
+  line-height: var(--ck-line-tight);
+  text-wrap: balance;
+}
+
+.ck-state__body {
+  margin: 0;
+  max-inline-size: 40ch;
+  color: var(--ck-text-muted);
+  line-height: var(--ck-line-normal);
+  text-wrap: pretty;
+}
+
+.ck-state__details {
+  inline-size: 100%;
+}
+
+.ck-state__actions {
+  display: flex;
+  inline-size: 100%;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+}
+
+/*
+ * Where a provider draws: its own frame, its bank page, or a code it wants shown. Sized by
+ * variant rather than by a fixed height, which is what made the QR flow look broken.
+ */
+.ck-action-frame {
+  inline-size: 100%;
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius);
+  background: var(--ck-surface-sunken);
+  overflow: hidden;
+}
+
+.ck-action-frame--inline {
+  block-size: clamp(18rem, 60svh, 32rem);
+}
+
+.ck-action-frame--challenge {
+  block-size: min(calc(100dvh - 12rem), 44rem);
+  min-block-size: 26rem;
+}
+
+/* Sizes itself: a QR code and its caption are already the right shape. */
+.ck-action-frame--content {
+  block-size: auto;
+}
+
+/* The mount point a runner draws into: it fills whatever frame it was put in. */
+.ck-action-host {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.ck-receipt {
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius);
+  background: var(--ck-surface-sunken);
+  padding: var(--ck-space-4);
+  text-align: start;
+}
+
+/*
+ * A payment shown on screen and paid somewhere else: a QR code, a transfer code, a slip
+ * number. The markup is built imperatively by the display runner in
+ * @checkout-kit/runtime-browser - these class names are its contract, so they are styled
+ * here but never renamed here.
+ */
+.ck-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ck-space-3);
+  padding: var(--ck-space-4);
+  text-align: center;
+}
+
+.ck-display__qr {
+  inline-size: clamp(9rem, 40cqi, 12rem);
+  block-size: auto;
+  aspect-ratio: 1;
+  border-radius: var(--ck-radius-small);
+  /* The code has to be dark-on-light whatever the theme, or a scanner will not read it. */
+  background: var(--ck-p-neutral-0);
+  padding: var(--ck-space-2);
+}
+
+.ck-display__instructions {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-display__value {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  font-family: var(--ck-font-mono);
+  font-size: var(--ck-font-size-sm);
+  color: var(--ck-text);
+  user-select: all;
+}
+
+.ck-display__copy {
+  min-block-size: var(--ck-tap-target);
+  border: 1px solid var(--ck-border-strong);
+  border-radius: var(--ck-radius-small);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--ck-font-size-sm);
+  padding-inline: var(--ck-space-4);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.ck-display__copy:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
+}
+
+.ck-display__app {
+  display: inline-flex;
+  min-block-size: var(--ck-tap-target);
+  align-items: center;
+  color: var(--ck-accent);
+  font-size: var(--ck-font-size-sm);
+}

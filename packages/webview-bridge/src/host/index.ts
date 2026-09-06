@@ -1,5 +1,5 @@
-// The React Native side. No DOM, no engine, no react-native import either - it takes the
-// string a WebView handed it and gives back something typed.
+// The React Native side. No DOM, no engine, no react-native import: it takes the string a
+// WebView handed over and gives back something typed.
 
 import { parseBridgeEvent, type BridgeEvent, type BridgeEventType } from '../protocol'
 

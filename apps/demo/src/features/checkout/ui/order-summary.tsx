@@ -21,10 +21,13 @@ export const OrderSummary = ({ plans }: OrderSummaryProps) => {
   if (!invoice) return null
 
   return (
-    <Details>
-      <Item name="Price" value={`${invoice.currency}${invoice.subtotal}`} />
-      {invoice.discount ? <Item name="Discount applied" value={invoice.discount} /> : null}
-      <Item name="Total due" total value={`${invoice.currency}${invoice.total}`} />
-    </Details>
+    <div className="ck-panel">
+      <h2 className="ck-section__title">Order summary</h2>
+      <Details>
+        <Item name="Price" value={`${invoice.currency}${invoice.subtotal}`} />
+        {invoice.discount ? <Item name="Discount applied" value={invoice.discount} /> : null}
+        <Item name="Total due" total value={`${invoice.currency}${invoice.total}`} />
+      </Details>
+    </div>
   )
 }

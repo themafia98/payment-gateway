@@ -1,8 +1,5 @@
-// Card rules: what a number means, whether it can be real, and when it stops working.
-//
-// Pure functions, no DOM, no dependencies - so the same rules drive the input mask, the
-// host's form validation and any server-side check. When formatting and validation come
-// from two places they disagree eventually, and the shopper is the one who finds out.
+// Card rules, shared by the input mask and whatever validates the form. Pure, so they also
+// run on a server. Two copies of these rules drift apart eventually.
 
 import { createBranded, type CardExpiration, type CardNumber, type CvcCode } from './brand'
 
@@ -21,10 +18,7 @@ export type CardBrand =
 export interface CardBrandRule {
   readonly brand: CardBrand
   readonly displayName: string
-  /**
-   * Issuer ranges, compared as numbers on the leading digits. A range of [51, 55] matches
-   * any number starting 51-55; [222100, 272099] matches on six digits.
-   */
+  /** Leading digits compared as numbers: [51, 55] matches 51-55, [222100, 272099] on six. */
   readonly ranges: readonly (readonly [number, number])[]
   readonly lengths: readonly number[]
   readonly cvcLengths: readonly number[]
@@ -118,10 +112,7 @@ export const CARD_BRANDS: readonly CardBrandRule[] = [
   ),
 ]
 
-/**
- * What we assume before the brand is clear - and for cards no rule here covers. Permissive
- * on purpose: a number is never called wrong just because it is unfamiliar.
- */
+/** Before the brand is clear, and for cards no rule covers. Permissive on purpose. */
 export const UNKNOWN_CARD_BRAND: CardBrandRule = rule(
   'unknown',
   'Card',

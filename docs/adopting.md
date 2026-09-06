@@ -128,9 +128,12 @@ What the kit itself needs at runtime is short, and worth knowing exactly:
 
 `AbortSignal.any` is the newest of those by two years, so the engine uses it only when it is
 there and falls back to a listener otherwise - a phone two versions behind still buys things.
-`crypto.randomUUID` is then the practical floor, and even that is replaceable:
+Container queries then set the floor at Safari 16, and `crypto.randomUUID` is replaceable:
 `createCheckout({ uuid: () => myOwnId() })`. It also needs a secure context, which a payment
 page has anyway.
+
+`@property` and `@starting-style` are used where they help and ignored where they are not
+supported, which costs a typed token and a fade.
 
 If you find something else that pushes the floor up, that is a bug worth reporting.
 

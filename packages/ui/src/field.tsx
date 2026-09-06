@@ -89,3 +89,13 @@ export const FieldGroup = ({
     {children}
   </fieldset>
 )
+
+export interface FieldRowProps {
+  children: ReactNode
+  className?: string
+}
+
+/** Two short fields side by side, once the container is wide enough for two. */
+export const FieldRow = ({ children, className }: FieldRowProps): ReactElement => (
+  <div className={cx('ck-fieldset__row', className)}>{children}</div>
+)

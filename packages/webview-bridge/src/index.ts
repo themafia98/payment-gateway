@@ -1,8 +1,6 @@
-// The web half: turns engine events into messages a native host can read.
-//
-// It only uses the engine public event API, so nothing in @checkout-kit/core knows this
-// exists. Every payload is built field by field from a whitelist - never spread from a
-// snapshot - which is what keeps card data out of a channel we do not control.
+// Turns engine events into messages a native host can read. Uses only the public event API,
+// so core knows nothing about this. Payloads are built field by field, never spread from a
+// snapshot - that is what keeps card data off the channel.
 
 import {
   PHASE_TO_UI_STATE,

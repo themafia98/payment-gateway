@@ -13,11 +13,31 @@ dependencies at all.
 import '@checkout-kit/ui/styles.css'
 ```
 
-Then put `ck-root` on a wrapper. Everything below is scoped under it, so nothing here can
-reach the rest of your page.
+Then put `ck-root` on a wrapper, or use `CheckoutRoot`, which also carries the theme and the
+platform:
 
-```html
-<div id="root" class="ck-root">…</div>
+```tsx
+import { CheckoutRoot } from '@checkout-kit/react'
+
+;<CheckoutRoot theme="auto">…</CheckoutRoot>
+```
+
+Everything is scoped under that element, and it all sits in a `checkout` cascade layer, so
+your own CSS wins without a specificity fight. If you use layers too, say where ours goes:
+
+```css
+@layer theme, base, components, checkout, utilities;
+```
+
+With Tailwind that means importing its parts, so the kit lands after preflight - which would
+otherwise reset the buttons it draws - and before utilities:
+
+```css
+@layer theme, base, components, checkout, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import '@checkout-kit/ui/styles.css';
+@import 'tailwindcss/utilities.css' layer(utilities);
 ```
 
 ## Theming
@@ -61,6 +81,15 @@ theme is the same brand rather than a second one.
 one; `prefers-contrast: more` strengthens borders and the focus ring; `pointer: coarse`
 raises the minimum tap target to 48px.
 
+**Platform conventions.** An iPhone and an Android disagree about the font, the corner
+radius and what a press looks like, and CSS cannot see which one it is on. `CheckoutRoot`
+detects it; without React, call `applyPlatform(root)` from `@checkout-kit/runtime-browser`
+once at startup. Pin it with `platform="ios"` to check a layout, or leave the attribute off
+entirely and everything falls back to the desktop values.
+
+Everything else - touch, hover, colour scheme, contrast, motion - stays a media query,
+because those the browser does know.
+
 **Layout is measured against the container, not the window.** `.ck-root` is a container, and
 every layout decision is a container query. The same checkout renders full-page, in a 360px
 WebView and inside a merchant iframe of unknown width - a viewport query is wrong in two of
@@ -79,7 +108,7 @@ which is why no screen has to remember to do it.
 ```
 
 `FieldGroup` is a `<fieldset>` for fields that ask one question together, like a billing
-address.
+address, and `FieldRow` pairs two short ones side by side once there is room for both.
 
 **Card entry.** `CardNumberInput`, `ExpiryInput`, `CvcInput`, `CardholderInput`, laid out by
 `CardFields`. They format as you type without throwing the caret to the end, group the
@@ -113,6 +142,10 @@ and a disabled button drops focus to the top of the page.
 `ProcessingState`, `AuthenticationState`, `SuccessState` and `FailureState` are the screens a
 payment ends on. Each leads with a heading and takes focus on arrival, so a screen reader
 starts at the answer. Cancellation is a tone of `FailureState`, not a fifth screen.
+
+`CheckoutLayout` is the column, with an optional `aside` for an order summary: above the
+form on a phone, sticky beside it from 48rem. `ck-panel` is an opt-in raised surface for
+whatever goes in it.
 
 `ActionFrame` is where a provider draws. Three variants, because a hosted field frame, a bank
 page and a QR code want three different sizes:

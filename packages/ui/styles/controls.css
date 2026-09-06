@@ -1,0 +1,249 @@
+.ck-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--ck-radius-full);
+  background: var(--ck-surface-raised);
+  padding: 0 var(--ck-space-2);
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-xs);
+  font-weight: var(--ck-weight-medium);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.ck-badge--accent {
+  background: var(--ck-accent);
+  color: var(--ck-text-on-accent);
+}
+
+.ck-badge--success {
+  background: var(--ck-success-surface);
+  color: var(--ck-success);
+}
+
+.ck-badge--danger {
+  background: var(--ck-danger-surface);
+  color: var(--ck-danger);
+}
+
+.ck-spinner {
+  display: inline-block;
+  flex: 0 0 auto;
+  inline-size: 1em;
+  block-size: 1em;
+  border: 2px solid currentcolor;
+  border-block-start-color: transparent;
+  border-radius: var(--ck-radius-full);
+  animation: ck-spin 700ms linear infinite;
+}
+
+.ck-spinner--md {
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-width: 3px;
+}
+
+@keyframes ck-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes ck-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Something still has to say it is working, so the spin becomes a slow fade. */
+@media (prefers-reduced-motion: reduce) {
+  .ck-spinner {
+    animation: ck-pulse 1.6s ease-in-out infinite;
+    border-block-start-color: currentcolor;
+    opacity: 0.6;
+  }
+}
+
+.ck-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ck-button {
+  display: flex;
+  box-sizing: border-box;
+  min-block-size: var(--ck-tap-target);
+  block-size: var(--ck-button-height);
+  inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ck-space-2);
+  padding-inline: var(--ck-space-8);
+  border: 0;
+  border-radius: var(--ck-button-radius, var(--ck-radius));
+  background: var(--ck-accent);
+  color: var(--ck-text-on-accent);
+  font: inherit;
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+  line-height: var(--ck-line-tight);
+  text-align: center;
+  cursor: pointer;
+  /* No 300ms wait for a double-tap that is not coming. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ck-duration-fast) var(--ck-ease-standard),
+    opacity var(--ck-duration-fast) var(--ck-ease-standard),
+    transform var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+.ck-button--secondary {
+  background: var(--ck-accent-subtle);
+  color: var(--ck-text);
+}
+
+.ck-button--ghost {
+  background: transparent;
+  color: var(--ck-text);
+  box-shadow: inset 0 0 0 1px var(--ck-border);
+}
+
+.ck-button--danger {
+  background: var(--ck-danger);
+  color: var(--ck-p-neutral-1000);
+}
+
+.ck-button--sm {
+  block-size: var(--ck-control-height-sm);
+  padding-inline: var(--ck-space-4);
+  font-size: var(--ck-font-size-sm);
+}
+
+.ck-button--auto {
+  inline-size: auto;
+}
+
+/* Guarded: an unguarded :hover sticks after a tap in a WebView, and the pay button then
+   looks permanently pressed. */
+@media (hover: hover) {
+  .ck-button:hover:not(:disabled):not([aria-disabled='true']) {
+    background: var(--ck-accent-hover);
+  }
+
+  .ck-button--secondary:hover:not(:disabled):not([aria-disabled='true']) {
+    background: color-mix(in srgb, var(--ck-accent) 26%, transparent);
+  }
+
+  .ck-button--ghost:hover:not(:disabled):not([aria-disabled='true']) {
+    background: var(--ck-accent-subtle);
+  }
+}
+
+/* Without this a button in an Android WebView feels dead - the tap highlight is off above.
+   What a press looks like is the platform's business. */
+.ck-button:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ck-accent-active);
+  background-image: linear-gradient(var(--ck-press-tint), var(--ck-press-tint));
+  opacity: var(--ck-press-opacity);
+  transform: scale(var(--ck-press-scale));
+}
+
+.ck-button:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
+}
+
+/* So the ring does not square off a pill. */
+.ck-root[data-ck-platform='android'] .ck-button:focus-visible {
+  border-radius: var(--ck-radius-full);
+}
+
+.ck-button:disabled,
+.ck-button[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Busy is not disabled: the button keeps focus while the payment runs. */
+.ck-button[aria-busy='true'] {
+  cursor: progress;
+}
+
+.ck-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--ck-space-1);
+  border-radius: var(--ck-radius-small);
+  background: var(--ck-surface);
+  padding: var(--ck-space-1);
+  /* More methods than fit is the normal case on a phone, not an error state. */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  /* Keeps the row from jumping when the scrollbar appears. */
+  scrollbar-gutter: stable;
+}
+
+.ck-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ck-tab {
+  display: flex;
+  flex: 0 0 auto;
+  min-block-size: var(--ck-tap-target);
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  border: 0;
+  border-radius: var(--ck-radius-small);
+  background: transparent;
+  padding: var(--ck-space-2) var(--ck-space-3);
+  color: var(--ck-text-muted);
+  font: inherit;
+  font-size: var(--ck-font-size-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ck-duration-fast) var(--ck-ease-standard),
+    color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+/* Wide enough for all of them: share the row instead of scrolling. */
+@container ck (min-width: 34rem) {
+  .ck-tab {
+    flex: 1 1 0;
+  }
+}
+
+.ck-tab[aria-selected='true'] {
+  background: var(--ck-surface-raised);
+  color: var(--ck-text);
+}
+
+.ck-tab:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: calc(var(--ck-focus-ring-offset) * -1);
+}
+
+@media (hover: hover) {
+  .ck-tab:hover:not([aria-disabled='true']):not([aria-selected='true']) {
+    color: var(--ck-text);
+  }
+}
+
+.ck-tab[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

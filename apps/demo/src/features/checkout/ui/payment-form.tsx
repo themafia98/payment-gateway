@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,6 +6,7 @@ import { PaymentActionHost, useCheckoutEngine } from '@checkout-kit/react'
 import {
   ActionFrame,
   CheckoutForm,
+  CheckoutLayout,
   ErrorText,
   PaymentButton,
   PaymentStatus,
@@ -31,9 +32,11 @@ import { SimulateBankApp } from './simulate-bank-app'
 
 interface PaymentFormProps {
   plans: Plan[]
+  /** Rendered above the form, in the same column. */
+  header?: ReactNode
 }
 
-export const PaymentForm = ({ plans }: PaymentFormProps) => {
+export const PaymentForm = ({ plans, header }: PaymentFormProps) => {
   const engine = useCheckoutEngine()
   const navigate = useNavigate()
 
@@ -111,49 +114,49 @@ export const PaymentForm = ({ plans }: PaymentFormProps) => {
 
   return (
     <FormProvider {...methods}>
-      <CheckoutForm
-        // Returning the promise is what makes RHF track the submission - and what makes its
-        // own re-entrancy guard work.
-        onSubmit={(event) => void methods.handleSubmit(pay)(event)}
-        actions={
-          <StickyActions>
-            {/* One announcement each: the status region carries progress, the alert
+      <CheckoutLayout aside={<OrderSummary plans={plans} />}>
+        {header}
+
+        <CheckoutForm
+          // Returning the promise is what makes RHF track the submission - and what makes its
+          // own re-entrancy guard work.
+          onSubmit={(event) => void methods.handleSubmit(pay)(event)}
+          actions={
+            <StickyActions>
+              {/* One announcement each: the status region carries progress, the alert
                 carries the issuer wording. Both saying it would read it out twice. */}
-            {uiState === 'failure' ? null : <PaymentStatus state={uiState} />}
-            <ErrorText>{error?.message}</ErrorText>
-            <PaymentButton state={uiState} disabled={isLocked}>
-              Continue payment
-            </PaymentButton>
-          </StickyActions>
-        }
-      >
-        <Section>
-          <PlanSelector plans={plans} />
-        </Section>
-
-        {collectsCard ? (
+              {uiState === 'failure' ? null : <PaymentStatus state={uiState} />}
+              <ErrorText>{error?.message}</ErrorText>
+              <PaymentButton state={uiState} disabled={isLocked}>
+                Continue payment
+              </PaymentButton>
+            </StickyActions>
+          }
+        >
           <Section>
-            <CardDetails />
+            <PlanSelector plans={plans} />
           </Section>
-        ) : null}
 
-        {action?.surface === 'inline' ? (
+          {collectsCard ? (
+            <Section>
+              <CardDetails />
+            </Section>
+          ) : null}
+
+          {action?.surface === 'inline' ? (
+            <Section>
+              <ActionFrame variant={action.kind === 'display' ? 'content' : 'inline'}>
+                <PaymentActionHost onSettled={settle} className="ck-action-host" />
+              </ActionFrame>
+              <SimulateBankApp />
+            </Section>
+          ) : null}
+
           <Section>
-            <ActionFrame variant={action.kind === 'display' ? 'content' : 'inline'}>
-              <PaymentActionHost onSettled={settle} className="ck-action-host" />
-            </ActionFrame>
-            <SimulateBankApp />
+            <BillingFields />
           </Section>
-        ) : null}
-
-        <Section>
-          <BillingFields />
-        </Section>
-
-        <Section>
-          <OrderSummary plans={plans} />
-        </Section>
-      </CheckoutForm>
+        </CheckoutForm>
+      </CheckoutLayout>
     </FormProvider>
   )
 }

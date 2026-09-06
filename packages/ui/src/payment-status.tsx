@@ -11,10 +11,7 @@ export interface PaymentStatusProps {
   className?: string
 }
 
-/**
- * The one live region on a checkout. Everything else - field errors, hints - stays quiet so
- * that what happens to the money is what gets read out.
- */
+/** The one live region on a checkout: field errors stay quiet so the payment is heard. */
 export const PaymentStatus = ({
   state,
   message,

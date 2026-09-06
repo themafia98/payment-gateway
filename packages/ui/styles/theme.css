@@ -1,0 +1,118 @@
+/*
+ * Only the semantic tier is redefined, so a light theme is the same brand rather than a
+ * second one. No attribute at all means dark, which is what the kit shipped with.
+ */
+.ck-root[data-ck-theme='light'] {
+  --ck-accent-hover: var(--ck-p-accent-600);
+  --ck-accent-active: var(--ck-p-accent-700);
+  --ck-surface: var(--ck-p-neutral-100);
+  --ck-surface-raised: var(--ck-p-neutral-0);
+  --ck-surface-sunken: var(--ck-p-neutral-50);
+  --ck-surface-overlay: var(--ck-p-neutral-0);
+  --ck-border: color-mix(in srgb, var(--ck-p-neutral-1000) 12%, transparent);
+  --ck-border-strong: color-mix(in srgb, var(--ck-p-neutral-1000) 28%, transparent);
+  --ck-text: var(--ck-p-neutral-900);
+  --ck-text-muted: var(--ck-p-neutral-500);
+  --ck-text-subtle: var(--ck-p-neutral-400);
+  --ck-danger: var(--ck-p-danger-700);
+  --ck-success: var(--ck-p-success-700);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  .ck-root[data-ck-theme='auto'] {
+    --ck-accent-hover: var(--ck-p-accent-600);
+    --ck-accent-active: var(--ck-p-accent-700);
+    --ck-surface: var(--ck-p-neutral-100);
+    --ck-surface-raised: var(--ck-p-neutral-0);
+    --ck-surface-sunken: var(--ck-p-neutral-50);
+    --ck-surface-overlay: var(--ck-p-neutral-0);
+    --ck-border: color-mix(in srgb, var(--ck-p-neutral-1000) 12%, transparent);
+    --ck-border-strong: color-mix(in srgb, var(--ck-p-neutral-1000) 28%, transparent);
+    --ck-text: var(--ck-p-neutral-900);
+    --ck-text-muted: var(--ck-p-neutral-500);
+    --ck-text-subtle: var(--ck-p-neutral-400);
+    --ck-danger: var(--ck-p-danger-700);
+    --ck-success: var(--ck-p-success-700);
+
+    color-scheme: light;
+  }
+}
+
+/* Set by `applyPlatform()` or `<CheckoutRoot>`. Only what CSS cannot see: touch, hover and
+   colour scheme are media queries, above. */
+
+.ck-root[data-ck-platform='ios'] {
+  --ck-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+
+  /* Apple corners are rounder, and it is the first thing that reads as wrong. */
+  --ck-radius-sm: 10px;
+  --ck-radius-md: 12px;
+  --ck-radius-lg: 16px;
+
+  /* iOS dims a press; it does not shrink it. */
+  --ck-press-opacity: 0.62;
+  --ck-press-scale: 1;
+}
+
+.ck-root[data-ck-platform='android'] {
+  --ck-font: Roboto, 'Noto Sans', system-ui, sans-serif;
+
+  --ck-radius-sm: 8px;
+  --ck-radius-md: 12px;
+  --ck-radius-lg: 16px;
+  /* Material buttons are pills. */
+  --ck-button-radius: var(--ck-radius-full);
+
+  /* Material tints instead. */
+  --ck-press-tint: color-mix(in srgb, currentcolor 14%, transparent);
+  --ck-press-scale: 1;
+}
+
+.ck-root[data-ck-platform='desktop'] {
+  /* A mouse affords a smaller target. */
+  --ck-tap-target: 36px;
+  --ck-control-height-md: clamp(2.75rem, 2.4rem + 1vw, 3.25rem);
+}
+
+/* A phone draws its own overlay scrollbar. */
+.ck-root[data-ck-platform='desktop'] * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ck-border-strong) transparent;
+}
+
+/*
+ * One block turns off every animation in the kit, because no rule below hard-codes a
+ * duration - they all read these two tokens.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ck-root {
+    --ck-duration-fast: 1ms;
+    --ck-duration-normal: 1ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ck-root {
+    --ck-border: color-mix(in srgb, currentcolor 45%, transparent);
+    --ck-border-strong: currentcolor;
+    --ck-text-muted: var(--ck-text);
+    --ck-focus-ring-width: 3px;
+  }
+}
+
+/* A finger is not a mouse pointer. */
+@media (pointer: coarse) {
+  .ck-root {
+    --ck-tap-target: 48px;
+  }
+}
+
+/* A phone on its side has ~300px of height, most of it keyboard. */
+@media (orientation: landscape) and (max-height: 30rem) {
+  .ck-root {
+    --ck-section-gap: var(--ck-space-3);
+    --ck-control-height-md: 2.75rem;
+  }
+}

@@ -1,7 +1,11 @@
-@import 'tailwindcss';
-/* The checkout kit ships one small stylesheet and asks for no framework. Everything it
-   draws is themed through the `--ck-*` variables set below. */
+/* Tailwind in parts, so the kit sits in the right place: after preflight, which would
+   otherwise reset the buttons it draws, and before utilities, so a one-off `px-4` on a kit
+   component still wins. */
+@layer theme, base, components, checkout, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
 @import '@checkout-kit/ui/styles.css';
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 :root {
   --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;

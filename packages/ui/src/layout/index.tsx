@@ -3,7 +3,7 @@ import { cx } from '../cx'
 
 export interface CheckoutLayoutProps {
   children: ReactNode
-  /** The order summary. Above the form when narrow, beside it when there is room. */
+  /** Above the form when narrow, beside it when there is room. */
   aside?: ReactNode
   className?: string
 }
@@ -13,9 +13,11 @@ export const CheckoutLayout = ({
   aside,
   className,
 }: CheckoutLayoutProps): ReactElement => (
+  // Aside first in the DOM: on a phone a total belongs above the form, and the grid moves
+  // it to the side when there is room.
   <div className={cx('ck-checkout', aside && 'ck-checkout--with-aside', className)}>
-    <div className="ck-checkout__main">{children}</div>
     {aside ? <aside className="ck-checkout__aside">{aside}</aside> : null}
+    <div className="ck-checkout__main">{children}</div>
   </div>
 )
 

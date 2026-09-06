@@ -1,0 +1,303 @@
+.ck-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-2);
+}
+
+.ck-field__label {
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-sm);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-field__optional {
+  color: var(--ck-text-subtle);
+  font-weight: var(--ck-weight-regular);
+}
+
+.ck-field__hint {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-field__error {
+  margin: 0;
+  color: var(--ck-danger);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+  transition:
+    opacity var(--ck-duration-fast) var(--ck-ease-standard),
+    translate var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+/* An error that fades in rather than shoving the layout. Nothing happens without support. */
+@starting-style {
+  .ck-field__error {
+    opacity: 0;
+    translate: 0 -0.25rem;
+  }
+}
+
+.ck-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-4);
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+/* Two short fields side by side, once two of them fit without cramping. */
+.ck-fieldset__row {
+  display: grid;
+  gap: var(--ck-space-4);
+}
+
+@container ck (min-width: 28rem) {
+  .ck-fieldset__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ck-fieldset__legend {
+  padding: 0;
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-option-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.ck-option-group__legend {
+  padding: 0 0 var(--ck-space-3);
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-option-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-2);
+}
+
+.ck-option {
+  display: flex;
+  min-block-size: var(--ck-tap-target);
+  align-items: center;
+  gap: var(--ck-space-3);
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius-small);
+  background: var(--ck-surface-sunken);
+  padding: var(--ck-space-3) var(--ck-space-4);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color var(--ck-duration-fast) var(--ck-ease-standard),
+    background-color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+.ck-option:has(.ck-option__input:checked) {
+  border-color: var(--ck-accent);
+  background: var(--ck-accent-subtle);
+}
+
+.ck-option:has(.ck-option__input:focus-visible) {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
+}
+
+@media (hover: hover) {
+  .ck-option:hover:not(.ck-option--disabled) {
+    border-color: var(--ck-border-strong);
+  }
+}
+
+.ck-option--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Kept in the layout and in the tab order; the marker below is what is seen. */
+.ck-option__input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ck-option__marker {
+  flex: 0 0 auto;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border: 2px solid var(--ck-border-strong);
+  border-radius: var(--ck-radius-full);
+  transition: border-color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+.ck-option:has(.ck-option__input:checked) .ck-option__marker {
+  border-color: var(--ck-accent);
+  background: radial-gradient(circle, var(--ck-accent) 0 45%, transparent 46%);
+}
+
+.ck-option__media {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.ck-option__body {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--ck-space-1);
+}
+
+.ck-option__label {
+  display: flex;
+  align-items: center;
+  gap: var(--ck-space-2);
+  color: var(--ck-text);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-option__description {
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+}
+
+.ck-option__aside {
+  flex: 0 0 auto;
+  color: var(--ck-text);
+  font-weight: var(--ck-weight-medium);
+}
+
+.ck-input {
+  display: flex;
+  box-sizing: border-box;
+  block-size: var(--ck-input-height);
+  min-block-size: var(--ck-tap-target);
+  inline-size: 100%;
+  align-items: center;
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius-small);
+  background: var(--ck-surface);
+  padding-inline: var(--ck-control-padding-inline);
+  color: var(--ck-text);
+  font: inherit;
+  font-size: var(--ck-font-size-md);
+  /* Clears the sticky action bar when a field near the bottom takes focus. */
+  scroll-margin-block: var(--ck-space-10);
+  transition:
+    border-color var(--ck-duration-fast) var(--ck-ease-standard),
+    background-color var(--ck-duration-fast) var(--ck-ease-standard);
+}
+
+/* A select styled as an input, so a country picker does not look like a foreign object. */
+select.ck-input {
+  appearance: none;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-position:
+    right calc(var(--ck-space-4) + 4px) center,
+    right var(--ck-space-4) center;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+  padding-inline-end: var(--ck-space-10);
+}
+
+.ck-input::placeholder {
+  color: var(--ck-text-subtle);
+}
+
+.ck-input:focus-visible {
+  outline: var(--ck-focus-ring-width) solid var(--ck-focus-ring-color);
+  outline-offset: var(--ck-focus-ring-offset);
+  border-color: var(--ck-accent);
+}
+
+@media (hover: hover) {
+  .ck-input:hover:not(:disabled):not(:focus-visible) {
+    border-color: var(--ck-border-strong);
+  }
+}
+
+.ck-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ck-input[aria-invalid='true'] {
+  border-color: var(--ck-danger-border);
+  background: var(--ck-danger-surface);
+}
+
+.ck-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-4);
+}
+
+.ck-card-fields__row {
+  display: grid;
+  gap: var(--ck-space-4);
+}
+
+/* Expiry and security code share a row as soon as two of them fit. */
+@container ck (min-width: 22rem) {
+  .ck-card-fields__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Narrower than a small phone: an embedded frame, a split view. */
+@container ck (max-width: 20rem) {
+  .ck-root {
+    --ck-control-padding-inline: var(--ck-space-3);
+    --ck-section-gap: var(--ck-space-4);
+    --ck-gap: var(--ck-space-3);
+  }
+
+  .ck-button {
+    font-size: var(--ck-font-size-md);
+    padding-inline: var(--ck-space-4);
+  }
+}
+
+.ck-card-number {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ck-card-number .ck-input {
+  padding-inline-end: calc(var(--ck-space-12) + var(--ck-space-4));
+}
+
+.ck-card-number__brand {
+  position: absolute;
+  inset-inline-end: var(--ck-space-3);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}

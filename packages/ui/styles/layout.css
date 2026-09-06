@@ -1,0 +1,130 @@
+.ck-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ck-gap);
+}
+
+.ck-section__title {
+  margin: 0;
+  color: var(--ck-text);
+  font-size: var(--ck-font-size-lg);
+  font-weight: var(--ck-weight-medium);
+  line-height: var(--ck-line-tight);
+}
+
+.ck-checkout {
+  display: grid;
+  gap: var(--ck-section-gap);
+  inline-size: 100%;
+  max-inline-size: var(--ck-layout-max);
+  margin-inline: auto;
+}
+
+/* Room for a summary beside the form, rather than above it. */
+/* Desk-sized: more air, and a summary that is not squeezed. */
+@container ck (min-width: 64rem) {
+  .ck-root {
+    --ck-layout-aside: 24rem;
+    --ck-section-gap: var(--ck-space-8);
+  }
+}
+
+@container ck (min-width: 48rem) {
+  .ck-checkout--with-aside {
+    max-inline-size: calc(var(--ck-layout-max) + var(--ck-layout-aside) + var(--ck-space-8));
+    grid-template-columns: minmax(0, 1fr) var(--ck-layout-aside);
+    gap: var(--ck-space-8);
+    align-items: start;
+  }
+
+  /* Aside is first in the DOM; place it on the right here. */
+  .ck-checkout--with-aside .ck-checkout__main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .ck-checkout--with-aside .ck-checkout__aside {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    inset-block-start: var(--ck-space-6);
+  }
+}
+
+.ck-checkout__main,
+.ck-checkout__aside {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: var(--ck-section-gap);
+}
+
+.ck-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-section-gap);
+}
+
+.ck-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+}
+
+.ck-sticky-actions {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--ck-z-sticky);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-3);
+  /* Clears the home indicator on a phone; zero everywhere else. */
+  padding-block: var(--ck-space-4);
+  padding-block-end: max(var(--ck-space-4), var(--ck-safe-block-end));
+  background: linear-gradient(to bottom, transparent, var(--ck-p-neutral-1000) 40%);
+}
+
+.ck-payment-button__amount {
+  margin-inline-start: var(--ck-space-2);
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.ck-payment-status {
+  margin: 0;
+  color: var(--ck-text-muted);
+  font-size: var(--ck-font-size-sm);
+  line-height: var(--ck-line-normal);
+  text-align: center;
+}
+
+.ck-payment-status:empty {
+  display: none;
+}
+
+.ck-payment-status--success {
+  color: var(--ck-success);
+}
+
+.ck-payment-status--failure {
+  color: var(--ck-danger);
+}
+
+/* Opt-in raised surface. A page that already has a card should not get a second one. */
+.ck-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ck-space-4);
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius);
+  background: var(--ck-surface-sunken);
+  box-shadow: var(--ck-shadow-md);
+  padding: var(--ck-space-5);
+}
+
+@container ck (min-width: 34rem) {
+  .ck-panel {
+    padding: var(--ck-space-6);
+  }
+}

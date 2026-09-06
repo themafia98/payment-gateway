@@ -4,17 +4,11 @@ import { useCheckoutSnapshot } from './use-checkout'
 export interface PaymentStateInput {
   /** The shopper has started filling the form in. */
   readonly isDirty?: boolean
-  /**
-   * A check is running that has not finished. With a synchronous validator this is never
-   * true; it is here for the asynchronous ones - a BIN lookup, an address check.
-   */
+  /** Never true with a synchronous validator; here for a BIN lookup or an address check. */
   readonly isValidating?: boolean
 }
 
-/**
- * What the checkout should be showing. The engine supplies seven of the nine states; the
- * other two are about the form, which the engine has no view of.
- */
+/** The engine supplies seven of the nine states; the other two are about the form. */
 export const usePaymentState = (input: PaymentStateInput = {}): PaymentUiState => {
   const state = PHASE_TO_UI_STATE[useCheckoutSnapshot().phase]
 

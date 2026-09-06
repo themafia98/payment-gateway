@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactElement, type Ref } from 'react'
+import { useLayoutEffect, useRef, type ChangeEvent, type ReactElement, type Ref } from 'react'
 import { onlyDigits } from '@checkout-kit/core'
 import { Input, type InputProps } from '../input'
 import { caretAfterDigits, digitsBefore } from './caret'
@@ -23,7 +23,15 @@ export const MaskedInput = ({
   ...props
 }: MaskedInputProps): ReactElement => {
   const inputRef = useRef<HTMLInputElement>(null)
+  // Where the caret should land once the value has been reformatted.
   const caret = useRef<number | null>(null)
+
+  // The component needs the element, and so does whoever passed a ref in.
+  const setRef = (node: HTMLInputElement | null): void => {
+    inputRef.current = node
+    if (typeof ref === 'function') ref(node)
+    else if (ref) ref.current = node
+  }
 
   useLayoutEffect(() => {
     const input = inputRef.current
@@ -35,7 +43,7 @@ export const MaskedInput = ({
     caret.current = null
   })
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const input = event.currentTarget
     const typed = input.value
     let digits = onlyDigits(typed)
@@ -57,11 +65,7 @@ export const MaskedInput = ({
   return (
     <Input
       {...props}
-      ref={(node: HTMLInputElement | null) => {
-        inputRef.current = node
-        if (typeof ref === 'function') ref(node)
-        else if (ref) ref.current = node
-      }}
+      ref={setRef}
       value={value}
       onChange={handleChange}
       inputMode="numeric"

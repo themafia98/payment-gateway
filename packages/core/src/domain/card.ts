@@ -27,99 +27,105 @@ export interface CardBrandRule {
   readonly luhn: boolean
 }
 
-const rule = (
-  brand: CardBrand,
-  displayName: string,
-  ranges: readonly (readonly [number, number])[],
-  lengths: readonly number[],
-  options: { cvcLengths?: readonly number[]; gaps?: readonly number[]; luhn?: boolean } = {},
-): CardBrandRule => ({
-  brand,
-  displayName,
-  ranges,
-  lengths,
-  cvcLengths: options.cvcLengths ?? [3],
-  gaps: options.gaps ?? [4, 8, 12],
-  luhn: options.luhn ?? true,
+/** A prefix to match: one number, or a range of them. */
+type Prefix = number | readonly [from: number, to: number]
+
+interface BrandSpec {
+  readonly brand: CardBrand
+  readonly displayName: string
+  readonly prefixes: readonly Prefix[]
+  readonly lengths: readonly number[]
+  readonly cvcLengths?: readonly number[]
+  readonly gaps?: readonly number[]
+  readonly luhn?: boolean
+}
+
+/** `lengths: between(16, 19)` reads better than spelling all four out. */
+const between = (from: number, to: number): readonly number[] =>
+  Array.from({ length: to - from + 1 }, (_, index) => from + index)
+
+const define = (spec: BrandSpec): CardBrandRule => ({
+  brand: spec.brand,
+  displayName: spec.displayName,
+  ranges: spec.prefixes.map((prefix) => (typeof prefix === 'number' ? [prefix, prefix] : prefix)),
+  lengths: spec.lengths,
+  cvcLengths: spec.cvcLengths ?? [3],
+  gaps: spec.gaps ?? [4, 8, 12],
+  luhn: spec.luhn ?? true,
 })
 
-/** Order matters: the first rule whose range matches wins, so narrow ranges come first. */
+/** Order matters: the first brand whose prefix matches wins, so narrow ones come first. */
 export const CARD_BRANDS: readonly CardBrandRule[] = [
-  rule(
-    'amex',
-    'Amex',
-    [
-      [34, 34],
-      [37, 37],
-    ],
-    [15],
-    { cvcLengths: [4], gaps: [4, 10] },
-  ),
-  rule(
-    'diners',
-    'Diners Club',
-    [
-      [300, 305],
-      [3095, 3095],
-      [36, 36],
-      [38, 39],
-    ],
-    [14, 16, 19],
-    { gaps: [4, 10] },
-  ),
-  rule('jcb', 'JCB', [[3528, 3589]], [16, 17, 18, 19]),
-  rule('visa', 'Visa', [[4, 4]], [13, 16, 19]),
-  rule(
-    'mastercard',
-    'Mastercard',
-    [
+  define({
+    brand: 'amex',
+    displayName: 'Amex',
+    prefixes: [34, 37],
+    lengths: [15],
+    cvcLengths: [4],
+    gaps: [4, 10],
+  }),
+  define({
+    brand: 'diners',
+    displayName: 'Diners Club',
+    prefixes: [[300, 305], 3095, 36, [38, 39]],
+    lengths: [14, 16, 19],
+    gaps: [4, 10],
+  }),
+  define({
+    brand: 'jcb',
+    displayName: 'JCB',
+    prefixes: [[3528, 3589]],
+    lengths: between(16, 19),
+  }),
+  define({
+    brand: 'visa',
+    displayName: 'Visa',
+    prefixes: [4],
+    lengths: [13, 16, 19],
+  }),
+  define({
+    brand: 'mastercard',
+    displayName: 'Mastercard',
+    prefixes: [
       [51, 55],
       [222100, 272099],
     ],
-    [16],
-  ),
-  rule('mir', 'Mir', [[2200, 2204]], [16, 17, 18, 19]),
-  rule(
-    'discover',
-    'Discover',
-    [
-      [6011, 6011],
-      [644, 649],
-      [65, 65],
-      [622126, 622925],
-    ],
-    [16, 19],
-  ),
-  rule(
-    'unionpay',
-    'UnionPay',
-    [
-      [62, 62],
-      [81, 81],
-    ],
-    [16, 17, 18, 19],
-  ),
-  rule(
-    'maestro',
-    'Maestro',
-    [
-      [5018, 5018],
-      [5020, 5020],
-      [5038, 5038],
-      [56, 69],
-    ],
-    [12, 13, 14, 15, 16, 17, 18, 19],
-  ),
+    lengths: [16],
+  }),
+  define({
+    brand: 'mir',
+    displayName: 'Mir',
+    prefixes: [[2200, 2204]],
+    lengths: between(16, 19),
+  }),
+  define({
+    brand: 'discover',
+    displayName: 'Discover',
+    prefixes: [6011, [644, 649], 65, [622126, 622925]],
+    lengths: [16, 19],
+  }),
+  define({
+    brand: 'unionpay',
+    displayName: 'UnionPay',
+    prefixes: [62, 81],
+    lengths: between(16, 19),
+  }),
+  define({
+    brand: 'maestro',
+    displayName: 'Maestro',
+    prefixes: [5018, 5020, 5038, [56, 69]],
+    lengths: between(12, 19),
+  }),
 ]
 
 /** Before the brand is clear, and for cards no rule covers. Permissive on purpose. */
-export const UNKNOWN_CARD_BRAND: CardBrandRule = rule(
-  'unknown',
-  'Card',
-  [],
-  [12, 13, 14, 15, 16, 17, 18, 19],
-  { cvcLengths: [3, 4] },
-)
+export const UNKNOWN_CARD_BRAND: CardBrandRule = define({
+  brand: 'unknown',
+  displayName: 'Card',
+  prefixes: [],
+  lengths: between(12, 19),
+  cvcLengths: [3, 4],
+})
 
 export const onlyDigits = (value: string): string => value.replace(/\D/g, '')
 

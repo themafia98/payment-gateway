@@ -123,6 +123,7 @@ implementation, not as an integration you can install and charge a card with.
 An npm workspaces monorepo.
 
 ```text
+examples/        real provider plugins, and a React Native screen
 packages/        the checkout packages listed above
 apps/demo/       a checkout that uses them, with its e2e suite
 apps/bank-sim/   the 3-D Secure bank simulator, on its own https origin

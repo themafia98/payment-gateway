@@ -14,6 +14,7 @@
     { "path": "./packages/webview-bridge" },
     { "path": "./packages/testing" },
     { "path": "./packages/conformance" },
+    { "path": "./examples/providers" },
     { "path": "./apps/demo" },
     { "path": "./apps/bank-sim" }
   ]

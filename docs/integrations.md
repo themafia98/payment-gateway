@@ -10,6 +10,10 @@ holds your keys.
 Every section below follows the same shape: **what the SDK gives you → which action kind →
 which runner executes it → what to declare → what your server needs**.
 
+Three of them are written out in full in
+[`examples/providers`](../examples/providers/README.md) - Stripe, Adyen and PayPal, against
+their real API shapes. They compile against the contract in CI.
+
 ## One rule, before any of them
 
 **A plugin runs in the browser, so it never holds a secret key.** Stripe `sk_`, Adyen

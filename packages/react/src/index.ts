@@ -9,3 +9,5 @@ export {
   useCheckoutSnapshot,
 } from './use-checkout'
 export type { UseCheckoutResult } from './use-checkout'
+export { usePaymentState } from './use-payment-state'
+export type { PaymentStateInput } from './use-payment-state'

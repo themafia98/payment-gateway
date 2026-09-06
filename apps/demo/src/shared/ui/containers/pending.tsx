@@ -6,8 +6,8 @@ export const Pending = () => (
     <span
       role="status"
       aria-label="Loading"
-      className="size-10 animate-spin rounded-full border-2 border-[#3d3d3d] border-t-purple-400"
+      className="size-10 animate-spin rounded-full border-2 border-surface border-t-accent motion-reduce:animate-none"
     />
-    <p className="text-sm text-[#9aa0ac]">Loading…</p>
+    <p className="text-sm text-muted">Loading…</p>
   </div>
 )

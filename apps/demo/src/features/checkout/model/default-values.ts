@@ -1,18 +1,10 @@
 import type { CheckoutFormInput } from './schema'
 
 export const formDefaultValues: CheckoutFormInput = {
-  planId: '1id',
-
-  paymentMethod: 'Card',
-
-  card: {
-    number: '',
-    exp: '',
-    cvc: '',
-  },
-
-  billing: {
-    country: '',
-    postalCode: '',
-  },
+  // Filled from the catalogue once it loads; hard-coding an id couples the form to the
+  // mock backend.
+  planId: '',
+  email: '',
+  card: { number: '', exp: '', cvc: '', holder: '' },
+  billing: { country: '', postalCode: '' },
 }

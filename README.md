@@ -63,13 +63,14 @@ anywhere, runs against all six.
 | `@checkout-kit/core`                   | domain, plugin contract, checkout engine, HTTP client. No React, no DOM |
 | `@checkout-kit/runtime-browser`        | the runners that execute actions: frames, redirects, scripts, storage   |
 | `@checkout-kit/react`                  | hooks over the engine, and a mount point for actions                    |
-| `@checkout-kit/ui`                     | the visual kit: a few components and one themable stylesheet            |
+| `@checkout-kit/ui`                     | the payment components, the state screens, and one themable stylesheet  |
 | `@checkout-kit/provider-psp`           | a Stripe-shaped API: JSON, idempotency header, 3-D Secure 2             |
 | `@checkout-kit/provider-acquiring`     | direct bank acquiring: form-urlencoded, numeric statuses, 3-D Secure 1  |
 | `@checkout-kit/provider-hpp`           | a hosted payment page: the shopper pays on the bank's own site          |
 | `@checkout-kit/provider-hosted-fields` | the provider renders the card inputs and hands back a token             |
 | `@checkout-kit/provider-wallet`        | a third-party SDK draws its own sheet                                   |
 | `@checkout-kit/provider-bank-transfer` | a QR or a code, paid in the shopper's banking app                       |
+| `@checkout-kit/webview-bridge`         | the contract a React Native app talks to the checkout through           |
 | `@checkout-kit/testing`                | the mock backend, the card table, and test doubles for the engine       |
 | `@checkout-kit/conformance`            | the contract every plugin has to pass                                   |
 
@@ -141,6 +142,13 @@ Every doc exists in English and Russian, except the bank simulator's notes.
   are.
 - **Writing a payment plugin** ([English](./docs/plugin-authoring.md) / [Русский](./docs/plugin-authoring.ru.md)) —
   the contract, the rules that types cannot enforce, and the suite a plugin must pass.
+- **The UI kit** ([English](./docs/ui.md) / [Русский](./docs/ui.ru.md)) — theming through
+  tokens, the components, what the kit does for accessibility and what is left to you.
+- **Integrating a real payment SDK** ([English](./docs/integrations.md) / [Русский](./docs/integrations.ru.md)) —
+  Stripe, Adyen, Braintree, Checkout.com, PayPal, Apple and Google Pay, Klarna: what each
+  hands you and which action it becomes.
+- **The checkout in a native app** ([English](./docs/webview.md) / [Русский](./docs/webview.ru.md)) —
+  the WebView bridge, the PAYMENT_* contract, navigation rules and returning from a bank.
 - **Practical questions** ([English](./docs/adopting.md) / [Русский](./docs/adopting.ru.md)) —
   size, server rendering, screen readers, translation, and which browsers it drops.
 - **The backend a plugin talks to** ([English](./docs/backend.md) / [Русский](./docs/backend.ru.md)) —

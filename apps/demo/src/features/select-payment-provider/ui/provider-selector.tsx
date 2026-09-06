@@ -20,15 +20,15 @@ export const ProviderSelector = () => {
   const { engine, providerId, isBusy } = useCheckout()
 
   return (
-    <Tabs>
+    <Tabs
+      aria-label="Acquirer"
+      value={providerId ?? ''}
+      onValueChange={(id) => void engine.useProvider(id)}
+      // Switching mid-payment would send the authentication to the wrong bank.
+      disabled={isBusy}
+    >
       {engine.providerIds.map((id) => (
-        <Tab
-          key={id}
-          isActive={id === providerId}
-          // Switching mid-payment would send the authentication to the wrong bank.
-          disabled={isBusy}
-          onClick={() => void engine.useProvider(id)}
-        >
+        <Tab key={id} value={id}>
           {PROVIDER_LABELS[id] ?? id}
         </Tab>
       ))}

@@ -1,9 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { PaymentResultHeader } from '@/widgets/payment-result-header'
+import { SuccessState } from '@checkout-kit/ui'
+import { Success } from '@/shared/ui'
 import { TransactionDetails } from '@/entities/transaction'
 import { DownloadReceipt } from '@/features/download-receipt'
 import { ReturnToStoreButton } from '@/features/return-to-store'
-import { toTransaction, useCheckoutStore } from '@/features/checkout'
+import { paymentMethodLabel, toTransaction } from '@/features/checkout'
 import type { PaymentIntent } from '@/entities/payment'
 import { useMemo } from 'react'
 import { useMerchant } from '@/entities/merchant'
@@ -36,29 +37,33 @@ export const Route = createFileRoute('/summary/success/')({
       throw redirect({ to: '/summary/failure', search: { intentId: deps.intentId } })
     }
 
-    return { intent, method: useCheckoutStore.getState().method }
+    return { intent }
   },
   component: SuccessPage,
 })
 
 function SuccessPage() {
-  const { intent, method } = Route.useLoaderData()
+  const { intent } = Route.useLoaderData()
 
   const merchant = useMerchant()
 
   const transaction = useMemo(
-    () => toTransaction(intent, method, merchant.name),
-    [intent, method, merchant],
+    () => toTransaction(intent, paymentMethodLabel(intent.providerId), merchant.name),
+    [intent, merchant],
   )
 
   return (
-    <>
-      <PaymentResultHeader isSuccess />
-      <TransactionDetails transaction={transaction} />
-      <section className="space-y-4">
-        <DownloadReceipt intentId={intent.id} />
-        <ReturnToStoreButton />
-      </section>
-    </>
+    <SuccessState
+      icon={<Success />}
+      details={<TransactionDetails transaction={transaction} />}
+      actions={
+        <>
+          <DownloadReceipt intentId={intent.id} />
+          <ReturnToStoreButton />
+        </>
+      }
+    >
+      Thank you. Your payment has gone through and a receipt is on its way.
+    </SuccessState>
   )
 }

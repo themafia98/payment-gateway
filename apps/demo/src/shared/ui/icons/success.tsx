@@ -9,7 +9,7 @@ export const Success = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="lucide lucide-circle-check w-28  w-28 text-purple-500"
+    className="lucide lucide-circle-check size-20"
     aria-hidden="true"
   >
     <circle cx="12" cy="12" r="10"></circle>

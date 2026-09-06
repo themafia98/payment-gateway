@@ -1,14 +1,16 @@
 import { type Locator, type Page } from '@playwright/test'
 import { ROUTES } from '../data/routes'
-import { PLACEHOLDERS, TEXT } from '../data/text'
+import { LABELS, TEXT } from '../data/text'
 import { VALID_BILLING } from '../data/cards'
 import { PROVIDERS, type ProviderId } from '../data/providers'
 
 export class CheckoutPage {
   readonly page: Page
   readonly cardNumber: Locator
+  readonly cardholder: Locator
   readonly expiry: Locator
   readonly cvc: Locator
+  readonly email: Locator
   readonly country: Locator
   readonly postalCode: Locator
   readonly payButton: Locator
@@ -18,17 +20,20 @@ export class CheckoutPage {
   constructor(page: Page, provider: ProviderId = 'psp') {
     this.page = page
     this.providerTab = page.getByRole('tab', { name: PROVIDERS[provider].label })
-    this.cardNumber = page.getByPlaceholder(PLACEHOLDERS.cardNumber)
-    this.expiry = page.getByPlaceholder(PLACEHOLDERS.expiry)
-    this.cvc = page.getByPlaceholder(PLACEHOLDERS.cvc)
-    this.country = page.getByPlaceholder(PLACEHOLDERS.country)
-    this.postalCode = page.getByPlaceholder(PLACEHOLDERS.postalCode)
+    // By label, which is also an assertion that every field has one.
+    this.cardNumber = page.getByLabel(LABELS.cardNumber)
+    this.cardholder = page.getByLabel(LABELS.cardholder)
+    this.expiry = page.getByLabel(LABELS.expiry)
+    this.cvc = page.getByLabel(LABELS.cvc)
+    this.email = page.getByLabel(LABELS.email)
+    this.country = page.getByLabel(LABELS.country)
+    this.postalCode = page.getByLabel(LABELS.postalCode)
     this.payButton = page.getByRole('button', { name: TEXT.payButton })
     this.errorAlert = page.getByRole('alert')
   }
 
   planCard(name: string): Locator {
-    return this.page.getByText(name, { exact: true })
+    return this.page.getByRole('radio', { name: new RegExp(name) })
   }
 
   async goto() {
@@ -41,12 +46,14 @@ export class CheckoutPage {
   }
 
   async fillBilling() {
-    await this.country.fill(VALID_BILLING.country)
+    await this.email.fill(VALID_BILLING.email)
+    await this.country.selectOption(VALID_BILLING.country)
     await this.postalCode.fill(VALID_BILLING.postalCode)
   }
 
   async fillBillingAndCard(cardNumber: string) {
     await this.cardNumber.fill(cardNumber)
+    await this.cardholder.fill(VALID_BILLING.holder)
     await this.expiry.fill(VALID_BILLING.expiry)
     await this.cvc.fill(VALID_BILLING.cvc)
     await this.fillBilling()

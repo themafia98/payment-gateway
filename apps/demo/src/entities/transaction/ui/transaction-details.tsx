@@ -1,3 +1,4 @@
+import { Details, Item, Status } from '@checkout-kit/ui'
 import type { Transaction } from '../model/transaction'
 
 interface IProps {
@@ -6,32 +7,13 @@ interface IProps {
 }
 
 export const TransactionDetails = ({ transaction, errorMessage }: IProps) => (
-  <div className="bg-[#3d3d3d] rounded-lg p-4 space-y-3">
-    <div className="flex justify-between text-white items-center gap-2">
-      <span>Amount</span>
-      <span>{transaction.amount}</span>
-    </div>
-    <div className="flex justify-between text-white items-center gap-2">
-      <span>Transaction ID</span>
-      <span>{transaction.id}</span>
-    </div>
-    <div className="flex justify-between text-white items-center gap-2">
-      <span>Payment Method</span>
-      <span>{transaction.paymentMethod}</span>
-    </div>
-    {!!errorMessage && (
-      <div className="flex justify-between text-white items-center gap-2">
-        <span>Status</span>
-        <span className="text-red-400">Failed - {errorMessage}</span>
-      </div>
-    )}
-    <div className="flex justify-between text-white items-center gap-2">
-      <span>Date</span>
-      <span>{transaction.date}</span>
-    </div>
-    <div className="flex justify-between text-white items-center gap-2">
-      <span>Merchant</span>
-      <span>{transaction.merchant}</span>
-    </div>
+  <div className="ck-receipt">
+    <Details>
+      <Item name="Amount" value={transaction.amount} />
+      <Item name="Transaction ID" value={transaction.id} />
+      <Item name="Payment method" value={transaction.paymentMethod} />
+      <Item name="Merchant" value={transaction.merchant} />
+    </Details>
+    {errorMessage ? <Status tone="failure">{errorMessage}</Status> : null}
   </div>
 )

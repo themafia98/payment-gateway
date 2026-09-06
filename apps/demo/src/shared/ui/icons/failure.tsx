@@ -9,7 +9,7 @@ export const Failure = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="lucide lucide-circle-x w-28 h-28 text-red-500"
+    className="lucide lucide-circle-x size-20"
     aria-hidden="true"
   >
     <circle cx="12" cy="12" r="10"></circle>

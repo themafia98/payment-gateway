@@ -1,17 +1,19 @@
 import { declineMessage } from '@checkout-kit/testing'
 
-export const PLACEHOLDERS = {
-  cardNumber: '0000 0000 0000 0000',
-  expiry: 'MM / YYYY',
-  cvc: 'CVC',
+export const LABELS = {
+  cardNumber: 'Card number',
+  cardholder: 'Name on card',
+  expiry: 'Expiry date',
+  cvc: 'Security code',
+  email: 'Email',
   country: 'Country',
   postalCode: 'Postal code',
 } as const
 
 export const TEXT = {
   payButton: 'Continue payment',
-  paymentSuccessful: 'Payment Successful!',
-  paymentFailed: 'Payment Failed',
+  paymentSuccessful: 'Payment successful',
+  paymentFailed: 'Payment declined',
   transactionId: 'Transaction ID',
   challengeFrameTitle: '3-D Secure authentication',
   cancelChallenge: 'Cancel payment',

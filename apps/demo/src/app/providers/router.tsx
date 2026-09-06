@@ -3,6 +3,8 @@ import { routeTree } from '@/routeTree.gen'
 import { createGetMerchantConfig, createHttpMerchantGatewayAdapter } from '@/entities/merchant'
 import { createGetPlans, createHttpPlanGatewayAdapter } from '@/entities/plan'
 import { checkout } from './checkout'
+// Imported for its side effect: it reports the payment to a native host, if there is one.
+import './webview'
 import { connectCheckoutStore } from '@/features/checkout'
 import { Pending } from '@/shared/ui'
 

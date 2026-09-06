@@ -1,4 +1,4 @@
-// The shopper's banking app, as a button.
+// The shopper banking app, as two buttons.
 //
 // A real transfer is paid on a phone and reported to the acquirer by the scheme. There is
 // no phone here, so this calls the mock backend directly - it is the demo standing in for
@@ -6,16 +6,21 @@
 
 import { useState } from 'react'
 import { useCheckout } from '@checkout-kit/react'
-import { SCENARIO_CARDS } from '@checkout-kit/testing'
+import { Button } from '@checkout-kit/ui'
 
 const API = `${import.meta.env.BASE_URL}api`
 
-const pay = (orderId: string, cardNumber: string) =>
-  fetch(`${API}/transfer/orders/${orderId}/pay`, {
+const pay = async (orderId: string, scenario: 'approve' | 'decline') => {
+  // Imported here, not at the top: the test card table has no business in the bundle a
+  // real deployment ships.
+  const { SCENARIO_CARDS } = await import('@checkout-kit/testing')
+
+  await fetch(`${API}/transfer/orders/${orderId}/pay`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cardNumber }),
+    body: JSON.stringify({ cardNumber: SCENARIO_CARDS[scenario] }),
   })
+}
 
 export const SimulateBankApp = () => {
   const { action, intent } = useCheckout()
@@ -25,34 +30,37 @@ export const SimulateBankApp = () => {
   if (import.meta.env.VITE_ENABLE_MSW !== 'true') return null
   if (action?.kind !== 'display' || !intent) return null
 
-  const send = (cardNumber: string) => {
+  const send = (scenario: 'approve' | 'decline') => {
     setSent(true)
-    void pay(intent.id, cardNumber)
+    void pay(intent.id, scenario)
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-dashed border-[#3a3d47] p-3">
-      <p className="text-sm text-[#9aa0ac]">
+    <div className="flex flex-col gap-3 rounded-card border border-dashed border-border-subtle p-4">
+      <p className="text-sm text-muted">
         Nothing on this page can see the transfer happen. Press a button below and watch the
         checkout notice on its own, by asking the provider.
       </p>
-      <div className="flex gap-2">
-        <button
+      <div className="flex flex-wrap gap-2">
+        <Button
           type="button"
+          size="sm"
+          fullWidth={false}
           disabled={sent}
-          onClick={() => send(SCENARIO_CARDS.approve)}
-          className="rounded-lg bg-[#aa3bff] px-3 py-2 text-sm text-white disabled:opacity-50"
+          onClick={() => send('approve')}
         >
           Pay in the bank app
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="sm"
+          variant="ghost"
+          fullWidth={false}
           disabled={sent}
-          onClick={() => send(SCENARIO_CARDS.decline)}
-          className="rounded-lg border border-[#3a3d47] px-3 py-2 text-sm disabled:opacity-50"
+          onClick={() => send('decline')}
         >
           Let the bank refuse it
-        </button>
+        </Button>
       </div>
     </div>
   )

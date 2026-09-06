@@ -10,8 +10,10 @@ export const CARDS = {
 } as const
 
 export const VALID_BILLING = {
-  expiry: '12 / 2030',
+  expiry: '12 / 30',
   cvc: '123',
+  holder: 'Ada Lovelace',
+  email: 'ada@example.com',
   country: 'US',
   postalCode: '12345',
 } as const
